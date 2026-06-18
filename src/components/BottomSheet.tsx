@@ -67,9 +67,12 @@ const styles = StyleSheet.create({
   overlay: { ...fill, justifyContent: 'flex-end' },
   scrim: { ...fill, backgroundColor: 'rgba(0,0,0,0.5)' },
   sheet: {
-    backgroundColor: colors.bgElevated,
+    backgroundColor: colors.surface,
     borderTopLeftRadius: radius.xl,
     borderTopRightRadius: radius.xl,
+    borderWidth: 1,
+    borderColor: colors.border,
+    borderBottomWidth: 0,
     padding: space.xl,
     paddingBottom: space.xxl,
     maxHeight: '60%',
@@ -84,7 +87,7 @@ const styles = StyleSheet.create({
     marginBottom: space.md,
   },
   title: {
-    color: colors.accent,
+    color: colors.primary,
     fontSize: 13,
     fontWeight: '700',
     textTransform: 'uppercase',
@@ -92,7 +95,7 @@ const styles = StyleSheet.create({
     marginBottom: space.sm,
   },
   bulletRow: { flexDirection: 'row', gap: space.sm },
-  bulletMark: { color: colors.accent, fontSize: 15, lineHeight: 22 },
+  bulletMark: { color: colors.primary, fontSize: 15, lineHeight: 22 },
   bulletText: { color: colors.text, fontSize: 15, lineHeight: 22, flex: 1 },
   muted: { color: colors.textMuted, fontSize: 14 },
 });

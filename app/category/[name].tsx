@@ -52,7 +52,7 @@ export default function CategoryScreen() {
       style={styles.container}
       contentContainerStyle={{
         paddingTop: insets.top + space.md,
-        paddingBottom: insets.bottom + space.xxl,
+        paddingBottom: insets.bottom + space.xxxl,
         gap: space.lg,
       }}
       keyboardShouldPersistTaps="handled"
@@ -69,6 +69,7 @@ export default function CategoryScreen() {
         <Pressable
           onPress={() => setView((v) => (v === 'card' ? 'list' : 'card'))}
           hitSlop={12}
+          style={styles.toggleBtn}
         >
           <Text style={styles.toggle}>{view === 'card' ? '☰' : '▦'}</Text>
         </Pressable>
@@ -101,7 +102,7 @@ export default function CategoryScreen() {
           value={search}
           onChangeText={setSearch}
           placeholder="Search questions"
-          placeholderTextColor={colors.textFaint}
+          placeholderTextColor={colors.outline}
           style={styles.search}
         />
       </View>
@@ -168,22 +169,33 @@ const styles = StyleSheet.create({
   back: { color: colors.text, fontSize: 34, lineHeight: 34 },
   title: { color: colors.text, fontSize: 22, fontWeight: '800' },
   count: { color: colors.textMuted, fontSize: 13 },
-  toggle: { color: colors.text, fontSize: 20 },
+  toggleBtn: {
+    width: 36,
+    height: 36,
+    borderRadius: radius.md,
+    backgroundColor: colors.surfaceAlt,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  toggle: { color: colors.text, fontSize: 16 },
   chips: { gap: space.sm, paddingHorizontal: space.lg },
   chip: {
     borderRadius: radius.pill,
     borderWidth: 1,
     borderColor: colors.border,
+    backgroundColor: colors.surface,
     paddingHorizontal: space.md,
     paddingVertical: space.xs,
   },
   chipActive: { backgroundColor: colors.accent, borderColor: colors.accent },
   chipText: { color: colors.textMuted, fontSize: 13, fontWeight: '600' },
-  chipTextActive: { color: colors.bg },
+  chipTextActive: { color: colors.onAccent },
   searchWrap: { paddingHorizontal: space.lg },
   search: {
     backgroundColor: colors.surface,
-    borderRadius: radius.md,
+    borderWidth: 1,
+    borderColor: colors.border,
+    borderRadius: radius.lg,
     paddingHorizontal: space.lg,
     paddingVertical: space.md,
     color: colors.text,

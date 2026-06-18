@@ -29,24 +29,41 @@ export function FlipCard({ flipped, front, back, style }: Props) {
     });
   }, [flipped, progress]);
 
+  // Web Chrome doesn't reliably cull the rotated-away face via CSS
+  // `backfaceVisibility` here (computed style says "hidden" but it still
+  // paints, mirrored, on top). Opacity is a hard cutoff that works
+  // identically on web and native, so drive visibility from it instead of
+  // relying on backface culling.
   const frontStyle = useAnimatedStyle(() => {
     const rotate = interpolate(progress.value, [0, 1], [0, 180]);
+    const opacity = progress.value < 0.5 ? 1 : 0;
     return {
-      transform: [{ perspective: 1000 }, { rotateY: `${rotate}deg` }],
+      opacity,
+      transform: [{ rotateY: `${rotate}deg` }],
     };
   });
 
   const backStyle = useAnimatedStyle(() => {
     const rotate = interpolate(progress.value, [0, 1], [180, 360]);
+    const opacity = progress.value >= 0.5 ? 1 : 0;
     return {
-      transform: [{ perspective: 1000 }, { rotateY: `${rotate}deg` }],
+      opacity,
+      transform: [{ rotateY: `${rotate}deg` }],
     };
   });
 
   return (
     <View style={[styles.container, style]}>
-      <Animated.View style={[styles.face, frontStyle]}>{front}</Animated.View>
-      <Animated.View style={[styles.face, styles.back, backStyle]}>
+      <Animated.View
+        style={[styles.face, frontStyle]}
+        pointerEvents={flipped ? 'none' : 'auto'}
+      >
+        {front}
+      </Animated.View>
+      <Animated.View
+        style={[styles.face, styles.back, backStyle]}
+        pointerEvents={flipped ? 'auto' : 'none'}
+      >
         {back}
       </Animated.View>
     </View>

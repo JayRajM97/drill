@@ -35,6 +35,22 @@ export function DifficultyDot({
   );
 }
 
+/** "Hard" style danger badge — matches the error-container tag on the flashcard. */
+export function DifficultyBadge({ difficulty }: { difficulty: Difficulty }) {
+  if (difficulty !== 'Hard') {
+    return (
+      <View style={styles.tag}>
+        <Text style={styles.tagText}>{difficulty.toUpperCase()}</Text>
+      </View>
+    );
+  }
+  return (
+    <View style={styles.dangerTag}>
+      <Text style={styles.dangerTagText}>HARD</Text>
+    </View>
+  );
+}
+
 export function Tag({ label, style }: { label: string; style?: ViewStyle }) {
   return (
     <View style={[styles.tag, style]}>
@@ -55,12 +71,7 @@ const styles = StyleSheet.create({
     paddingVertical: space.xs,
     alignSelf: 'flex-start',
   },
-  pillText: {
-    color: colors.text,
-    fontSize: 12,
-    fontWeight: '600',
-    fontFamily: 'monospace',
-  },
+  pillText: { color: colors.text, fontSize: 12, fontWeight: '600' },
   dot: { width: 6, height: 6, borderRadius: 3 },
   diffDot: { width: 8, height: 8, borderRadius: 4 },
   muted: { color: colors.textMuted, fontSize: 12 },
@@ -71,5 +82,24 @@ const styles = StyleSheet.create({
     paddingVertical: space.xs,
     alignSelf: 'flex-start',
   },
-  tagText: { color: colors.textMuted, fontSize: 12, fontFamily: 'monospace' },
+  tagText: {
+    color: colors.text,
+    fontSize: 11,
+    fontWeight: '700',
+    letterSpacing: 0.5,
+    textTransform: 'uppercase',
+  },
+  dangerTag: {
+    backgroundColor: colors.errorContainer,
+    borderRadius: radius.pill,
+    paddingHorizontal: space.md,
+    paddingVertical: space.xs,
+    alignSelf: 'flex-start',
+  },
+  dangerTagText: {
+    color: colors.onErrorContainer,
+    fontSize: 11,
+    fontWeight: '700',
+    letterSpacing: 0.5,
+  },
 });

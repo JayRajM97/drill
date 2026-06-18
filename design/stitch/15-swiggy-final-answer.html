@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Drill Final Answer</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=Sora:wght@400;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "surface-container-highest": "#e4e2e2",
+                        "secondary-container": "#e5e2e1",
+                        "secondary-fixed": "#e5e2e1",
+                        "surface-dim": "#dbdad9",
+                        "primary-fixed": "#72fe8f",
+                        "on-primary-fixed-variant": "#005320",
+                        "inverse-on-surface": "#f2f0f0",
+                        "surface-container-lowest": "#ffffff",
+                        "on-tertiary-fixed": "#1a1c1b",
+                        "on-error-container": "#93000a",
+                        "on-tertiary-fixed-variant": "#454746",
+                        "tertiary-fixed-dim": "#c6c7c5",
+                        "on-secondary-fixed-variant": "#474646",
+                        "surface-container": "#efeded",
+                        "outline-variant": "#bccbb9",
+                        "secondary": "#5f5e5e",
+                        "on-background": "#1b1c1c",
+                        "surface-container-low": "#f5f3f3",
+                        "primary-fixed-dim": "#53e076",
+                        "surface-container-high": "#e9e8e7",
+                        "surface": "#fbf9f8",
+                        "on-tertiary-container": "#363837",
+                        "tertiary-fixed": "#e2e3e1",
+                        "on-tertiary": "#ffffff",
+                        "surface-bright": "#fbf9f8",
+                        "on-surface": "#1b1c1c",
+                        "on-secondary-fixed": "#1c1b1b",
+                        "on-secondary": "#ffffff",
+                        "on-primary-container": "#004118",
+                        "background": "#fbf9f8",
+                        "surface-variant": "#e4e2e2",
+                        "primary": "#006e2d",
+                        "inverse-surface": "#303031",
+                        "error-container": "#ffdad6",
+                        "on-error": "#ffffff",
+                        "on-primary": "#ffffff",
+                        "inverse-primary": "#53e076",
+                        "secondary-fixed-dim": "#c8c6c5",
+                        "on-secondary-container": "#656464",
+                        "surface-tint": "#006e2d",
+                        "on-surface-variant": "#3d4a3d",
+                        "primary-container": "#1db954",
+                        "outline": "#6d7b6c",
+                        "error": "#ba1a1a",
+                        "tertiary-container": "#a0a19f",
+                        "tertiary": "#5d5f5d",
+                        "on-primary-fixed": "#002108"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "margin-desktop": "64px",
+                        "margin-mobile": "20px",
+                        "gutter": "24px",
+                        "unit": "8px",
+                        "container-max": "1120px"
+                    },
+                    "fontFamily": {
+                        "body-md": ["Inter"],
+                        "headline-md": ["Sora"],
+                        "headline-lg-mobile": ["Sora"],
+                        "display": ["Sora"],
+                        "label-sm": ["Inter"],
+                        "label-md": ["Inter"],
+                        "body-lg": ["Inter"],
+                        "headline-lg": ["Sora"]
+                    },
+                    "fontSize": {
+                        "body-md": ["16px", { "lineHeight": "1.5", "fontWeight": "400" }],
+                        "headline-md": ["24px", { "lineHeight": "1.3", "fontWeight": "600" }],
+                        "headline-lg-mobile": ["28px", { "lineHeight": "1.2", "fontWeight": "600" }],
+                        "display": ["48px", { "lineHeight": "1.1", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+                        "label-sm": ["12px", { "lineHeight": "1.2", "fontWeight": "500" }],
+                        "label-md": ["14px", { "lineHeight": "1.2", "letterSpacing": "0.01em", "fontWeight": "600" }],
+                        "body-lg": ["18px", { "lineHeight": "1.6", "fontWeight": "400" }],
+                        "headline-lg": ["32px", { "lineHeight": "1.2", "letterSpacing": "-0.01em", "fontWeight": "600" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+          font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .material-symbols-outlined.filled {
+            font-variation-settings: 'FILL' 1;
+        }
+        
+        /* Utility for safe area on mobile */
+        @supports (padding-bottom: env(safe-area-inset-bottom)) {
+            .pb-safe {
+                padding-bottom: env(safe-area-inset-bottom);
+            }
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background text-on-background font-body-md antialiased pb-24 md:pb-0">
+<!-- TopAppBar (Hidden on desktop, usually TopAppBar serves both but following prompt constraints) -->
+<header class="hidden md:flex w-full top-0 sticky border-b border-surface-variant bg-surface items-center justify-between px-margin-desktop py-4 max-w-container-max mx-auto z-40">
+<div class="flex items-center gap-2 text-primary hover:opacity-80 transition-opacity active:scale-95 duration-100 cursor-pointer">
+<span class="material-symbols-outlined text-[24px]">local_fire_department</span>
+<span class="font-headline-md text-headline-md font-bold tracking-tight text-on-surface">DRILL</span>
+</div>
+<nav class="flex gap-8">
+<a class="text-on-surface-variant hover:opacity-80 transition-opacity font-label-md text-label-md flex items-center gap-1" href="#">Home</a>
+<a class="text-primary hover:opacity-80 transition-opacity font-label-md text-label-md flex items-center gap-1 font-semibold border-b-2 border-primary pb-1" href="#">Practice</a>
+<a class="text-on-surface-variant hover:opacity-80 transition-opacity font-label-md text-label-md flex items-center gap-1" href="#">Bookmarks</a>
+<a class="text-on-surface-variant hover:opacity-80 transition-opacity font-label-md text-label-md flex items-center gap-1" href="#">Profile</a>
+</nav>
+<button class="text-on-surface-variant hover:opacity-80 transition-opacity active:scale-95 duration-100">
+<span class="material-symbols-outlined text-[24px]">search</span>
+</button>
+</header>
+<!-- Main Content Area -->
+<main class="w-full max-w-container-max mx-auto px-margin-mobile md:px-margin-desktop pt-6 pb-12 flex flex-col items-center">
+<!-- Sticky Question Section -->
+<div class="w-full max-w-[640px] sticky top-[16px] md:top-[88px] z-30 bg-surface/90 backdrop-blur-md rounded-lg border border-surface-variant p-4 mb-8 shadow-sm">
+<div class="flex items-start gap-3">
+<span class="material-symbols-outlined text-primary mt-1">help</span>
+<h2 class="font-headline-md text-[20px] leading-tight text-on-surface">How would you improve the Swiggy user experience for senior citizens?</h2>
+</div>
+</div>
+<!-- Content Canvas -->
+<div class="w-full max-w-[640px] flex flex-col gap-8">
+<!-- Final Answer Card -->
+<section class="bg-surface-container-lowest border border-surface-variant rounded-lg p-6 md:p-8 flex flex-col gap-6 shadow-[0_4px_20px_rgba(0,0,0,0.02)] relative overflow-hidden">
+<!-- Decorative Accent -->
+<div class="absolute top-0 left-0 w-1 h-full bg-primary-container"></div>
+<div class="flex items-center justify-between border-b border-surface-variant pb-4">
+<h1 class="font-headline-lg-mobile md:font-headline-lg text-headline-lg-mobile md:text-headline-lg text-on-surface">Final Recommendation</h1>
+<span class="bg-surface-container-low text-on-surface-variant px-3 py-1 rounded-full font-label-sm text-label-sm uppercase tracking-wider">Solution</span>
+</div>
+<div class="prose prose-p:font-body-md prose-p:text-body-md prose-p:text-on-surface-variant prose-h3:font-headline-md prose-h3:text-[20px] prose-h3:text-on-surface max-w-none">
+<p class="font-body-lg text-body-lg text-on-background mb-6">
+                        To significantly improve the Swiggy experience for senior citizens, the platform must introduce a dedicated <strong>"Swiggy Simplified" mode</strong>. This mode tackles the primary pain points of cognitive overload, physical dexterity challenges, and trust deficits.
+                    </p>
+<h3 class="mb-3 mt-6">Core Pillars of the Solution:</h3>
+<div class="flex flex-col gap-4 mt-4">
+<!-- Point 1 -->
+<div class="flex items-start gap-4 p-4 rounded-lg bg-surface-container-low border border-surface-variant">
+<div class="w-10 h-10 rounded-full bg-surface-container-highest flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-on-surface">visibility</span>
+</div>
+<div>
+<h4 class="font-label-md text-label-md text-on-surface mb-1">High-Contrast, Minimalist UI</h4>
+<p class="font-body-md text-[14px] text-on-surface-variant">Larger typography (Sora/Inter pairs), increased touch targets (min 48x48px), and removal of distracting promotional banners and horizontal scrolling carousels.</p>
+</div>
+</div>
+<!-- Point 2 -->
+<div class="flex items-start gap-4 p-4 rounded-lg bg-surface-container-low border border-surface-variant">
+<div class="w-10 h-10 rounded-full bg-surface-container-highest flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-on-surface">record_voice_over</span>
+</div>
+<div>
+<h4 class="font-label-md text-label-md text-on-surface mb-1">Voice-Assisted Ordering</h4>
+<p class="font-body-md text-[14px] text-on-surface-variant">Integration of prominent voice search and voice-guided checkout, allowing users to build a cart conversationally (e.g., "Order 2 idlis from Adyar Ananda Bhavan").</p>
+</div>
+</div>
+<!-- Point 3 -->
+<div class="flex items-start gap-4 p-4 rounded-lg bg-surface-container-low border border-surface-variant">
+<div class="w-10 h-10 rounded-full bg-surface-container-highest flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-on-surface">support_agent</span>
+</div>
+<div>
+<h4 class="font-label-md text-label-md text-on-surface mb-1">Priority Human Support</h4>
+<p class="font-body-md text-[14px] text-on-surface-variant">A persistent "Call for Help" button connecting directly to a human agent, bypassing complex chatbot flows to build trust and resolve immediate anxiety.</p>
+</div>
+</div>
+</div>
+<p class="mt-6 border-t border-surface-variant pt-6 text-on-surface-variant">
+                        By focusing on <em>Accessibility</em>, <em>Familiarity</em>, and <em>Assurance</em>, Swiggy can capture a growing demographic that currently relies on younger family members for digital transactions.
+                    </p>
+</div>
+</section>
+<!-- Action Area -->
+<div class="flex flex-col sm:flex-row items-center justify-between gap-4 mt-4 w-full">
+<button class="w-full sm:w-auto px-6 py-3 rounded-lg border border-surface-variant text-on-surface font-label-md text-label-md hover:bg-surface-container-low transition-colors flex items-center justify-center gap-2">
+<span class="material-symbols-outlined text-[20px]">refresh</span>
+                    Review Previous Steps
+                </button>
+<button class="w-full sm:w-auto px-8 py-3 rounded-lg bg-primary-container text-white font-label-md text-label-md font-bold hover:opacity-90 transition-opacity flex items-center justify-center gap-2 active:scale-95">
+                    Finish Drill
+                    <span class="material-symbols-outlined text-[20px]">check_circle</span>
+</button>
+</div>
+</div>
+</main>
+<!-- BottomNavBar (Mobile Only) -->
+<nav class="md:hidden fixed bottom-0 left-0 w-full z-50 flex justify-around items-center pt-2 pb-safe px-4 bg-surface border-t border-surface-variant">
+<a class="flex flex-col items-center justify-center text-secondary font-label-sm text-label-sm hover:bg-surface-container-low active:scale-90 transition-transform duration-200 p-2 rounded-lg w-16" href="#">
+<span class="material-symbols-outlined mb-1">home</span>
+            Home
+        </a>
+<a class="flex flex-col items-center justify-center text-primary font-semibold font-label-sm text-label-sm hover:bg-surface-container-low active:scale-90 transition-transform duration-200 p-2 rounded-lg w-16" href="#">
+<span class="material-symbols-outlined filled mb-1">fitness_center</span>
+            Practice
+        </a>
+<a class="flex flex-col items-center justify-center text-secondary font-label-sm text-label-sm hover:bg-surface-container-low active:scale-90 transition-transform duration-200 p-2 rounded-lg w-16" href="#">
+<span class="material-symbols-outlined mb-1">bookmark</span>
+            Bookmarks
+        </a>
+<a class="flex flex-col items-center justify-center text-secondary font-label-sm text-label-sm hover:bg-surface-container-low active:scale-90 transition-transform duration-200 p-2 rounded-lg w-16" href="#">
+<span class="material-symbols-outlined mb-1">person</span>
+            Profile
+        </a>
+</nav>
+</body></html>

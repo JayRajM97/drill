@@ -23,6 +23,7 @@ export function QuestionCard({ question, onPress, compact, badge }: Props) {
         <Text style={styles.rowTitle} numberOfLines={2}>
           {question.title}
         </Text>
+        <Text style={styles.chevron}>›</Text>
       </Pressable>
     );
   }
@@ -54,7 +55,9 @@ const styles = StyleSheet.create({
   card: {
     flex: 1,
     backgroundColor: colors.surface,
-    borderRadius: radius.lg,
+    borderWidth: 1,
+    borderColor: colors.border,
+    borderRadius: radius.xl,
     padding: space.lg,
     gap: space.md,
     minHeight: 150,
@@ -70,14 +73,17 @@ const styles = StyleSheet.create({
     paddingHorizontal: space.sm,
     paddingVertical: 2,
   },
-  badgeText: { color: '#0D0D0F', fontSize: 11, fontWeight: '700' },
+  badgeText: { color: colors.onAccent, fontSize: 11, fontWeight: '700' },
   rowCard: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: space.md,
     backgroundColor: colors.surface,
-    borderRadius: radius.md,
+    borderWidth: 1,
+    borderColor: colors.border,
+    borderRadius: radius.lg,
     padding: space.lg,
   },
   rowTitle: { color: colors.text, fontSize: 15, flex: 1, lineHeight: 20 },
+  chevron: { color: colors.outline, fontSize: 18 },
 });

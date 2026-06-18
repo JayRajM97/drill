@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Clarifying Questions - Swiggy UX | Drill</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700&amp;family=Inter:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-secondary-fixed": "#1c1b1b",
+                        "on-background": "#1b1c1c",
+                        "background": "#fbf9f8",
+                        "on-tertiary-fixed-variant": "#454746",
+                        "on-primary-fixed": "#002108",
+                        "surface": "#fbf9f8",
+                        "surface-container-low": "#f5f3f3",
+                        "tertiary-fixed-dim": "#c6c7c5",
+                        "surface-container-high": "#e9e8e7",
+                        "on-error-container": "#93000a",
+                        "inverse-primary": "#53e076",
+                        "on-primary-container": "#004118",
+                        "tertiary-container": "#a0a19f",
+                        "on-secondary-fixed-variant": "#474646",
+                        "surface-container-lowest": "#ffffff",
+                        "secondary": "#5f5e5e",
+                        "on-surface-variant": "#3d4a3d",
+                        "surface-container-highest": "#e4e2e2",
+                        "secondary-fixed": "#e5e2e1",
+                        "outline": "#6d7b6c",
+                        "on-surface": "#1b1c1c",
+                        "on-tertiary-container": "#363837",
+                        "on-tertiary-fixed": "#1a1c1b",
+                        "error-container": "#ffdad6",
+                        "tertiary-fixed": "#e2e3e1",
+                        "on-error": "#ffffff",
+                        "secondary-container": "#e5e2e1",
+                        "tertiary": "#5d5f5d",
+                        "primary-container": "#1db954",
+                        "on-secondary": "#ffffff",
+                        "surface-variant": "#e4e2e2",
+                        "on-primary-fixed-variant": "#005320",
+                        "primary": "#006e2d",
+                        "surface-container": "#efeded",
+                        "surface-bright": "#fbf9f8",
+                        "on-secondary-container": "#656464",
+                        "inverse-surface": "#303031",
+                        "outline-variant": "#bccbb9",
+                        "surface-tint": "#006e2d",
+                        "primary-fixed-dim": "#53e076",
+                        "error": "#ba1a1a",
+                        "surface-dim": "#dbdad9",
+                        "secondary-fixed-dim": "#c8c6c5",
+                        "on-primary": "#ffffff",
+                        "primary-fixed": "#72fe8f",
+                        "on-tertiary": "#ffffff",
+                        "inverse-on-surface": "#f2f0f0"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "unit": "8px",
+                        "container-max": "1120px",
+                        "margin-desktop": "64px",
+                        "margin-mobile": "20px",
+                        "gutter": "24px"
+                    },
+                    "fontFamily": {
+                        "display": ["Sora"],
+                        "label-sm": ["Inter"],
+                        "body-md": ["Inter"],
+                        "label-md": ["Inter"],
+                        "headline-md": ["Sora"],
+                        "headline-lg": ["Sora"],
+                        "headline-lg-mobile": ["Sora"],
+                        "body-lg": ["Inter"]
+                    },
+                    "fontSize": {
+                        "display": ["48px", { "lineHeight": "1.1", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+                        "label-sm": ["12px", { "lineHeight": "1.2", "fontWeight": "500" }],
+                        "body-md": ["16px", { "lineHeight": "1.5", "fontWeight": "400" }],
+                        "label-md": ["14px", { "lineHeight": "1.2", "letterSpacing": "0.01em", "fontWeight": "600" }],
+                        "headline-md": ["24px", { "lineHeight": "1.3", "fontWeight": "600" }],
+                        "headline-lg": ["32px", { "lineHeight": "1.2", "letterSpacing": "-0.01em", "fontWeight": "600" }],
+                        "headline-lg-mobile": ["28px", { "lineHeight": "1.2", "fontWeight": "600" }],
+                        "body-lg": ["18px", { "lineHeight": "1.6", "fontWeight": "400" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        body {
+            background-color: #F9F9F7; /* Level 0 Base */
+        }
+        .flashcard-border {
+            border: 1px solid #E2E2E0; /* Level 1 Border */
+        }
+        .interactive-shadow:hover {
+            box-shadow: 0px 4px 20px rgba(0,0,0,0.04); /* Level 2 Active/Hover */
+        }
+        .progress-track {
+            background-color: #EEEEEC;
+        }
+        .progress-fill {
+            background-color: #1DB954;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+</head>
+<body class="text-on-background font-body-md antialiased min-h-screen flex flex-col pb-[100px] md:pb-0">
+<!-- TopAppBar -->
+<header class="fixed top-0 w-full z-50 bg-surface dark:bg-background border-b border-outline-variant dark:border-secondary transition-colors duration-200 hidden md:block">
+<div class="flex justify-between items-center h-16 px-margin-mobile md:px-margin-desktop max-w-container-max mx-auto">
+<div class="flex items-center gap-2 text-primary dark:text-primary-fixed hover:bg-surface-container-low dark:hover:bg-secondary-container transition-colors p-2 rounded-lg cursor-pointer active:scale-95 duration-150">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">bolt</span>
+<span class="font-display text-headline-md font-bold">Drill</span>
+</div>
+<nav class="flex items-center gap-6">
+<a class="flex flex-col items-center justify-center text-on-surface-variant dark:text-secondary-fixed-dim hover:text-primary dark:hover:text-primary-fixed transition-colors" href="#">
+<span class="material-symbols-outlined mb-1">home</span>
+<span class="font-label-sm text-label-sm">Home</span>
+</a>
+<a class="flex flex-col items-center justify-center bg-primary-container dark:bg-primary-fixed-variant text-on-primary-container dark:text-on-primary-fixed rounded-xl px-4 py-2 font-semibold" href="#">
+<span class="material-symbols-outlined mb-1">fitness_center</span>
+<span class="font-label-sm text-label-sm">Practice</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant dark:text-secondary-fixed-dim hover:text-primary dark:hover:text-primary-fixed transition-colors" href="#">
+<span class="material-symbols-outlined mb-1">bookmark</span>
+<span class="font-label-sm text-label-sm">Bookmarks</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant dark:text-secondary-fixed-dim hover:text-primary dark:hover:text-primary-fixed transition-colors" href="#">
+<span class="material-symbols-outlined mb-1">person</span>
+<span class="font-label-sm text-label-sm">Profile</span>
+</a>
+</nav>
+<div class="flex items-center">
+<span class="font-label-md text-label-md md:font-headline-md md:text-headline-md text-primary dark:text-primary-fixed hover:bg-surface-container-low dark:hover:bg-secondary-container transition-colors p-2 rounded-lg cursor-pointer active:scale-95 duration-150">7 🔥</span>
+</div>
+</div>
+</header>
+<!-- Mobile Top Header (Simplified) -->
+<header class="fixed top-0 w-full z-50 bg-surface border-b border-outline-variant flex justify-between items-center h-16 px-margin-mobile md:hidden">
+<div class="flex items-center gap-2 text-primary">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">bolt</span>
+<span class="font-display text-headline-md font-bold">Drill</span>
+</div>
+<div class="flex items-center">
+<span class="font-label-md text-label-md text-primary">7 🔥</span>
+</div>
+</header>
+<!-- Main Content Canvas -->
+<main class="flex-grow pt-[80px] md:pt-[100px] px-margin-mobile md:px-margin-desktop w-full max-w-container-max mx-auto flex flex-col items-center"><div class="w-full max-w-[640px] bg-surface-container-low dark:bg-surface-container-highest rounded-lg p-3 mb-6 border border-outline-variant flex items-center gap-3">
+<span class="material-symbols-outlined text-primary">help</span>
+<p class="font-label-md text-label-md text-on-surface font-semibold">How would you improve the Swiggy user experience for senior citizens?</p>
+</div>
+<!-- Progress Bar -->
+<div class="w-full max-w-[640px] mb-8">
+<div class="flex justify-between items-center mb-2">
+<span class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-widest">UX Case Study</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant">Step 2 of 5</span>
+</div>
+<div class="h-[8px] w-full rounded-full progress-track overflow-hidden">
+<div class="h-full progress-fill rounded-full" style="width: 40%;"></div>
+</div>
+</div>
+<!-- The Flashcard Container -->
+<div class="w-full max-w-[640px] bg-surface-container-lowest rounded-lg flashcard-border interactive-shadow transition-shadow duration-300 p-8 md:p-12 mb-8 relative overflow-hidden">
+<!-- Subtle Decorative Element -->
+<div class="absolute top-0 right-0 w-32 h-32 bg-primary-container opacity-5 rounded-bl-full pointer-events-none"></div>
+<!-- Question Context -->
+<div class="mb-10 text-center">
+<h1 class="font-headline-lg-mobile text-headline-lg-mobile md:font-headline-lg md:text-headline-lg text-on-surface mb-4">How would you improve the Swiggy user experience for senior citizens?</h1>
+<p class="font-body-md text-body-md text-on-surface-variant">Before jumping into solutions, pause and ask clarifying questions to narrow the scope.</p>
+</div>
+<!-- Content Divider -->
+<hr class="border-t border-surface-variant mb-10"/>
+<!-- Clarifying Questions List -->
+<div class="space-y-6">
+<h2 class="font-label-md text-label-md text-secondary uppercase tracking-widest mb-4">Key Clarifying Questions</h2>
+<div class="flex items-start gap-4 p-4 rounded-lg hover:bg-surface-container-low transition-colors group cursor-pointer">
+<div class="mt-1 w-6 h-6 rounded-full bg-surface-container-highest flex items-center justify-center flex-shrink-0 group-hover:bg-primary-container group-hover:text-on-primary-container transition-colors">
+<span class="font-label-sm text-label-sm">1</span>
+</div>
+<div>
+<p class="font-body-lg text-body-lg text-on-surface font-medium">Are we focusing on the mobile app, web platform, or both?</p>
+<p class="font-body-md text-body-md text-on-surface-variant mt-1">Scope constraint: Seniors might prefer web for larger text, but mobile is the primary channel.</p>
+</div>
+</div>
+<div class="flex items-start gap-4 p-4 rounded-lg hover:bg-surface-container-low transition-colors group cursor-pointer">
+<div class="mt-1 w-6 h-6 rounded-full bg-surface-container-highest flex items-center justify-center flex-shrink-0 group-hover:bg-primary-container group-hover:text-on-primary-container transition-colors">
+<span class="font-label-sm text-label-sm">2</span>
+</div>
+<div>
+<p class="font-body-lg text-body-lg text-on-surface font-medium">Is our primary business goal user acquisition, retention, or engagement (order frequency)?</p>
+<p class="font-body-md text-body-md text-on-surface-variant mt-1">Directs the feature set: Acquisition might mean simpler onboarding; retention means better post-order support.</p>
+</div>
+</div>
+<div class="flex items-start gap-4 p-4 rounded-lg hover:bg-surface-container-low transition-colors group cursor-pointer">
+<div class="mt-1 w-6 h-6 rounded-full bg-surface-container-highest flex items-center justify-center flex-shrink-0 group-hover:bg-primary-container group-hover:text-on-primary-container transition-colors">
+<span class="font-label-sm text-label-sm">3</span>
+</div>
+<div>
+<p class="font-body-lg text-body-lg text-on-surface font-medium">Are we targeting a specific geography (e.g., Tier 1 cities vs Tier 2/3)?</p>
+<p class="font-body-md text-body-md text-on-surface-variant mt-1">Contextualizes the user: Tech literacy and language preferences vary significantly by region.</p>
+</div>
+</div>
+</div>
+</div>
+<!-- Action Area -->
+<div class="w-full max-w-[640px] flex justify-end pb-8">
+<button class="bg-[#1DB954] text-white font-label-md text-label-md font-bold py-3 px-8 rounded-lg hover:opacity-90 active:scale-95 transition-all flex items-center gap-2">
+                Next
+                <span class="material-symbols-outlined text-[18px]">arrow_forward</span>
+</button>
+</div>
+</main>
+<!-- BottomNavBar (Mobile Only) -->
+<nav class="fixed bottom-0 left-0 w-full z-50 flex justify-around items-center pt-2 pb-safe px-4 bg-surface dark:bg-surface-container-highest border-t border-surface-variant dark:border-outline-variant">
+<a class="flex flex-col items-center justify-center text-secondary dark:text-on-secondary-fixed-variant hover:bg-surface-container-low dark:hover:bg-inverse-surface active:scale-90 transition-transform duration-200 p-2 rounded-lg" href="#">
+<span class="material-symbols-outlined">home</span>
+<span class="font-label-sm text-label-sm">Home</span>
+</a>
+<a class="flex flex-col items-center justify-center text-primary dark:text-primary-container font-semibold hover:bg-surface-container-low dark:hover:bg-inverse-surface active:scale-90 transition-transform duration-200 p-2 rounded-lg" href="#">
+<span class="material-symbols-outlined">fitness_center</span>
+<span class="font-label-sm text-label-sm">Practice</span>
+</a>
+<a class="flex flex-col items-center justify-center text-secondary dark:text-on-secondary-fixed-variant hover:bg-surface-container-low dark:hover:bg-inverse-surface active:scale-90 transition-transform duration-200 p-2 rounded-lg" href="#">
+<span class="material-symbols-outlined">bookmark</span>
+<span class="font-label-sm text-label-sm">Bookmarks</span>
+</a>
+<a class="flex flex-col items-center justify-center text-secondary dark:text-on-secondary-fixed-variant hover:bg-surface-container-low dark:hover:bg-inverse-surface active:scale-90 transition-transform duration-200 p-2 rounded-lg" href="#">
+<span class="material-symbols-outlined">person</span>
+<span class="font-label-sm text-label-sm">Profile</span>
+</a>
+</nav>
+</body></html>

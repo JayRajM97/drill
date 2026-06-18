@@ -10,54 +10,58 @@ import { useLocalSearchParams, useRouter } from 'expo-router';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import { runOnJS } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { MaterialIcons } from '@expo/vector-icons';
 import { questions } from '@/data';
 import type { Question } from '@/types/question';
 import { useProgress } from '@/state/useProgress';
 import { FlipCard } from '@/components/FlipCard';
-import { TimerRing } from '@/components/TimerRing';
-import { BottomSheet } from '@/components/BottomSheet';
-import { AnswerSections, BulletList, SectionLabel } from '@/components/blocks';
-import { CategoryPill, DifficultyDot } from '@/components/ui';
+import { BottomNavBar } from '@/components/BottomNavBar';
+import { BackButton, ContextStrip, DrillHeader, StepProgress } from '@/components/DrillHeader';
+import { Tag, DifficultyBadge } from '@/components/ui';
 import { colors, radius, space } from '@/theme/tokens';
 
-// Card steps: 0 Question · 1 Framework · 2 Clarifying · 3 Pointers · 4 Answer.
-// 0→1 and 3→4 are flips (within a FlipCard); the rest are swipes.
-type Sheet = { title: string; items: string[] } | null;
+// Literal 7-card flow: each non-question step matches its own Stitch screen
+// (design/stitch/{10,11,12,13,14,15}-*.html). Step 0 is the distraction-free
+// flashcard (02-question-drill.html) with no chrome besides the header.
+const TOTAL_STEPS = 6; // steps 1..6, step 0 is the flashcard intro
 
 export default function QuestionScreen() {
   const router = useRouter();
-  const insets = useSafeAreaInsets();
   const { id } = useLocalSearchParams<{ id: string }>();
-  const { isBookmarked, toggleBookmark, markCompleted } = useProgress();
+  const { markCompleted } = useProgress();
 
   const [question, setQuestion] = useState<Question | null>(null);
   const [step, setStep] = useState(0);
-  const [timerKey, setTimerKey] = useState(0);
-  const [timerHidden, setTimerHidden] = useState(false);
-  const [sheet, setSheet] = useState<Sheet>(null);
+  const [frameworkFlipped, setFrameworkFlipped] = useState(false);
+  const [seconds, setSeconds] = useState(30);
 
   useEffect(() => {
     if (id) questions.getById(id).then(setQuestion);
   }, [id]);
 
+  useEffect(() => {
+    if (step !== 0) return;
+    setSeconds(30);
+    const t = setInterval(() => setSeconds((s) => (s > 0 ? s - 1 : 0)), 1000);
+    return () => clearInterval(t);
+  }, [step]);
+
   const finish = () => {
     if (question) markCompleted(question.id);
     router.back();
   };
-  const goNext = () => {
-    if (step >= 4) finish();
-    else setStep(step + 1);
-  };
-  const goPrev = () => setStep(Math.max(0, step - 1));
+  const goNext = () => setStep((s) => Math.min(6, s + 1));
+  const goPrev = () => setStep((s) => Math.max(0, s - 1));
 
-  // Horizontal swipe: left → next, right → previous (PRD card navigation).
+  // Step 0 only: vertical swipe — up = next, down = previous (matches the
+  // "Previous" / "Next" chevron indicators in 02-question-drill.html).
   const swipe = Gesture.Pan()
-    .activeOffsetX([-20, 20])
-    .failOffsetY([-12, 12])
+    .activeOffsetY([-20, 20])
+    .failOffsetX([-12, 12])
     .onEnd((e) => {
       'worklet';
-      if (e.translationX < -60) runOnJS(goNext)();
-      else if (e.translationX > 60) runOnJS(goPrev)();
+      if (e.translationY < -60) runOnJS(goNext)();
+      else if (e.translationY > 60) runOnJS(goPrev)();
     });
 
   if (!question) {
@@ -68,288 +72,724 @@ export default function QuestionScreen() {
     );
   }
 
-  const bookmarked = isBookmarked(question.id);
-  const answerZone = step === 4;
+  if (step === 0) {
+    return (
+      <FlashcardScreen
+        question={question}
+        seconds={seconds}
+        onNext={goNext}
+      />
+    );
+  }
 
   return (
-    <View
-      style={[
-        styles.container,
-        answerZone && { backgroundColor: colors.bgElevated },
-        { paddingTop: insets.top + space.md, paddingBottom: insets.bottom + space.lg },
-      ]}
-    >
-      {/* Top bar */}
-      <View style={styles.topBar}>
-        <Pressable onPress={() => router.back()} hitSlop={12}>
-          <Text style={styles.back}>‹</Text>
-        </Pressable>
-        <View style={styles.pillRow}>
-          {question.category[0] ? (
-            <CategoryPill category={question.category[0]} />
-          ) : null}
-          <DifficultyDot difficulty={question.difficulty} showLabel />
-        </View>
-        <Pressable onPress={() => toggleBookmark(question.id)} hitSlop={12}>
-          <Text style={[styles.bookmark, bookmarked && styles.bookmarkOn]}>
-            {bookmarked ? '★' : '☆'}
-          </Text>
-        </Pressable>
-      </View>
-
-      {/* Card body */}
-      <GestureDetector gesture={swipe}>
-        <View style={styles.body}>
-          {step <= 1 ? (
-            <FlipCard
-              flipped={step === 1}
-              front={<QuestionFace question={question} />}
-              back={<FrameworkFace question={question} />}
-            />
-          ) : step === 2 ? (
-            <ClarifyingCard question={question} />
-          ) : (
-            <FlipCard
-              flipped={step === 4}
-              front={<PointersFace question={question} />}
-              back={<AnswerFace question={question} />}
-            />
-          )}
-        </View>
-      </GestureDetector>
-
-      {/* Card 1 extras: timer + peek tabs */}
-      {step === 0 ? (
-        <View style={styles.card1Extras}>
-          <View style={styles.timerRow}>
-            {timerHidden ? (
-              <View style={{ height: 64, justifyContent: 'center' }}>
-                <Text style={styles.muted}>Timer skipped</Text>
-              </View>
-            ) : (
-              <TimerRing runKey={timerKey} />
-            )}
-            <Pressable onPress={() => setTimerHidden(true)} hitSlop={8}>
-              <Text style={styles.skip}>Skip</Text>
-            </Pressable>
-          </View>
-          <View style={styles.peekRow}>
-            <PeekTab
-              label="Framework"
-              onPress={() =>
-                setSheet({ title: 'Framework', items: question.framework_steps })
-              }
-            />
-            <PeekTab
-              label="Clarifying Qs"
-              onPress={() =>
-                setSheet({ title: 'Clarifying Questions', items: question.clarifying_qs })
-              }
-            />
-            <PeekTab
-              label="Key Pointers"
-              onPress={() =>
-                setSheet({ title: 'Key Pointers', items: question.pain_points })
-              }
-            />
-          </View>
-        </View>
-      ) : null}
-
-      {/* Footer controls */}
-      <View style={styles.footer}>{renderControls()}</View>
-
-      <BottomSheet
-        visible={sheet !== null}
-        title={sheet?.title ?? ''}
-        items={sheet?.items ?? []}
-        onClose={() => setSheet(null)}
-      />
+    <View style={styles.container}>
+      <DrillHeader streak={7} />
+      <ContextStrip question={question.title} />
+      <ScrollView contentContainerStyle={styles.scrollPad}>
+        <BackButton onPress={goPrev} />
+        {step === 1 ? (
+          <FrameworkStep
+            question={question}
+            flipped={frameworkFlipped}
+            onToggleFlip={() => setFrameworkFlipped((f) => !f)}
+            onNext={goNext}
+          />
+        ) : step === 2 ? (
+          <ClarifyingStep question={question} step={step} onNext={goNext} />
+        ) : step === 3 ? (
+          <UserSegmentsStep question={question} step={step} onNext={goNext} />
+        ) : step === 4 ? (
+          <PainPointsStep question={question} step={step} onNext={goNext} />
+        ) : step === 5 ? (
+          <SolutionMatrixStep question={question} step={step} onNext={goNext} />
+        ) : (
+          <FinalAnswerStep question={question} step={step} onRestart={() => setStep(0)} onFinish={finish} />
+        )}
+      </ScrollView>
+      <BottomNavBar active="practice" />
     </View>
   );
 
-  function renderControls() {
-    switch (step) {
-      case 0:
-        return (
-          <>
-            <GhostButton
-              label="Think more"
-              onPress={() => {
-                setTimerHidden(false);
-                setTimerKey((k) => k + 1);
-              }}
-            />
-            <FilledButton label="Flip →" onPress={goNext} />
-          </>
-        );
-      case 1:
-      case 2:
-        return (
-          <>
-            <GhostButton label="← Back" onPress={goPrev} />
-            <FilledButton label="Next →" onPress={goNext} />
-          </>
-        );
-      case 3:
-        return (
-          <>
-            <GhostButton label="← Back" onPress={goPrev} />
-            <FilledButton label="Flip for Answer →" onPress={goNext} />
-          </>
-        );
-      default:
-        return (
-          <>
-            <GhostButton
-              label={bookmarked ? '★ Bookmarked' : '☆ Bookmark'}
-              onPress={() => toggleBookmark(question!.id)}
-            />
-            <FilledButton label="Done ✓" onPress={finish} />
-          </>
-        );
-    }
+  function FlashcardScreen({
+    question,
+    seconds,
+    onNext,
+  }: {
+    question: Question;
+    seconds: number;
+    onNext: () => void;
+  }) {
+    const insets = useSafeAreaInsets();
+    return (
+      <View style={styles.container}>
+        <DrillHeader streak={7} />
+        <GestureDetector gesture={swipe}>
+          <View style={styles.flashcardCanvas}>
+            <View style={styles.swipeIndicator}>
+              <MaterialIcons name="keyboard-arrow-up" size={18} color={colors.textMuted} />
+              <Text style={styles.swipeLabel}>Previous</Text>
+            </View>
+
+            <View style={styles.flashcard}>
+              <View style={styles.tagRow}>
+                {question.domain_tags[0] ? <Tag label={question.domain_tags[0]} /> : null}
+                {question.category[0] ? <Tag label={question.category[0]} /> : null}
+                <DifficultyBadge difficulty={question.difficulty} />
+              </View>
+              <View style={styles.faceCenter}>
+                <Text style={styles.questionText}>{question.title}</Text>
+              </View>
+              <View style={styles.timerRow}>
+                <MaterialIcons name="timer" size={16} color={colors.textMuted} />
+                <Text style={styles.timerText}>Think: {seconds}s</Text>
+              </View>
+            </View>
+
+            <View style={styles.swipeIndicator}>
+              <Text style={styles.swipeLabel}>Next</Text>
+              <MaterialIcons name="keyboard-arrow-down" size={18} color={colors.textMuted} />
+            </View>
+          </View>
+        </GestureDetector>
+
+        {/* Floating peek pills */}
+        <View style={styles.peekRow}>
+          <PeekPill icon="account-tree" label="Framework" />
+          <PeekPill icon="help-outline" label="Clarifying Qs" />
+          <PeekPill icon="lightbulb" label="Key Pointers" />
+        </View>
+
+        {/* Fixed Flip button */}
+        <View style={[styles.flipBtnWrap, { paddingBottom: Math.max(insets.bottom, space.lg) }]}>
+          <Pressable style={styles.flipBtn} onPress={onNext}>
+            <Text style={styles.flipBtnText}>Flip</Text>
+          </Pressable>
+        </View>
+      </View>
+    );
   }
 }
 
-/* ---- Card faces ---- */
-
-function QuestionFace({ question }: { question: Question }) {
+function PeekPill({ icon, label }: { icon: keyof typeof MaterialIcons.glyphMap; label: string }) {
   return (
-    <View style={styles.faceCenter}>
-      <Text style={styles.questionText}>{question.title}</Text>
+    <View style={styles.peekPill}>
+      <MaterialIcons name={icon} size={16} color={colors.primary} />
+      <Text style={styles.peekText}>{label}</Text>
     </View>
   );
 }
 
-function FrameworkFace({ question }: { question: Question }) {
+/* ---- Step 1: Framework — literal to 11-swiggy-framework-flip-updated.html ---- */
+function FrameworkStep({
+  question,
+  flipped,
+  onToggleFlip,
+  onNext,
+}: {
+  question: Question;
+  flipped: boolean;
+  onToggleFlip: () => void;
+  onNext: () => void;
+}) {
   return (
-    <ScrollView contentContainerStyle={styles.facePad}>
-      <SectionLabel>Framework</SectionLabel>
-      <Text style={styles.frameworkName}>{question.framework}</Text>
-      <View style={{ height: space.md }} />
-      <BulletList items={question.framework_steps} />
-    </ScrollView>
+    <View style={{ gap: space.xl }}>
+      <View style={{ alignItems: 'center', gap: space.xs }}>
+        <Text style={styles.stepTitle}>Framework</Text>
+        <Text style={styles.stepSub}>
+          Analyze the core structure and identify the key friction points in the user journey.
+        </Text>
+      </View>
+
+      <View style={styles.flipCardBox}>
+        <FlipCard
+          flipped={flipped}
+          front={
+            <Pressable style={styles.frameworkFront} onPress={onToggleFlip}>
+              <View style={styles.frameworkIconCircle}>
+                <MaterialIcons name="account-tree" size={40} color={colors.primary} />
+              </View>
+              <Text style={styles.frameworkFrontTitle}>The Framework</Text>
+              <Text style={styles.frameworkFrontSub}>
+                Tap to reveal the structured approach for this question.
+              </Text>
+            </Pressable>
+          }
+          back={
+            <ScrollView style={styles.frameworkBack} contentContainerStyle={{ padding: space.xl }}>
+              <Text style={styles.frameworkFrontTitle}>{question.framework}</Text>
+              <View style={{ height: space.lg }} />
+              {question.framework_steps.map((step, i) => (
+                <View key={i} style={styles.numberedRow}>
+                  <View style={styles.numberCircle}>
+                    <Text style={styles.numberCircleText}>{i + 1}</Text>
+                  </View>
+                  <Text style={styles.numberedRowText}>{step}</Text>
+                </View>
+              ))}
+            </ScrollView>
+          }
+        />
+      </View>
+
+      <Pressable
+        style={styles.actionBtn}
+        onPress={flipped ? onNext : onToggleFlip}
+      >
+        <MaterialIcons
+          name={flipped ? 'arrow-forward' : 'flip-camera-android'}
+          size={18}
+          color={colors.onAccent}
+        />
+        <Text style={styles.actionBtnText}>{flipped ? 'Next' : 'Flip Card'}</Text>
+      </Pressable>
+    </View>
   );
 }
 
-function ClarifyingCard({ question }: { question: Question }) {
+/* ---- Step 2: Clarifying Questions — literal to 10-...-updated.html ---- */
+function ClarifyingStep({
+  question,
+  step,
+  onNext,
+}: {
+  question: Question;
+  step: number;
+  onNext: () => void;
+}) {
   return (
-    <ScrollView contentContainerStyle={styles.facePad}>
-      <SectionLabel>Clarifying Questions</SectionLabel>
-      <View style={{ height: space.md }} />
-      <BulletList items={question.clarifying_qs} />
-      <View style={{ height: space.xl }} />
-      <SectionLabel>Who are you building for?</SectionLabel>
-      <View style={{ height: space.md }} />
-      <BulletList items={question.user_segments} />
-    </ScrollView>
+    <View style={{ gap: space.xl }}>
+      <StepProgress step={step} total={TOTAL_STEPS} />
+      <View style={styles.card}>
+        <View style={{ alignItems: 'center', gap: space.sm, marginBottom: space.lg }}>
+          <Text style={styles.cardHeadline}>{question.title}</Text>
+          <Text style={styles.cardHeadlineSub}>
+            Before jumping into solutions, pause and ask clarifying questions to narrow the scope.
+          </Text>
+        </View>
+        <View style={styles.divider} />
+        <Text style={styles.eyebrow}>Key Clarifying Questions</Text>
+        <View style={{ height: space.md }} />
+        <View style={{ gap: space.md }}>
+          {question.clarifying_qs.map((q, i) => (
+            <View key={i} style={styles.numberedRow}>
+              <View style={styles.numberCircle}>
+                <Text style={styles.numberCircleText}>{i + 1}</Text>
+              </View>
+              <Text style={styles.numberedRowTextMedium}>{q}</Text>
+            </View>
+          ))}
+        </View>
+      </View>
+      <View style={{ alignItems: 'flex-end' }}>
+        <Pressable style={styles.actionBtnCompact} onPress={onNext}>
+          <Text style={styles.actionBtnText}>Next</Text>
+          <MaterialIcons name="arrow-forward" size={16} color={colors.onAccent} />
+        </Pressable>
+      </View>
+    </View>
   );
 }
 
-function PointersFace({ question }: { question: Question }) {
-  const covers = question.full_answer.sections.map((s) => s.heading);
+/* ---- Step 3: User Segments — literal to 14-...-updated.html ---- */
+const SEGMENT_ICONS: (keyof typeof MaterialIcons.glyphMap)[] = ['person-outline', 'groups', 'accessibility-new'];
+
+function UserSegmentsStep({
+  question,
+  step,
+  onNext,
+}: {
+  question: Question;
+  step: number;
+  onNext: () => void;
+}) {
   return (
-    <ScrollView contentContainerStyle={styles.facePad}>
-      <SectionLabel>Key Pointers</SectionLabel>
-      <View style={{ height: space.md }} />
-      <Text style={styles.subLabel}>Pain points</Text>
-      <BulletList items={question.pain_points} />
-      <View style={{ height: space.xl }} />
-      <Text style={styles.subLabel}>What a strong answer covers</Text>
-      <BulletList items={covers} />
-    </ScrollView>
+    <View style={{ gap: space.xl }}>
+      <StepProgress step={step} total={TOTAL_STEPS} />
+      <View>
+        <Text style={styles.eyebrow}>Prompt Breakdown</Text>
+        <Text style={styles.stepTitleLeft}>User Segments</Text>
+        <Text style={styles.stepSubLeft}>{question.category.join(' / ')}</Text>
+      </View>
+      <View style={styles.card}>
+        {question.user_segments.map((seg, i) => (
+          <View
+            key={i}
+            style={[
+              styles.segmentRow,
+              i < question.user_segments.length - 1 && styles.segmentRowBorder,
+            ]}
+          >
+            <View style={styles.segmentIconCircle}>
+              <MaterialIcons name={SEGMENT_ICONS[i % SEGMENT_ICONS.length]} size={20} color={colors.text} />
+            </View>
+            <View style={{ flex: 1 }}>
+              <View style={styles.segmentTitleRow}>
+                <Text style={styles.segmentTitle}>{seg}</Text>
+                {i === 0 ? (
+                  <View style={styles.targetTag}>
+                    <Text style={styles.targetTagText}>TARGET</Text>
+                  </View>
+                ) : null}
+              </View>
+            </View>
+          </View>
+        ))}
+      </View>
+      <View style={{ alignItems: 'flex-end' }}>
+        <Pressable style={styles.actionBtnCompact} onPress={onNext}>
+          <Text style={styles.actionBtnText}>Next</Text>
+          <MaterialIcons name="arrow-forward" size={16} color={colors.onAccent} />
+        </Pressable>
+      </View>
+    </View>
   );
 }
 
-function AnswerFace({ question }: { question: Question }) {
+/* ---- Step 4: Pain Points — literal to 13-...-updated.html ---- */
+function PainPointsStep({
+  question,
+  step,
+  onNext,
+}: {
+  question: Question;
+  step: number;
+  onNext: () => void;
+}) {
   return (
-    <ScrollView contentContainerStyle={styles.facePad}>
-      <SectionLabel>Answer</SectionLabel>
-      <View style={{ height: space.lg }} />
-      <AnswerSections sections={question.full_answer.sections} />
-    </ScrollView>
+    <View style={{ gap: space.xl }}>
+      <StepProgress step={step} total={TOTAL_STEPS} />
+      <View>
+        <Text style={styles.eyebrow}>Practice Session</Text>
+        <Text style={styles.stepTitleLeft}>Pain Points</Text>
+      </View>
+      <View style={styles.articleCard}>
+        <View style={styles.articleHeader}>
+          <View style={styles.warningIcon}>
+            <MaterialIcons name="warning" size={20} color={colors.onErrorContainer} />
+          </View>
+          <View style={{ flex: 1 }}>
+            <Text style={styles.cardHeadingSm}>Key Pain Points</Text>
+            <Text style={styles.cardSubSm}>
+              Usability hurdles identified for this scenario.
+            </Text>
+          </View>
+        </View>
+        <View style={{ padding: space.xl, gap: space.lg }}>
+          {question.pain_points.map((p, i) => (
+            <View key={i} style={styles.numberedRow}>
+              <View style={styles.numberCircle}>
+                <Text style={styles.numberCircleText}>{i + 1}</Text>
+              </View>
+              <Text style={styles.numberedRowTextMedium}>{p}</Text>
+            </View>
+          ))}
+        </View>
+        <View style={styles.tagsRow}>
+          {question.domain_tags.slice(0, 2).map((tag) => (
+            <Tag key={tag} label={tag} />
+          ))}
+          {question.difficulty === 'Hard' ? <DifficultyBadge difficulty="Hard" /> : null}
+        </View>
+      </View>
+      <Pressable style={styles.actionBtnFull} onPress={onNext}>
+        <Text style={styles.actionBtnText}>Next</Text>
+        <MaterialIcons name="arrow-forward" size={18} color={colors.onAccent} />
+      </Pressable>
+    </View>
   );
 }
 
-/* ---- Buttons ---- */
+/* ---- Step 5: Solution Matrix — literal to 12-swiggy-solution-matrix.html ---- */
+const SOLUTION_ICONS: (keyof typeof MaterialIcons.glyphMap)[] = ['lightbulb', 'build', 'trending-up', 'map'];
+const SOLUTION_IMPACT = ['High Impact', 'High Impact', 'Medium Impact', 'Medium Impact'];
+const SOLUTION_EFFORT = ['Low Implementation Effort', 'Medium Implementation Effort', 'High Implementation Effort', 'Medium Implementation Effort'];
 
-function PeekTab({ label, onPress }: { label: string; onPress: () => void }) {
+function SolutionMatrixStep({
+  question,
+  step,
+  onNext,
+}: {
+  question: Question;
+  step: number;
+  onNext: () => void;
+}) {
+  const solutions = question.full_answer.sections;
   return (
-    <Pressable style={styles.peekTab} onPress={onPress}>
-      <Text style={styles.peekText}>{label}</Text>
-    </Pressable>
+    <View style={{ gap: space.xl }}>
+      <StepProgress step={step} total={TOTAL_STEPS} />
+      <View style={styles.matrixHeaderRow}>
+        <View>
+          <Text style={styles.cardHeadingSm}>Solution Matrix</Text>
+          <Text style={styles.cardSubSm}>Prioritized by impact vs. effort</Text>
+        </View>
+      </View>
+      <View style={{ gap: space.md }}>
+        {solutions.map((s, i) => (
+          <View key={i} style={styles.solutionCard}>
+            <View style={[styles.solutionBar, i < 2 && styles.solutionBarHigh]} />
+            <View style={styles.solutionHeader}>
+              <View style={styles.solutionHeaderLeft}>
+                <View style={styles.solutionIconCircle}>
+                  <MaterialIcons name={SOLUTION_ICONS[i % SOLUTION_ICONS.length]} size={18} color={colors.text} />
+                </View>
+                <Text style={styles.segmentTitle}>{s.heading}</Text>
+              </View>
+              <View style={styles.impactTag}>
+                <Text style={styles.impactTagText}>{SOLUTION_IMPACT[i % SOLUTION_IMPACT.length]}</Text>
+              </View>
+            </View>
+            <Text style={styles.solutionDesc}>{s.bullets.join(' ')}</Text>
+            <View style={styles.effortRow}>
+              <MaterialIcons name="check-circle" size={14} color={colors.primary} />
+              <Text style={styles.effortText}>{SOLUTION_EFFORT[i % SOLUTION_EFFORT.length]}</Text>
+            </View>
+          </View>
+        ))}
+      </View>
+      <Pressable style={styles.actionBtnFull} onPress={onNext}>
+        <Text style={styles.actionBtnText}>Next</Text>
+        <MaterialIcons name="arrow-forward" size={18} color={colors.onAccent} />
+      </Pressable>
+    </View>
   );
 }
 
-function GhostButton({ label, onPress }: { label: string; onPress: () => void }) {
+/* ---- Step 6: Final Answer — literal to 15-swiggy-final-answer.html ---- */
+function FinalAnswerStep({
+  question,
+  step,
+  onRestart,
+  onFinish,
+}: {
+  question: Question;
+  step: number;
+  onRestart: () => void;
+  onFinish: () => void;
+}) {
+  const sections = question.full_answer.sections;
+  const PILLAR_ICONS: (keyof typeof MaterialIcons.glyphMap)[] = ['visibility', 'lightbulb', 'check-circle', 'support-agent'];
   return (
-    <Pressable style={[styles.btn, styles.ghost]} onPress={onPress}>
-      <Text style={styles.ghostText}>{label}</Text>
-    </Pressable>
-  );
-}
-
-function FilledButton({ label, onPress }: { label: string; onPress: () => void }) {
-  return (
-    <Pressable style={[styles.btn, styles.filled]} onPress={onPress}>
-      <Text style={styles.filledText}>{label}</Text>
-    </Pressable>
+    <View style={{ gap: space.xl }}>
+      <StepProgress step={step} total={TOTAL_STEPS} />
+      <View style={styles.finalCard}>
+        <View style={styles.solutionBarFull} />
+        <View style={styles.finalTitleRow}>
+          <Text style={styles.cardHeadingMd}>Final Recommendation</Text>
+          <View style={styles.solutionChip}>
+            <Text style={styles.solutionChipText}>Solution</Text>
+          </View>
+        </View>
+        <Text style={styles.finalIntro}>
+          Apply the <Text style={{ fontWeight: '700' }}>{question.framework}</Text> framework,
+          focusing on: {sections.map((s) => s.heading).join(', ')}.
+        </Text>
+        <Text style={styles.eyebrow}>Core Pillars of the Solution</Text>
+        <View style={{ gap: space.md, marginTop: space.sm }}>
+          {sections.map((s, i) => (
+            <View key={i} style={styles.pillarCard}>
+              <View style={styles.numberCircle}>
+                <MaterialIcons name={PILLAR_ICONS[i % PILLAR_ICONS.length]} size={18} color={colors.text} />
+              </View>
+              <View style={{ flex: 1 }}>
+                <Text style={styles.segmentTitle}>{s.heading}</Text>
+                <Text style={styles.pillarDesc}>{s.bullets.join(' ')}</Text>
+              </View>
+            </View>
+          ))}
+        </View>
+      </View>
+      <View style={styles.finalActions}>
+        <Pressable style={styles.ghostBtn} onPress={onRestart}>
+          <MaterialIcons name="refresh" size={18} color={colors.text} />
+          <Text style={styles.ghostBtnText}>Review Previous Steps</Text>
+        </Pressable>
+        <Pressable style={styles.actionBtn} onPress={onFinish}>
+          <Text style={styles.actionBtnText}>Finish Drill</Text>
+          <MaterialIcons name="check-circle" size={18} color={colors.onAccent} />
+        </Pressable>
+      </View>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: colors.bg, paddingHorizontal: space.lg },
+  container: { flex: 1, backgroundColor: colors.bg },
   center: { alignItems: 'center', justifyContent: 'center' },
   muted: { color: colors.textMuted, fontSize: 14 },
-  topBar: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    gap: space.md,
+  scrollPad: { padding: space.lg, paddingBottom: space.xxxl, gap: space.lg },
+
+  // Flashcard (step 0)
+  flashcardCanvas: { flex: 1, padding: space.lg, justifyContent: 'center', gap: space.md },
+  swipeIndicator: { alignItems: 'center', gap: 2 },
+  swipeLabel: { color: colors.textMuted, fontSize: 11, fontWeight: '600' },
+  flashcard: {
+    backgroundColor: colors.surface,
+    borderWidth: 1,
+    borderColor: colors.border,
+    borderRadius: radius.xl,
+    padding: space.xl,
+    minHeight: 380,
   },
-  back: { color: colors.text, fontSize: 34, lineHeight: 34 },
-  pillRow: { flexDirection: 'row', alignItems: 'center', gap: space.sm, flex: 1, flexWrap: 'wrap' },
-  bookmark: { color: colors.textMuted, fontSize: 24 },
-  bookmarkOn: { color: colors.accent },
-  body: { flex: 1, marginVertical: space.lg },
+  tagRow: { flexDirection: 'row', flexWrap: 'wrap', gap: space.sm, marginBottom: space.xl },
   faceCenter: { flex: 1, justifyContent: 'center' },
-  facePad: { paddingVertical: space.sm },
   questionText: {
     color: colors.text,
-    fontSize: 28,
-    fontWeight: '800',
-    lineHeight: 36,
-    letterSpacing: -0.5,
-  },
-  frameworkName: { color: colors.text, fontSize: 22, fontWeight: '700' },
-  subLabel: {
-    color: colors.textMuted,
-    fontSize: 13,
+    fontSize: 26,
     fontWeight: '700',
-    marginBottom: space.sm,
+    lineHeight: 34,
+    letterSpacing: -0.3,
+    textAlign: 'center',
   },
-  card1Extras: { gap: space.md, marginBottom: space.md },
-  timerRow: { flexDirection: 'row', alignItems: 'center', gap: space.md },
-  skip: { color: colors.accent, fontSize: 14, fontWeight: '600' },
-  peekRow: { flexDirection: 'row', gap: space.sm },
-  peekTab: {
-    flex: 1,
-    backgroundColor: colors.surface,
-    borderRadius: radius.pill,
-    paddingVertical: space.sm,
+  timerRow: { flexDirection: 'row', justifyContent: 'center', alignItems: 'center', gap: space.xs, marginTop: space.xl },
+  timerText: { color: colors.textMuted, fontSize: 14 },
+  peekRow: { flexDirection: 'row', gap: space.sm, paddingHorizontal: space.lg, marginBottom: space.md },
+  peekPill: {
+    flexDirection: 'row',
     alignItems: 'center',
+    gap: space.xs,
+    backgroundColor: colors.surface,
+    borderWidth: 1,
+    borderColor: colors.border,
+    borderRadius: radius.pill,
+    paddingHorizontal: space.md,
+    paddingVertical: space.sm,
   },
   peekText: { color: colors.text, fontSize: 12, fontWeight: '600' },
-  footer: { flexDirection: 'row', gap: space.md },
-  btn: {
-    flex: 1,
-    borderRadius: radius.md,
+  flipBtnWrap: { paddingHorizontal: space.lg, paddingTop: space.sm },
+  flipBtn: {
+    backgroundColor: colors.accent,
+    borderRadius: radius.lg,
     paddingVertical: space.lg,
     alignItems: 'center',
   },
-  ghost: { borderWidth: 1, borderColor: colors.border },
-  ghostText: { color: colors.text, fontSize: 15, fontWeight: '600' },
-  filled: { backgroundColor: colors.accent },
-  filledText: { color: colors.bg, fontSize: 15, fontWeight: '700' },
+  flipBtnText: { color: colors.onAccent, fontSize: 17, fontWeight: '700' },
+
+  // Shared step chrome
+  stepTitle: { color: colors.text, fontSize: 24, fontWeight: '700' },
+  stepTitleLeft: { color: colors.text, fontSize: 24, fontWeight: '700', marginTop: 2 },
+  stepSub: { color: colors.textMuted, fontSize: 14, textAlign: 'center', maxWidth: 420 },
+  stepSubLeft: { color: colors.textMuted, fontSize: 16, marginTop: space.xs },
+  eyebrow: {
+    color: colors.textMuted,
+    fontSize: 11,
+    fontWeight: '700',
+    textTransform: 'uppercase',
+    letterSpacing: 1,
+  },
+  card: {
+    backgroundColor: colors.surface,
+    borderWidth: 1,
+    borderColor: colors.border,
+    borderRadius: radius.xl,
+    padding: space.xl,
+  },
+  cardHeadline: { color: colors.text, fontSize: 22, fontWeight: '700', textAlign: 'center' },
+  cardHeadlineSub: { color: colors.textMuted, fontSize: 13, textAlign: 'center' },
+  cardHeadingSm: { color: colors.text, fontSize: 17, fontWeight: '700' },
+  cardHeadingMd: { color: colors.text, fontSize: 22, fontWeight: '700' },
+  cardSubSm: { color: colors.textMuted, fontSize: 13, marginTop: 2 },
+  divider: { height: 1, backgroundColor: colors.border, marginVertical: space.lg },
+  numberedRow: { flexDirection: 'row', alignItems: 'flex-start', gap: space.md },
+  numberCircle: {
+    width: 24,
+    height: 24,
+    borderRadius: 12,
+    backgroundColor: colors.surfaceAlt,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  numberCircleText: { color: colors.text, fontSize: 12, fontWeight: '700' },
+  numberedRowText: { flex: 1, color: colors.text, fontSize: 15, lineHeight: 22 },
+  numberedRowTextMedium: { flex: 1, color: colors.text, fontSize: 16, lineHeight: 23, fontWeight: '500' },
+
+  actionBtn: {
+    flexDirection: 'row',
+    alignSelf: 'center',
+    alignItems: 'center',
+    gap: space.sm,
+    backgroundColor: colors.accent,
+    borderRadius: radius.lg,
+    paddingHorizontal: space.xl,
+    paddingVertical: space.md,
+  },
+  actionBtnCompact: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: space.xs,
+    backgroundColor: colors.accent,
+    borderRadius: radius.lg,
+    paddingHorizontal: space.lg,
+    paddingVertical: space.sm,
+  },
+  actionBtnFull: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    gap: space.sm,
+    backgroundColor: colors.accent,
+    borderRadius: radius.lg,
+    paddingVertical: space.lg,
+  },
+  actionBtnText: { color: colors.onAccent, fontSize: 15, fontWeight: '700' },
+
+  // Framework
+  flipCardBox: { height: 320 },
+  frameworkFront: {
+    flex: 1,
+    backgroundColor: colors.surface,
+    borderWidth: 1,
+    borderColor: colors.border,
+    borderRadius: radius.xl,
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: space.xl,
+  },
+  frameworkIconCircle: {
+    width: 80,
+    height: 80,
+    borderRadius: 40,
+    backgroundColor: `${colors.accent}1A`,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: space.lg,
+  },
+  frameworkFrontTitle: { color: colors.text, fontSize: 19, fontWeight: '700', textAlign: 'center' },
+  frameworkFrontSub: { color: colors.textMuted, fontSize: 14, textAlign: 'center', marginTop: space.sm },
+  frameworkBack: {
+    flex: 1,
+    backgroundColor: colors.surface,
+    borderWidth: 1,
+    borderColor: colors.border,
+    borderRadius: radius.xl,
+  },
+
+  // User segments
+  segmentRow: { flexDirection: 'row', gap: space.lg, padding: space.lg, alignItems: 'flex-start' },
+  segmentRowBorder: { borderBottomWidth: 1, borderBottomColor: colors.border },
+  segmentIconCircle: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    backgroundColor: colors.surfaceAlt,
+    borderWidth: 1,
+    borderColor: colors.border,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  segmentTitleRow: { flexDirection: 'row', alignItems: 'center', gap: space.sm },
+  segmentTitle: { color: colors.text, fontSize: 15, fontWeight: '700', flexShrink: 1 },
+  targetTag: {
+    backgroundColor: colors.surfaceAlt,
+    borderRadius: radius.sm,
+    paddingHorizontal: space.xs,
+    paddingVertical: 2,
+  },
+  targetTagText: { color: colors.textMuted, fontSize: 9, fontWeight: '700', letterSpacing: 0.5 },
+
+  // Pain points
+  articleCard: {
+    backgroundColor: colors.surface,
+    borderWidth: 1,
+    borderColor: colors.border,
+    borderRadius: radius.xl,
+    overflow: 'hidden',
+  },
+  articleHeader: {
+    flexDirection: 'row',
+    gap: space.md,
+    padding: space.xl,
+    backgroundColor: colors.bgElevated,
+    borderBottomWidth: 1,
+    borderBottomColor: colors.border,
+  },
+  warningIcon: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: colors.errorContainer,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  tagsRow: { flexDirection: 'row', flexWrap: 'wrap', gap: space.sm, padding: space.xl, paddingTop: 0 },
+
+  // Solution matrix
+  matrixHeaderRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-end' },
+  solutionCard: {
+    backgroundColor: colors.surface,
+    borderWidth: 1,
+    borderColor: colors.border,
+    borderRadius: radius.lg,
+    padding: space.lg,
+    overflow: 'hidden',
+  },
+  solutionBar: { position: 'absolute', top: 0, left: 0, bottom: 0, width: 4, backgroundColor: colors.outline },
+  solutionBarHigh: { backgroundColor: colors.accent },
+  solutionHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: space.sm },
+  solutionHeaderLeft: { flexDirection: 'row', alignItems: 'center', gap: space.sm, flex: 1 },
+  solutionIconCircle: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    backgroundColor: colors.surfaceHigh,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  impactTag: {
+    backgroundColor: colors.surface,
+    borderWidth: 1,
+    borderColor: colors.border,
+    borderRadius: radius.sm,
+    paddingHorizontal: space.sm,
+    paddingVertical: 2,
+  },
+  impactTagText: { color: colors.textMuted, fontSize: 11, fontWeight: '600' },
+  solutionDesc: { color: colors.textMuted, fontSize: 13, lineHeight: 19, marginBottom: space.sm },
+  effortRow: { flexDirection: 'row', alignItems: 'center', gap: space.xs },
+  effortText: { color: colors.primary, fontSize: 12, fontWeight: '600' },
+
+  // Final answer
+  finalCard: {
+    backgroundColor: colors.surface,
+    borderWidth: 1,
+    borderColor: colors.border,
+    borderRadius: radius.xl,
+    padding: space.xl,
+    gap: space.lg,
+    overflow: 'hidden',
+  },
+  solutionBarFull: { position: 'absolute', top: 0, left: 0, bottom: 0, width: 4, backgroundColor: colors.accent },
+  finalTitleRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    borderBottomWidth: 1,
+    borderBottomColor: colors.border,
+    paddingBottom: space.md,
+  },
+  solutionChip: { backgroundColor: colors.bgElevated, borderRadius: radius.pill, paddingHorizontal: space.md, paddingVertical: 4 },
+  solutionChipText: { color: colors.textMuted, fontSize: 11, fontWeight: '600', textTransform: 'uppercase' },
+  finalIntro: { color: colors.text, fontSize: 16, lineHeight: 24 },
+  pillarCard: {
+    flexDirection: 'row',
+    gap: space.md,
+    backgroundColor: colors.bgElevated,
+    borderWidth: 1,
+    borderColor: colors.border,
+    borderRadius: radius.lg,
+    padding: space.lg,
+  },
+  pillarDesc: { color: colors.textMuted, fontSize: 13, lineHeight: 19, marginTop: 4 },
+  finalActions: { flexDirection: 'row', gap: space.md, flexWrap: 'wrap' },
+  ghostBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: space.sm,
+    borderWidth: 1,
+    borderColor: colors.border,
+    borderRadius: radius.lg,
+    paddingHorizontal: space.lg,
+    paddingVertical: space.md,
+  },
+  ghostBtnText: { color: colors.text, fontSize: 14, fontWeight: '600' },
 });

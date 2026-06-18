@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Solution Matrix - Swiggy UX</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700&amp;family=Inter:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "surface-container-highest": "#e4e2e2",
+                      "secondary-container": "#e5e2e1",
+                      "secondary-fixed": "#e5e2e1",
+                      "surface-dim": "#dbdad9",
+                      "primary-fixed": "#72fe8f",
+                      "on-primary-fixed-variant": "#005320",
+                      "inverse-on-surface": "#f2f0f0",
+                      "surface-container-lowest": "#ffffff",
+                      "on-tertiary-fixed": "#1a1c1b",
+                      "on-error-container": "#93000a",
+                      "on-tertiary-fixed-variant": "#454746",
+                      "tertiary-fixed-dim": "#c6c7c5",
+                      "on-secondary-fixed-variant": "#474646",
+                      "surface-container": "#efeded",
+                      "outline-variant": "#bccbb9",
+                      "secondary": "#5f5e5e",
+                      "on-background": "#1b1c1c",
+                      "surface-container-low": "#f5f3f3",
+                      "primary-fixed-dim": "#53e076",
+                      "surface-container-high": "#e9e8e7",
+                      "surface": "#fbf9f8",
+                      "on-tertiary-container": "#363837",
+                      "tertiary-fixed": "#e2e3e1",
+                      "on-tertiary": "#ffffff",
+                      "surface-bright": "#fbf9f8",
+                      "on-surface": "#1b1c1c",
+                      "on-secondary-fixed": "#1c1b1b",
+                      "on-secondary": "#ffffff",
+                      "on-primary-container": "#004118",
+                      "background": "#fbf9f8",
+                      "surface-variant": "#e4e2e2",
+                      "primary": "#006e2d",
+                      "inverse-surface": "#303031",
+                      "error-container": "#ffdad6",
+                      "on-error": "#ffffff",
+                      "on-primary": "#ffffff",
+                      "inverse-primary": "#53e076",
+                      "secondary-fixed-dim": "#c8c6c5",
+                      "on-secondary-container": "#656464",
+                      "surface-tint": "#006e2d",
+                      "on-surface-variant": "#3d4a3d",
+                      "primary-container": "#1db954",
+                      "outline": "#6d7b6c",
+                      "error": "#ba1a1a",
+                      "tertiary-container": "#a0a19f",
+                      "tertiary": "#5d5f5d",
+                      "on-primary-fixed": "#002108"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.25rem",
+                      "lg": "0.5rem",
+                      "xl": "0.75rem",
+                      "full": "9999px"
+              },
+              "spacing": {
+                      "margin-desktop": "64px",
+                      "margin-mobile": "20px",
+                      "gutter": "24px",
+                      "unit": "8px",
+                      "container-max": "1120px"
+              },
+              "fontFamily": {
+                      "body-md": [
+                              "Inter"
+                      ],
+                      "headline-md": [
+                              "Sora"
+                      ],
+                      "headline-lg-mobile": [
+                              "Sora"
+                      ],
+                      "display": [
+                              "Sora"
+                      ],
+                      "label-sm": [
+                              "Inter"
+                      ],
+                      "label-md": [
+                              "Inter"
+                      ],
+                      "body-lg": [
+                              "Inter"
+                      ],
+                      "headline-lg": [
+                              "Sora"
+                      ]
+              },
+              "fontSize": {
+                      "body-md": [
+                              "16px",
+                              {
+                                      "lineHeight": "1.5",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "headline-md": [
+                              "24px",
+                              {
+                                      "lineHeight": "1.3",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "headline-lg-mobile": [
+                              "28px",
+                              {
+                                      "lineHeight": "1.2",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "display": [
+                              "48px",
+                              {
+                                      "lineHeight": "1.1",
+                                      "letterSpacing": "-0.02em",
+                                      "fontWeight": "700"
+                              }
+                      ],
+                      "label-sm": [
+                              "12px",
+                              {
+                                      "lineHeight": "1.2",
+                                      "fontWeight": "500"
+                              }
+                      ],
+                      "label-md": [
+                              "14px",
+                              {
+                                      "lineHeight": "1.2",
+                                      "letterSpacing": "0.01em",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "body-lg": [
+                              "18px",
+                              {
+                                      "lineHeight": "1.6",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "headline-lg": [
+                              "32px",
+                              {
+                                      "lineHeight": "1.2",
+                                      "letterSpacing": "-0.01em",
+                                      "fontWeight": "600"
+                              }
+                      ]
+              }
+      },
+          },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .material-symbols-outlined.filled {
+            font-variation-settings: 'FILL' 1;
+        }
+        /* Minimalist Editorial styles */
+        body {
+            background-color: #F9F9F7;
+        }
+        .glass-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border: 1px solid #E2E2E0;
+            box-shadow: 0px 4px 20px rgba(0,0,0,0.02);
+        }
+        .matrix-cell {
+            transition: all 0.3s ease;
+        }
+        .matrix-cell:hover {
+            transform: translateY(-2px);
+            box-shadow: 0px 8px 24px rgba(0,0,0,0.06);
+            border-color: #1DB954;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-surface text-on-surface min-h-screen pb-24 md:pb-0 flex flex-col font-body-md antialiased">
+<!-- TopAppBar -->
+<header class="w-full top-0 sticky bg-surface dark:bg-background flex items-center justify-between px-margin-mobile md:px-margin-desktop py-4 w-full max-w-container-max mx-auto z-40 border-b border-surface-variant dark:border-outline-variant">
+<div class="flex items-center gap-4">
+<button class="p-2 hover:opacity-80 transition-opacity active:scale-95 duration-100 text-primary dark:text-primary-container rounded-full">
+<span class="material-symbols-outlined">local_fire_department</span>
+</button>
+<h1 class="font-headline-md text-headline-md font-bold tracking-tight text-on-surface dark:text-inverse-on-surface">DRILL</h1>
+</div>
+<button class="p-2 hover:opacity-80 transition-opacity active:scale-95 duration-100 text-on-surface-variant dark:text-on-secondary-container rounded-full">
+<span class="material-symbols-outlined">search</span>
+</button>
+</header>
+<!-- Main Canvas -->
+<main class="flex-grow w-full max-w-container-max mx-auto px-margin-mobile md:px-margin-desktop py-8 flex flex-col items-center">
+<!-- Sticky Question Section -->
+<div class="sticky top-20 z-30 w-full max-w-[640px] mb-12">
+<div class="glass-card rounded-xl p-6 text-center">
+<span class="inline-block px-3 py-1 bg-surface-container-high text-secondary font-label-sm text-label-sm rounded-full mb-3 uppercase tracking-wider">Current Challenge</span>
+<h2 class="font-headline-lg-mobile md:font-headline-lg text-headline-lg-mobile md:text-headline-lg text-on-surface">
+                    How would you improve the Swiggy user experience for senior citizens?
+                </h2>
+</div>
+</div>
+<!-- Solution Matrix Container -->
+<div class="w-full max-w-[800px] flex flex-col gap-8">
+<div class="flex justify-between items-end mb-4 border-b border-surface-variant pb-4">
+<div>
+<h3 class="font-headline-md text-headline-md text-on-surface">Solution Matrix</h3>
+<p class="font-body-md text-body-md text-secondary mt-1">Prioritized by Impact vs. Effort</p>
+</div>
+<div class="flex gap-2">
+<span class="px-3 py-1 bg-primary-container/10 text-primary-container font-label-sm text-label-sm rounded-full border border-primary-container/20">High Priority</span>
+</div>
+</div>
+<!-- Matrix Grid -->
+<div class="grid grid-cols-1 md:grid-cols-2 gap-6 relative">
+<!-- Solution 1: Voice-Activated Ordering (High Impact / Low Effort) -->
+<div class="glass-card matrix-cell rounded-lg p-6 relative overflow-hidden group">
+<div class="absolute top-0 left-0 w-1 h-full bg-primary-container"></div>
+<div class="flex justify-between items-start mb-4">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-full bg-surface-container-high flex items-center justify-center text-on-surface">
+<span class="material-symbols-outlined">mic</span>
+</div>
+<h4 class="font-label-md text-label-md text-on-surface">Voice-Activated Ordering</h4>
+</div>
+<span class="font-label-sm text-label-sm text-secondary bg-surface px-2 py-1 rounded border border-surface-variant">High Impact</span>
+</div>
+<p class="font-body-md text-body-md text-on-surface-variant mb-4">
+                        Integrate voice commands to search menus and place orders, bypassing complex navigation entirely.
+                    </p>
+<div class="flex items-center gap-2 text-primary-container font-label-sm text-label-sm">
+<span class="material-symbols-outlined text-[16px]">check_circle</span>
+<span>Low Implementation Effort</span>
+</div>
+</div>
+<!-- Solution 2: "Senior Mode" Toggle (High Impact / Med Effort) -->
+<div class="glass-card matrix-cell rounded-lg p-6 relative overflow-hidden group">
+<div class="absolute top-0 left-0 w-1 h-full bg-primary-container"></div>
+<div class="flex justify-between items-start mb-4">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-full bg-surface-container-high flex items-center justify-center text-on-surface">
+<span class="material-symbols-outlined">toggle_on</span>
+</div>
+<h4 class="font-label-md text-label-md text-on-surface">"Senior Mode" Toggle</h4>
+</div>
+<span class="font-label-sm text-label-sm text-secondary bg-surface px-2 py-1 rounded border border-surface-variant">High Impact</span>
+</div>
+<p class="font-body-md text-body-md text-on-surface-variant mb-4">
+                        A global setting that strips away promotional banners, increases contrast, and uses larger typography (Sora/Inter).
+                    </p>
+<div class="flex items-center gap-2 text-secondary font-label-sm text-label-sm">
+<span class="material-symbols-outlined text-[16px]">schedule</span>
+<span>Medium Implementation Effort</span>
+</div>
+</div>
+<!-- Solution 3: Visual Order Tracking (Med Impact / High Effort) -->
+<div class="glass-card matrix-cell rounded-lg p-6 relative overflow-hidden group md:col-span-2">
+<div class="absolute top-0 left-0 w-1 h-full bg-outline"></div>
+<div class="flex justify-between items-start mb-4">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-full bg-surface-container-high flex items-center justify-center text-on-surface">
+<span class="material-symbols-outlined">map</span>
+</div>
+<h4 class="font-label-md text-label-md text-on-surface">Visual Order Tracking</h4>
+</div>
+<span class="font-label-sm text-label-sm text-secondary bg-surface px-2 py-1 rounded border border-surface-variant">Medium Impact</span>
+</div>
+<p class="font-body-md text-body-md text-on-surface-variant mb-4 max-w-2xl">
+                        Replace abstract progress bars with clear, step-by-step visual illustrations and explicit ETA updates, reducing anxiety.
+                    </p>
+<div class="flex items-center gap-2 text-error font-label-sm text-label-sm">
+<span class="material-symbols-outlined text-[16px]">build</span>
+<span>High Implementation Effort</span>
+</div>
+</div>
+</div>
+<!-- Action Area -->
+<div class="mt-8 flex justify-center">
+<button class="bg-primary-container text-white font-label-md text-label-md px-8 py-3 rounded-lg hover:opacity-90 active:scale-95 transition-all shadow-[0_4px_14px_0_rgba(29,185,84,0.39)]">
+                    Save Framework
+                </button>
+</div>
+</div>
+</main>
+<!-- BottomNavBar (Mobile Only) -->
+<nav class="md:hidden fixed bottom-0 left-0 w-full z-50 flex justify-around items-center pt-2 pb-safe px-4 bg-surface dark:bg-surface-container-highest border-t border-surface-variant dark:border-outline-variant">
+<!-- Home (Inactive) -->
+<a class="flex flex-col items-center justify-center text-secondary dark:text-on-secondary-fixed-variant hover:bg-surface-container-low dark:hover:bg-inverse-surface active:scale-90 transition-transform duration-200 p-2 rounded-lg w-16 h-14" href="#">
+<span class="material-symbols-outlined mb-1">home</span>
+<span class="font-label-sm text-[10px]">Home</span>
+</a>
+<!-- Practice (Active based on context of 'Drill') -->
+<a class="flex flex-col items-center justify-center text-primary dark:text-primary-container font-semibold hover:bg-surface-container-low dark:hover:bg-inverse-surface active:scale-90 transition-transform duration-200 p-2 rounded-lg w-16 h-14" href="#">
+<span class="material-symbols-outlined filled mb-1">fitness_center</span>
+<span class="font-label-sm text-[10px]">Practice</span>
+</a>
+<!-- Bookmarks (Inactive) -->
+<a class="flex flex-col items-center justify-center text-secondary dark:text-on-secondary-fixed-variant hover:bg-surface-container-low dark:hover:bg-inverse-surface active:scale-90 transition-transform duration-200 p-2 rounded-lg w-16 h-14" href="#">
+<span class="material-symbols-outlined mb-1">bookmark</span>
+<span class="font-label-sm text-[10px]">Bookmarks</span>
+</a>
+<!-- Profile (Inactive) -->
+<a class="flex flex-col items-center justify-center text-secondary dark:text-on-secondary-fixed-variant hover:bg-surface-container-low dark:hover:bg-inverse-surface active:scale-90 transition-transform duration-200 p-2 rounded-lg w-16 h-14" href="#">
+<span class="material-symbols-outlined mb-1">person</span>
+<span class="font-label-sm text-[10px]">Profile</span>
+</a>
+</nav>
+<!-- Desktop Navigation Cluster (Hidden on Mobile) -->
+<nav class="hidden md:flex fixed left-0 top-1/2 -translate-y-1/2 flex-col gap-4 ml-4 z-50">
+<a class="w-12 h-12 rounded-full bg-surface-container-highest flex items-center justify-center text-secondary hover:text-primary transition-colors hover:shadow-lg" href="#">
+<span class="material-symbols-outlined">home</span>
+</a>
+<a class="w-12 h-12 rounded-full bg-primary-container text-white flex items-center justify-center shadow-lg shadow-primary-container/30" href="#">
+<span class="material-symbols-outlined filled">fitness_center</span>
+</a>
+<a class="w-12 h-12 rounded-full bg-surface-container-highest flex items-center justify-center text-secondary hover:text-primary transition-colors hover:shadow-lg" href="#">
+<span class="material-symbols-outlined">bookmark</span>
+</a>
+<a class="w-12 h-12 rounded-full bg-surface-container-highest flex items-center justify-center text-secondary hover:text-primary transition-colors hover:shadow-lg" href="#">
+<span class="material-symbols-outlined">person</span>
+</a>
+</nav>
+</body></html>

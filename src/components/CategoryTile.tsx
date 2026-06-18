@@ -1,7 +1,8 @@
 import React from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { MaterialIcons } from '@expo/vector-icons';
 import type { Category } from '@/types/question';
-import { categoryColor, categoryEmoji, colors, radius, space } from '@/theme/tokens';
+import { categoryDescription, categoryIcon, categoryPastel, colors, radius, space } from '@/theme/tokens';
 
 interface Props {
   category: Category;
@@ -9,21 +10,28 @@ interface Props {
   onPress: () => void;
 }
 
+/** Literal to the "Categories (2-Column Grid)" card in 04-home-2x2-grid.html. */
 export function CategoryTile({ category, count, onPress }: Props) {
+  const pastel = categoryPastel[category];
   return (
     <Pressable
       onPress={onPress}
-      style={({ pressed }) => [
-        styles.tile,
-        { borderColor: categoryColor[category] },
-        pressed && styles.pressed,
-      ]}
+      style={({ pressed }) => [styles.tile, pressed && styles.pressed]}
     >
-      <Text style={styles.emoji}>{categoryEmoji[category]}</Text>
-      <Text style={styles.name}>{category}</Text>
-      <Text style={styles.count}>
-        {count} {count === 1 ? 'question' : 'questions'}
-      </Text>
+      <View style={styles.topRow}>
+        <View style={[styles.iconChip, { backgroundColor: pastel.bg }]}>
+          <MaterialIcons name={categoryIcon[category] as any} size={22} color={pastel.fg} />
+        </View>
+        <View style={styles.countBadge}>
+          <Text style={styles.countText}>{count} drills</Text>
+        </View>
+      </View>
+      <View>
+        <Text style={styles.name}>{category}</Text>
+        <Text style={styles.description} numberOfLines={2}>
+          {categoryDescription[category]}
+        </Text>
+      </View>
     </Pressable>
   );
 }
@@ -31,16 +39,31 @@ export function CategoryTile({ category, count, onPress }: Props) {
 const styles = StyleSheet.create({
   tile: {
     flex: 1,
-    minHeight: 120,
+    minHeight: 150,
     backgroundColor: colors.surface,
-    borderRadius: radius.lg,
-    borderLeftWidth: 3,
+    borderWidth: 1,
+    borderColor: colors.border,
+    borderRadius: radius.xl,
     padding: space.lg,
     justifyContent: 'space-between',
-    gap: space.sm,
+    gap: space.lg,
   },
-  pressed: { transform: [{ translateY: -2 }], opacity: 0.9 },
-  emoji: { fontSize: 24 },
-  name: { color: colors.text, fontSize: 17, fontWeight: '700' },
-  count: { color: colors.textMuted, fontSize: 13 },
+  pressed: { opacity: 0.85 },
+  topRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start' },
+  iconChip: {
+    width: 44,
+    height: 44,
+    borderRadius: radius.lg,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  countBadge: {
+    backgroundColor: colors.secondary,
+    borderRadius: radius.pill,
+    paddingHorizontal: space.sm,
+    paddingVertical: 3,
+  },
+  countText: { color: colors.onSecondary, fontSize: 11, fontWeight: '600' },
+  name: { color: colors.text, fontSize: 17, fontWeight: '700', marginBottom: 4 },
+  description: { color: colors.textMuted, fontSize: 13, lineHeight: 18 },
 });
