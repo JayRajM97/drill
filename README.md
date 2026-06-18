@@ -11,6 +11,7 @@ PM interview practice app — flashcard-style question practice with a signature
 ```bash
 npm install
 npx expo start        # then press a / i / w, or scan the QR with Expo Go
+npx expo start --web  # or open directly in a browser
 ```
 
 Other checks:
