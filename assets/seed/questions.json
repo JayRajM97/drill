@@ -1,0 +1,2468 @@
+[
+  {
+    "id": "design-netflix-for-kids",
+    "title": "Design Netflix for kids",
+    "category": ["Product Design"],
+    "domain_tags": ["Entertainment", "Streaming"],
+    "difficulty": "Easy",
+    "clarifying_qs": [
+      "Is this a new Netflix vertical or a standalone product like YouTube Kids?",
+      "Only entertainment, or learning/educational content as well?",
+      "Who creates the content - Netflix or users? How do we control quality?",
+      "Why this over YouTube Kids?",
+      "Is it subscription-based?",
+      "What age group of kids are we targeting?",
+      "Geography: world or India?"
+    ],
+    "user_segments": [
+      "Kids (age-grouped) - the core customer",
+      "Siblings - customer + user",
+      "Parents - aware, set up and control the account",
+      "Teachers - aware and recommend content"
+    ],
+    "pain_points": [
+      "Parents worry about content safety and age-appropriateness",
+      "Hard to control quality of kid-targeted content",
+      "Kids need age-segmented discovery, not generic catalogs",
+      "Parents need easy setup and parental controls"
+    ],
+    "framework": "CIRCLES",
+    "framework_steps": [
+      "Clarify scope and goal",
+      "Identify user/customer segments (kids, siblings, parents, teachers)",
+      "Surface unmet needs and pain points",
+      "Prioritize a segment",
+      "Brainstorm solutions",
+      "Define success metrics"
+    ],
+    "full_answer": {
+      "sections": [
+        {
+          "heading": "Clarifying Questions",
+          "bullets": [
+            "New vertical vs. standalone product (Netflix-for-kids like YouTube Kids)",
+            "Entertainment only or studies as well",
+            "Content supply: who creates it and how is quality controlled",
+            "Why not YouTube; subscription model; age group; geo (world vs. India)"
+          ]
+        },
+        {
+          "heading": "User / Customer Segments",
+          "bullets": [
+            "Kids (segmented by age) - the customer",
+            "Siblings - both customer and user",
+            "Parents - the aware setup/control user",
+            "Teachers - aware users who recommend"
+          ]
+        }
+      ]
+    },
+    "source_url": "https://app.notion.com/p/31dbb28896c680e2ab25e6985e32ecf3",
+    "is_published": true
+  },
+  {
+    "id": "design-parking-features-google-maps",
+    "title": "How would you design parking features on Google Maps?",
+    "category": ["Product Design"],
+    "domain_tags": ["Mobility", "Maps"],
+    "difficulty": "Medium",
+    "clarifying_qs": [
+      "Same consumer Google Maps we use to find addresses and places?",
+      "New parking feature vs. enhancement of the existing one?",
+      "What's the goal - engagement, monetization, or experience?",
+      "Which vehicle types - cars only, no bikes/trucks?",
+      "Geography - US market?",
+      "Are we monetizing at launch?"
+    ],
+    "user_segments": [
+      "Supply: commercial properties with marked parking (offices, malls, stadiums, restaurants)",
+      "Demand - regular office commuters (work travel)",
+      "Demand - people going out for fun/errands (non-work)",
+      "Demand - tourists/infrequent visitors; offices booking spaces for employees"
+    ],
+    "pain_points": [
+      "Regular commuters waste time driving through garages hunting for a spot",
+      "Casual visitors don't know if parking exists near a destination",
+      "No real-time capacity / availability information",
+      "Property owners rely on manual processes; underutilized inventory",
+      "Roadside/street parking availability is invisible"
+    ],
+    "framework": "CIRCLES",
+    "framework_steps": [
+      "Clarify problem, scope and goal (engagement, US, cars, no monetization)",
+      "Segment users into supply and demand",
+      "Identify pain points per segment",
+      "Prioritize segment and pain points",
+      "Brainstorm and prioritize solutions (impact x effort)",
+      "Define success metrics and tradeoffs"
+    ],
+    "full_answer": {
+      "sections": [
+        {
+          "heading": "Problem Definition & Scope",
+          "bullets": [
+            "Design parking features for Google Maps in the US market",
+            "Cars only; no monetization at initial launch",
+            "Two-sided marketplace: supply (commercial properties) and demand (drivers)"
+          ]
+        },
+        {
+          "heading": "User Segmentation",
+          "bullets": [
+            "Supply: offices, malls, restaurants, large venues/stadiums with dedicated parking",
+            "Demand: regular commuters, fun/entertainment outings, errand runners",
+            "Offices booking spaces for their employees"
+          ]
+        },
+        {
+          "heading": "Pain Points",
+          "bullets": [
+            "Users: uncertainty about availability; time wasted driving through garages; no real-time info",
+            "Property owners: manual payment/management; underutilized inventory; no digital integration"
+          ]
+        },
+        {
+          "heading": "Solution & Prioritization",
+          "bullets": [
+            "High impact / low effort: 'parking available' flag and capacity count on business profiles",
+            "Live capacity tracking with color-coded indicators (blue/orange/red) like traffic",
+            "Human-assisted updates for street parking; Street View analysis as a moonshot",
+            "Demand-side: book a slot in advance for same day"
+          ]
+        },
+        {
+          "heading": "Metrics",
+          "bullets": [
+            "North Star: views/clicks on parking info in business profiles (availability, slots)",
+            "Engagement: parking feature usage vs. total navigation sessions; time-to-park"
+          ]
+        },
+        {
+          "heading": "Tradeoffs",
+          "bullets": [
+            "Data accuracy is critical - wrong availability info badly hurts UX",
+            "Supply-side adoption is hard without immediate monetization"
+          ]
+        }
+      ]
+    },
+    "source_url": "https://app.notion.com/p/31fbb28896c680629725dae307a912b9",
+    "is_published": true
+  },
+  {
+    "id": "design-recommendation-system-ecommerce",
+    "title": "Design a recommendation system experience for an e-commerce app",
+    "category": ["Product Design"],
+    "domain_tags": ["Ecommerce"],
+    "difficulty": "Medium",
+    "clarifying_qs": [
+      "Are we designing the UX and inputs/outputs, not the ML model?",
+      "Web, mobile, or both?",
+      "Everything-store (Amazon/Flipkart), niche store, or quick-commerce?",
+      "What input criteria do we have to start?",
+      "Which real estate - homepage, search page, or product listing?"
+    ],
+    "user_segments": [
+      "New users still learning the UX",
+      "Frequent shoppers wanting better recommendations and 'pick up where you left off'",
+      "Return shoppers",
+      "Once-a-month transactional shoppers buying essentials"
+    ],
+    "pain_points": [
+      "New users don't understand the recommendation UX",
+      "Frequent shoppers get generic, not personalized, recommendations",
+      "Return shoppers can't easily resume prior browsing intent",
+      "Monthly shoppers want category-based essentials curation, not exploration"
+    ],
+    "framework": "CIRCLES",
+    "framework_steps": [
+      "Clarify scope (UX not ML, everything-store, both platforms)",
+      "Map the user journey (download, open, land on home screen)",
+      "Segment users by frequency and demographic",
+      "Identify pain points",
+      "Propose curated solutions per segment",
+      "Define product vision and metrics"
+    ],
+    "full_answer": {
+      "sections": [
+        {
+          "heading": "Clarify & Problem",
+          "bullets": [
+            "Focus is recommendation UX + inputs/outputs, not the ML model",
+            "Everything-store like Amazon/Flipkart, web and mobile",
+            "Real estate: homepage and search page (product listing is P2)"
+          ]
+        },
+        {
+          "heading": "User Segments & Pain Points",
+          "bullets": [
+            "New users: understanding the UX",
+            "Frequent shoppers: better recommendations, resume where they left off",
+            "Monthly/transactional shoppers: essentials curation"
+          ]
+        },
+        {
+          "heading": "Solution",
+          "bullets": [
+            "Robust home screen with simple products tuned to the demographic",
+            "Return shoppers: curated list of products viewed, ranked by reviews/price",
+            "Monthly shoppers: curate by category (kitchen essentials, groceries, living room, furniture)"
+          ]
+        },
+        {
+          "heading": "Product Vision",
+          "bullets": ["Better recommendations for shoppers who frequently shop"]
+        }
+      ]
+    },
+    "source_url": "https://app.notion.com/p/31ebb28896c6803f84efe77a8f53bd97",
+    "is_published": true
+  },
+  {
+    "id": "design-system-track-review-abuse-amazon",
+    "title": "Design a system to track reviews abuse on Amazon.com",
+    "category": ["Product Design", "Analytical"],
+    "domain_tags": ["Ecommerce"],
+    "difficulty": "Hard",
+    "clarifying_qs": [
+      "What is meant by abuse - fake/paid reviews?",
+      "Any particular country, or global?",
+      "Have we seen an increase in fake reviews?",
+      "Can we quantify the % of fake reviews and the recent increase?"
+    ],
+    "user_segments": [
+      "Reviewers who did not buy the product",
+      "Reviewers who bought but did not use the product",
+      "Reviewers posting for compensation/reward from the seller",
+      "Reviewers posting negative reviews to malign a seller (possibly colluding with competitors)"
+    ],
+    "pain_points": [
+      "Prospective buyers can't get accurate feedback from real buyers",
+      "Data corruption erodes Amazon's platform value",
+      "Direct impact on customer centricity and revenue",
+      "Sellers unfairly maligned by colluding competitors"
+    ],
+    "framework": "Abuse Persona Decomposition",
+    "framework_steps": [
+      "Anchor to Amazon's vision (most customer-centric company)",
+      "Define review abuse precisely",
+      "Identify the abuser personas/segments",
+      "Design a detection + mitigation solution per persona",
+      "Run experiments and measure delta on quality metrics"
+    ],
+    "full_answer": {
+      "sections": [
+        {
+          "heading": "Defining Review Abuse",
+          "bullets": [
+            "Reviews from people who didn't buy, bought-but-didn't-use, posted for reward, or posted to malign a seller",
+            "Dangerous because it corrupts data, hurts buyers, and damages customer centricity and revenue"
+          ]
+        },
+        {
+          "heading": "Solutions by Persona",
+          "bullets": [
+            "Not bought: if variance vs. verified buyers is large, restrict non-verified reviews or use AI to detect/shadow-ban fakes",
+            "Bought-not-used: detect immediate post-delivery positive reviews and lower their rating contribution",
+            "Paid/incentivized: flag high-frequency positive reviewers; assign a 0-1 'fakeness score' and exclude high scores",
+            "Malicious negative: detect patterns; restrict to verified buyers or require photo/video context"
+          ]
+        },
+        {
+          "heading": "Experiments & Metrics",
+          "bullets": [
+            "Run experiments to find the best delta improvement before scaling",
+            "Avg fakeness score pre/post; % of customers finding reviews helpful",
+            "% verified vs. non-verified buyer reviews; ARPU (long-horizon)"
+          ]
+        }
+      ]
+    },
+    "source_url": "https://app.notion.com/p/35fbb28896c680478551ca3f38863e7b",
+    "is_published": true
+  },
+  {
+    "id": "design-zepto-oos-cart-abandonment",
+    "title": "Design a feature for Zepto to reduce cart abandonment caused by out-of-stock items at checkout",
+    "category": ["Product Design"],
+    "domain_tags": ["Ecommerce", "Quick Commerce"],
+    "difficulty": "Medium",
+    "clarifying_qs": [
+      "Which user segment - repeat buyers vs. new users?",
+      "Which product category is most affected?",
+      "Why do OOS items cause abandonment vs. substitution?",
+      "Who decides the substitute - user or algorithm?",
+      "What's the trust mechanism for substitutions?"
+    ],
+    "user_segments": [
+      "Convenience buyers who want speed (auto-substitute)",
+      "Value buyers who want control (pick their own)",
+      "Repeat buyers with predictable baskets",
+      "New users sensitive to first-experience trust"
+    ],
+    "pain_points": [
+      "An OOS item at checkout breaks the basket and the user abandons",
+      "Users don't trust algorithmic substitutions",
+      "10-min delivery promise means substitution must not break the SLA",
+      "No pre-cart signal that an item is running low"
+    ],
+    "framework": "Product Design (Clarify-Pain-Solution-Prioritise-MVP)",
+    "framework_steps": [
+      "Clarify which segment and category",
+      "Probe the problem depth (why OOS causes abandonment)",
+      "Explore solution space (pre-cart signals, real-time alternatives, save-for-later, preference-based substitution)",
+      "Prioritise on user impact x feasibility x business value",
+      "Define MVP, sketch the flow, state constraints"
+    ],
+    "full_answer": {
+      "sections": [
+        {
+          "heading": "Strong Answer Hints",
+          "bullets": [
+            "Anchor 'show alternatives': who decides (user vs. algorithm) and what's the trust mechanism",
+            "ICP split: convenience buyer wants auto-substitute; value buyer wants to pick their own",
+            "Zepto-specific: substitution must not break the 10-minute SLA"
+          ]
+        },
+        {
+          "heading": "Metrics",
+          "bullets": [
+            "Primary: cart-to-order conversion for sessions with 1+ OOS item",
+            "Counter-metric: substitution rejection rate"
+          ]
+        },
+        {
+          "heading": "Activation Angle",
+          "bullets": [
+            "Launch opt-in 'Smart Replace' preference at onboarding - users who set it convert ~2x better on OOS events"
+          ]
+        }
+      ]
+    },
+    "source_url": "https://app.notion.com/p/37cbb28896c68154bc1eea987bd66ffc",
+    "is_published": true
+  },
+  {
+    "id": "design-zepto-cart-abandonment-checkout",
+    "title": "Design a feature for Zepto to reduce cart abandonment among users who add items but never check out",
+    "category": ["Product Design"],
+    "domain_tags": ["Ecommerce", "Quick Commerce"],
+    "difficulty": "Medium",
+    "clarifying_qs": [
+      "Which segment - new vs. repeat, high-AOV vs. impulse buyers?",
+      "Why do they abandon - price shock, distraction, no urgency, payment friction?",
+      "Which persona do we go deep on?",
+      "What's the cold-chain constraint on holding perishables?",
+      "What's the entry point and trigger timing?"
+    ],
+    "user_segments": [
+      "New users vs. repeat users",
+      "High-AOV vs. impulse buyers",
+      "Busy urban millennials doing a 10-minute grocery run",
+      "High-intent returners with multiple abandoned carts"
+    ],
+    "pain_points": [
+      "Price shock at the cart leads to drop-off",
+      "Distractions interrupt the checkout",
+      "No urgency to complete the order",
+      "Payment friction at the final step",
+      "Perishables can't be held indefinitely (cold-chain constraint)"
+    ],
+    "framework": "Product Design (Clarify-Pain-Persona-Ideate-Spec-Metrics)",
+    "framework_steps": [
+      "Clarify scope and segment",
+      "Identify why they abandon",
+      "Define one persona and go deep",
+      "Ideate 3-4 features, rank by impact vs. effort",
+      "Pick one and spec the UX, entry point, edge cases",
+      "Define metrics and tradeoffs"
+    ],
+    "full_answer": {
+      "sections": [
+        {
+          "heading": "Strong Answer Hints",
+          "bullets": [
+            "Don't just 'send a push' - anchor to why they abandoned (price? forgot? browsing?)",
+            "Segment: cart >Rs.800 not checked out in 15 min -> 'slot expiry nudge' with 1-tap checkout",
+            "Cold-chain constraint is a moat - Zepto can't hold perishables, so urgency messaging is product-native"
+          ]
+        },
+        {
+          "heading": "Metrics",
+          "bullets": [
+            "Primary: cart-to-checkout conversion rate (by segment)",
+            "Counter-metric: push notification opt-outs / notification fatigue score"
+          ]
+        },
+        {
+          "heading": "Activation Angle",
+          "bullets": [
+            "Trigger only after 2nd abandoned cart in 7 days - re-engages high-intent returners without annoying new users"
+          ]
+        }
+      ]
+    },
+    "source_url": "https://app.notion.com/p/37bbb28896c681d2a9edd3c18edf9230",
+    "is_published": true
+  },
+  {
+    "id": "design-meesho-tier3-first-purchase",
+    "title": "Design a feature for Meesho to help first-time buyers in Tier 3 cities who browse but never complete their first purchase",
+    "category": ["Product Design"],
+    "domain_tags": ["Ecommerce", "Social Commerce"],
+    "difficulty": "Medium",
+    "clarifying_qs": [
+      "Who exactly is the user - Tier 3, first-time, price-sensitive?",
+      "Which platform - the app?",
+      "What does 'complete first purchase' mean?",
+      "Why do they browse but not buy - trust, payment anxiety, peer validation, price doubt?",
+      "Any constraint against a drastic UI overhaul?"
+    ],
+    "user_segments": [
+      "Tier 3 first-time buyers, price-sensitive",
+      "Users with a trust deficit about delivery and product quality",
+      "Users facing payment anxiety (prefer COD)",
+      "Users with language barriers"
+    ],
+    "pain_points": [
+      "Trust deficit - unsure if the product will actually arrive",
+      "Payment anxiety - reluctance to prepay",
+      "No peer/social validation for the purchase",
+      "Price doubt and language barriers",
+      "Final checkout step feels risky"
+    ],
+    "framework": "Product Design (Activation / Conversion)",
+    "framework_steps": [
+      "Clarify scope, user and 'complete first purchase' definition",
+      "Understand why they browse but don't buy",
+      "Define goals and constraints (no drastic UI overhaul)",
+      "Ideate solutions ranked by impact/effort",
+      "Pick 1-2 and spec flows and edge cases",
+      "Define success metrics"
+    ],
+    "full_answer": {
+      "sections": [
+        {
+          "heading": "Strong Answer Hints",
+          "bullets": [
+            "Go deeper than 'add a discount' - address Tier 3 first-buyer psychology (trust deficit, delivery doubt, language)",
+            "Build trust signals: COD prominence, delivery promise, social proof from nearby pincodes",
+            "Tie back to Meesho's identity: reseller-driven, WhatsApp-heavy social commerce"
+          ]
+        },
+        {
+          "heading": "Metrics",
+          "bullets": [
+            "Primary: first-purchase conversion (browse -> order placed) within 7 days of install",
+            "Counter-metric: don't tank AOV or raise returns by over-incentivising low-trust buys"
+          ]
+        },
+        {
+          "heading": "Activation Angle",
+          "bullets": [
+            "'Your first order, guaranteed' trust widget on the PDP for new users",
+            "Shows pincode delivery estimate, COD badge, and one real buyer review from a nearby city"
+          ]
+        }
+      ]
+    },
+    "source_url": "https://app.notion.com/p/37dbb28896c68131ba7beb2bd174e9a5",
+    "is_published": true
+  },
+  {
+    "id": "favorite-product-duolingo",
+    "title": "What is your favorite product and why? (Duolingo)",
+    "category": ["Product Design"],
+    "domain_tags": ["EdTech", "Consumer"],
+    "difficulty": "Easy",
+    "clarifying_qs": [
+      "Which product would you pick and why?",
+      "What core problems does it solve?",
+      "What makes it unique vs. alternatives?",
+      "How does it tie to the company's broader vision?"
+    ],
+    "user_segments": [
+      "Language learners blocked by cost/access",
+      "Learners who find traditional learning boring",
+      "Time-constrained learners who need short sessions",
+      "Habit-driven daily users"
+    ],
+    "pain_points": [
+      "Traditional language classes are expensive with fixed schedules",
+      "Classroom-style learning is repetitive and boring",
+      "Learning requires large 1-hour, high-effort blocks",
+      "Hard to stay consistent and build a habit"
+    ],
+    "framework": "Feature -> Behavior -> Outcome",
+    "framework_steps": [
+      "Pick the product and state the high-level why",
+      "Accessibility: free/low-cost, always available",
+      "Engagement: gamified streaks, rewards, dopamine loops",
+      "Time/consistency: bite-sized 5-10 min sessions",
+      "Wrap as a habit-building product and tie to vision"
+    ],
+    "full_answer": {
+      "sections": [
+        {
+          "heading": "Why Duolingo Works (3 levers)",
+          "bullets": [
+            "Accessibility: removes cost/access barriers - free or low-cost, always available",
+            "Engagement: gamification, streaks, rewards turn boring into addictive",
+            "Time: bite-sized 5-10 min sessions fit into your day and build a habit"
+          ]
+        },
+        {
+          "heading": "PM Wrap",
+          "bullets": [
+            "It's not just a learning product, it's a habit-building product",
+            "Reduces cost, reduces effort, increases engagement - which is why it works at scale"
+          ]
+        },
+        {
+          "heading": "Vision & Uniqueness",
+          "bullets": [
+            "Ties to making education accessible globally (math, music, chess expansions)",
+            "Killer line: many products teach language, but Duolingo optimizes for daily habit formation at scale"
+          ]
+        }
+      ]
+    },
+    "source_url": "https://app.notion.com/p/321bb28896c6806a829ff4d85df866ad",
+    "is_published": true
+  },
+  {
+    "id": "app-critique-linkedin-job-application-flow",
+    "title": "App Critique: Critique LinkedIn's job application flow - identify the top 3 friction points and how you'd fix each",
+    "category": ["Product Design"],
+    "domain_tags": ["SaaS", "Professional Network"],
+    "difficulty": "Medium",
+    "clarifying_qs": [
+      "Who's the user - active job seeker, passive browser, or recruiter?",
+      "Which flow - search > job page > Easy Apply or external redirect > status tracking?",
+      "Where do users drop off or get confused?",
+      "How do we prioritize the friction points?",
+      "Should fixes tie back to LinkedIn's recruiter revenue model?"
+    ],
+    "user_segments": [
+      "Active job seekers",
+      "Passive browsers",
+      "Recruiters",
+      "Applicants tracking submitted applications"
+    ],
+    "pain_points": [
+      "Easy Apply black hole - apply and hear nothing, no status transparency",
+      "Resume re-entry hell - manual form fill on external redirects despite an existing profile",
+      "Job relevance mismatch - off-target recommendations with no feedback loop",
+      "Anxiety and churn from lack of application status"
+    ],
+    "framework": "App Critique (Context-Walk-Friction-Prioritise-Fix)",
+    "framework_steps": [
+      "Set context - who's the user",
+      "Walk the flow - search to apply to status tracking",
+      "Identify friction at drop-off and confusion points",
+      "Prioritise top 3 by frequency x severity",
+      "Propose specific fixes, each tied to a beneficiary and a metric"
+    ],
+    "full_answer": {
+      "sections": [
+        {
+          "heading": "Top 3 Friction Points",
+          "bullets": [
+            "Easy Apply black hole - no status transparency creates anxiety and platform churn",
+            "Resume re-entry hell - manual field fill on external redirects despite a full profile",
+            "Job relevance mismatch - off-target recommendations, no quick feedback to teach the algo"
+          ]
+        },
+        {
+          "heading": "Metrics",
+          "bullets": [
+            "Primary: application completion rate (Easy Apply started -> submitted)",
+            "Counter-metric: recruiter response rate on submitted applications (quality, not just volume)"
+          ]
+        },
+        {
+          "heading": "Activation Angle",
+          "bullets": [
+            "Launch an 'Application Status Hub' tab (like Uber trip history) - status visibility reduces churn from job-seeking mode"
+          ]
+        }
+      ]
+    },
+    "source_url": "https://app.notion.com/p/37cbb28896c68168a47aecaadeb61ee0",
+    "is_published": true
+  },
+  {
+    "id": "critique-linkedin-onboarding-new-graduates",
+    "title": "Critique the onboarding flow of LinkedIn for a fresh college graduate looking for their first job - what's broken, what works, and what are your top 3 fixes?",
+    "category": ["Product Design"],
+    "domain_tags": ["SaaS", "Professional Network"],
+    "difficulty": "Medium",
+    "clarifying_qs": [
+      "Who's the user - fresh grad, 21-23, limited experience, anxious about an empty profile?",
+      "What's the current flow - sign up > profile fill > connections > feed > job search?",
+      "Where does a fresh grad feel stuck or embarrassed?",
+      "What should the flow do for this specific user vs. the experienced default?",
+      "How do fixes tie to LinkedIn's engagement + placement + premium goals?"
+    ],
+    "user_segments": [
+      "Fresh grads (21-23) with no job title or recommendations",
+      "Tier 2/3 college students excluded by IIT/IIM-first networks",
+      "Anxious first-time job seekers",
+      "Students with projects/coursework but no work history"
+    ],
+    "pain_points": [
+      "Profile-completeness/strength bar penalizes things grads can't control - creates anxiety not momentum",
+      "Connection recommendations are too broad - strangers, not classmates or professors",
+      "First feed is senior-exec thought leadership, irrelevant to a new grad's job search",
+      "No designed 'first win' moment - user leaves without feeling progress",
+      "Aggressive early profile-photo prompt adds friction before value"
+    ],
+    "framework": "App Critique (Context-Walk-Friction-Prioritise-Fix)",
+    "framework_steps": [
+      "Set user context - new grad with empty profile",
+      "Walk the flow - sign up to job search",
+      "Identify 3-5 friction points with severity (High/Medium/Low)",
+      "Propose specific, buildable fixes with the 'why'",
+      "Tie to LinkedIn's goal - engagement + placement -> premium"
+    ],
+    "full_answer": {
+      "sections": [
+        {
+          "heading": "Key Friction Points",
+          "bullets": [
+            "[High] Front-loaded completeness score makes empty profiles feel shameful (imposter syndrome)",
+            "[High] Connection recommendations are random strangers, not classmates/professors",
+            "[Medium] First feed is senior-exec content, not relevant to job search",
+            "[Medium] No designed 'first win' moment; [Low] aggressive early photo prompt"
+          ]
+        },
+        {
+          "heading": "Top 3 Fixes",
+          "bullets": [
+            "Progressive profile completion - unlock sections as the user engages ('add experience next?')",
+            "Cohort-based connection suggestions - surface classmates, alumni, professors via education data; offer a 'Student Mode' (projects/coursework/skills)",
+            "Design a 'first win' - celebrate first accepted connection + show a relevant job listing in the same flow"
+          ]
+        },
+        {
+          "heading": "Metrics",
+          "bullets": [
+            "Primary: % of new grads who complete a profile AND apply to >=1 job within 7 days (or reach All-Star in 7 days)",
+            "Counter-metric: don't over-optimize completeness; track Day 3 retention and application-to-response rate"
+          ]
+        },
+        {
+          "heading": "Activation Angle",
+          "bullets": [
+            "'First Job Readiness' Day-1 checklist (add a skill, follow 3 companies, connect with 5 classmates)",
+            "Activation event: first connection accepted + a job listing viewed in the same session"
+          ]
+        }
+      ]
+    },
+    "source_url": "https://app.notion.com/p/37dbb28896c6810c96bec4f855fea239",
+    "is_published": true
+  },
+  {
+    "id": "swiggy-international-expansion-strategy",
+    "title": "Create a 1-year strategy (Now/Next/Later) - Swiggy International Expansion",
+    "category": ["Product Strategy"],
+    "domain_tags": ["Food Delivery", "Mobility", "Startup"],
+    "difficulty": "Hard",
+    "clarifying_qs": [
+      "What does winning look like at month 12 (the North Star)?",
+      "Are we picking a specific market or going global?",
+      "City-first or country-first?",
+      "What constraints does Swiggy's current state impose?",
+      "How should each phase have its own success metric?"
+    ],
+    "user_segments": [
+      "Indian diaspora in Dubai (largest warm audience)",
+      "High-AOV expat and professional consumers",
+      "Indian IT/consulting corporate staff (corporate accounts)",
+      "Residential complex communities"
+    ],
+    "pain_points": [
+      "Swiggy has zero brand with non-Indian consumers and no supply outside India",
+      "Logistics fleet must be rebuilt from scratch abroad",
+      "Incumbents (Talabat, Uber Eats, Deliveroo) have multi-year head starts",
+      "Talabat is dominant but has service-quality gaps Swiggy can exploit"
+    ],
+    "framework": "Now/Next/Later with North Star",
+    "framework_steps": [
+      "Set the North Star (what winning looks like at month 12)",
+      "Diagnose current state (assets and liabilities)",
+      "Pick the entry market - city-first, defended (Dubai)",
+      "Now (0-3m): Foundation - supply before demand",
+      "Next (3-6m): Demand engine - first 100K users",
+      "Later (6-12m): Defensibility - subscription + lock-in",
+      "Set phase-level metrics"
+    ],
+    "full_answer": {
+      "sections": [
+        {
+          "heading": "North Star",
+          "bullets": [
+            "#1 food delivery app by order volume in one target city by month 12",
+            "D30 retention >= 25%; contribution margin positive by month 10"
+          ]
+        },
+        {
+          "heading": "Diagnose & Entry Market",
+          "bullets": [
+            "Assets: supply-side ops, hyperlocal/10-min know-how, diaspora brand, mature tech",
+            "Liabilities: no non-Indian brand, zero supply/fleet abroad, strong incumbents",
+            "Entry market: Dubai - 1M+ Indians, Talabat dominant but not loved, high AOV, English-friendly",
+            "City-within-city: start with Dubai Marina, Downtown, Bur Dubai"
+          ]
+        },
+        {
+          "heading": "Now (0-3 months): Foundation",
+          "bullets": [
+            "Rule: no consumer marketing until supply exists",
+            "Target 200 restaurant partners before consumer launch (Indian supply first + top non-Indian)",
+            "12% commission land grab vs. Talabat's 18-22%; 20 exclusive anchor restaurants",
+            "Hire 50 delivery partners; localize app (AED, Arabic, local payments)"
+          ]
+        },
+        {
+          "heading": "Next (3-6 months): Demand Engine",
+          "bullets": [
+            "Target 100K users with D7 repeat >= 30%",
+            "Diaspora-first marketing via community influencers; launch on Diwali/Eid/cricket day",
+            "Referral program (coefficient 0.4), corporate accounts (TCS/Infosys/Wipro), residential complex partnerships"
+          ]
+        },
+        {
+          "heading": "Later (6-12 months): Defensibility",
+          "bullets": [
+            "Swiggy One Dubai subscription (target 20% MAU attach)",
+            "Instamart Dubai dark stores (Indian grocery gap Talabat is weak on)",
+            "Restaurant loyalty/Swiggy Select lock-in; evaluate city #2 (Abu Dhabi vs. Singapore)"
+          ]
+        },
+        {
+          "heading": "Metrics by Phase",
+          "bullets": [
+            "Now: 200 restaurant partners before launch (counter: restaurant churn, beta app rating)",
+            "Next: 100K users, D7 repeat >= 30% (counter: restaurant fill rate, unit economics)",
+            "Later: D30 >= 25%, CM positive by M10, Swiggy One attach >= 20%"
+          ]
+        }
+      ]
+    },
+    "source_url": "https://app.notion.com/p/367bb28896c681cdbbb3f23dedd96398",
+    "is_published": true
+  },
+  {
+    "id": "whatsapp-monetization-strategy",
+    "title": "WhatsApp monetization strategy - no ads, no extension of current offerings (no business messaging, UPI, or stores)",
+    "category": ["Product Strategy"],
+    "domain_tags": ["Social", "Messaging"],
+    "difficulty": "Hard",
+    "clarifying_qs": [
+      "Is there a geography constraint? (India vs. Brazil vs. Europe differ)",
+      "Is the goal net-new revenue streams or converting free users to paying?",
+      "Can we monetize identity, community, or creator reach without ads?",
+      "What does WhatsApp actually own that's valuable and undermonetized?",
+      "What time horizon and risk tolerance to the core experience?"
+    ],
+    "user_segments": [
+      "Power users - entrepreneurs, freelancers, small business owners (60M+ in India)",
+      "B2B companies needing identity verification (fintech, healthcare, gig)",
+      "Community/group admins (teachers, coaches, analysts)",
+      "Status creators and their followers"
+    ],
+    "pain_points": [
+      "WhatsApp's most valuable assets (identity, trust, community, reach) are undermonetized",
+      "Constraints rule out ads and all current offerings",
+      "Power users lack premium features (multi-device, scheduling, editing)",
+      "Creators already hack monetization manually via UPI"
+    ],
+    "framework": "First-Principles Asset Reframe",
+    "framework_steps": [
+      "Clarify constraints and assumptions (4-beat open)",
+      "Reframe: what does WhatsApp actually own that's valuable?",
+      "Generate genuine new levers (Premium, Identity API, Communities, Status)",
+      "Go deep on two; pick one bet and defend it",
+      "Metrics and counter-metrics"
+    ],
+    "full_answer": {
+      "sections": [
+        {
+          "heading": "The Reframe",
+          "bullets": [
+            "Constraints force first principles: monetize identity, community trust, and creator reach",
+            "Assets: 1B+ DAU, trusted channel, verified identity, relationship graph, Status, Groups"
+          ]
+        },
+        {
+          "heading": "Four New Levers",
+          "bullets": [
+            "WhatsApp Premium (consumer subscription) - multi-device, scheduling, editing, custom domains; Rs.99/$2.99 mo",
+            "Identity Infrastructure API - pay-per-verification for KYC/healthcare/gig (not messaging)",
+            "Communities monetization - paid groups, content subscriptions, ticketed events; 15-20% take rate",
+            "Status creator economy - subscriptions, digital-goods commerce, tipping, analytics"
+          ]
+        },
+        {
+          "heading": "The One Bet",
+          "bullets": [
+            "WhatsApp Premium - lowest risk to core, fastest to build, proven by Telegram Premium",
+            "Even 0.5% of 1B DAU at $2/mo = ~$120M ARR; sequence Premium -> Communities -> Status -> Identity"
+          ]
+        },
+        {
+          "heading": "Metrics",
+          "bullets": [
+            "Primary: MRR from new streams; Supporting: paid conversion, creator transaction volume, verification volume",
+            "Counter: core DAU retention, message volume per user, Premium churn"
+          ]
+        }
+      ]
+    },
+    "source_url": "https://app.notion.com/p/371bb28896c680538e6fe2a7b1e0b8a1",
+    "is_published": true
+  },
+  {
+    "id": "grow-ubereats-user-base",
+    "title": "How would you grow UberEats' user base?",
+    "category": ["Product Strategy"],
+    "domain_tags": ["Food Delivery", "Mobility"],
+    "difficulty": "Medium",
+    "clarifying_qs": [
+      "Which market and timeframe? Any constraints?",
+      "Are we focused on net-new acquisition or reactivation?",
+      "Who are the distinct user segments?",
+      "Why are they not using / churning / not converting?",
+      "Any budget or channel constraints?"
+    ],
+    "user_segments": [
+      "Never-tried food delivery (price-sensitive, Tier 2/3)",
+      "Tried once and dropped (bad first experience)",
+      "Competitor users habituated to Swiggy/Zomato",
+      "Occasional low-frequency UberEats users"
+    ],
+    "pain_points": [
+      "Tier 2 price gap and local-restaurant supply gap",
+      "Competitor users have no reason to switch (loyalty discounts)",
+      "Never-tried users have awareness and trust gaps",
+      "Occasional users haven't formed a habit"
+    ],
+    "framework": "Segment-Diagnose-Lever-Bet",
+    "framework_steps": [
+      "Clarify scope (market, timeframe, constraints)",
+      "Segment the user base",
+      "Diagnose why they're not converting/churning",
+      "Identify growth levers (supply, demand, habit, switching)",
+      "Pick ONE bet and defend it",
+      "Metrics + counter-metrics and an activation plan"
+    ],
+    "full_answer": {
+      "sections": [
+        {
+          "heading": "Segmentation & Diagnosis",
+          "bullets": [
+            "Focus on never-tried (Tier 2) + competitor switchers - highest TAM headroom",
+            "Tier 2: price + supply gap; competitor users: habit + switching cost; never-tried: awareness + trust"
+          ]
+        },
+        {
+          "heading": "Growth Levers",
+          "bullets": [
+            "Supply expansion in Tier 2 with subsidised first-year fees and city-indexed cuisines",
+            "First-order economics: loss-leader discounting, Uber ride-credit bundles",
+            "Switching: port ratings, match Swiggy One with Uber One, speed guarantee",
+            "Virality: group ordering, corporate ordering"
+          ]
+        },
+        {
+          "heading": "The Bet",
+          "bullets": [
+            "Uber One cross-product bundling (rides + food) - a structural moat Swiggy/Zomato cannot replicate"
+          ]
+        },
+        {
+          "heading": "Metrics & Activation",
+          "bullets": [
+            "Primary: new user activations/week by segment+city; Supporting: D7 repeat, Uber One attach",
+            "Counter: CAC / first-order contribution margin",
+            "Activation: Uber One trial surfaced on ride confirmation, Day 1 first food order, Day 7 savings nudge"
+          ]
+        }
+      ]
+    },
+    "source_url": "https://app.notion.com/p/366bb28896c68108b028fe4ab80fbab7",
+    "is_published": true
+  },
+  {
+    "id": "how-would-you-10x-duolingo",
+    "title": "How would you 10x Duolingo?",
+    "category": ["Product Strategy"],
+    "domain_tags": ["EdTech", "Consumer"],
+    "difficulty": "Hard",
+    "clarifying_qs": [
+      "What does 10x mean - engagement, revenue, or acquisition?",
+      "Global or a particular market like the USA?",
+      "Any constraints or timeline (e.g. 5 years for revenue, 1 year for MAU)?",
+      "Duolingo as a standalone product or part of a larger company?",
+      "Any limits on the ideas/products we can launch?"
+    ],
+    "user_segments": [
+      "People of school age (highest priority - size + brain malleability)",
+      "Learners in emerging markets (Asia, Africa)",
+      "Working-age professionals seeking credentials",
+      "Institutions: schools, governments, employers"
+    ],
+    "pain_points": [
+      "Low free-to-paid conversion caps revenue",
+      "Duolingo monetizes learning time, not the economic outcome (jobs, admission, immigration)",
+      "Uneven/poor language instruction worldwide for school-age learners",
+      "Incumbent credentials (TOEFL/IELTS) are expensive, slow, offline"
+    ],
+    "framework": "Revenue Levers + Strategic Bet (Credential Layer)",
+    "framework_steps": [
+      "Clarify what 10x means (revenue or MAU)",
+      "Diagnose the current growth engine (acquisition, engagement, monetization)",
+      "Find the strategic gap (outcome vs. learning time)",
+      "Bet: become the global language credential platform",
+      "Add revenue multipliers (hiring, immigration, enterprise)",
+      "Name risks and success metrics"
+    ],
+    "full_answer": {
+      "sections": [
+        {
+          "heading": "Revenue Levers (Conventional)",
+          "bullets": [
+            "Number of users: emerging markets, SEO/SEM/AEO, influencer tie-ups, affiliate + edtech partnerships, M&A",
+            "Free-to-paid: smaller packs, reactivation, personalized report cards, AI-tutor free preview",
+            "ARPU: light ads for paying users, in-progress ad experiments, buy small packs of hearts/lives"
+          ]
+        },
+        {
+          "heading": "Strategic Bet: Credential Platform",
+          "bullets": [
+            "Reposition from 'language learning app' to 'global standard for proving language ability'",
+            "Continuous skill certification + live language profile; global credential network with universities/employers/immigration",
+            "Paid verification, proctoring, enterprise validation (free learning, $50-100 certification)"
+          ]
+        },
+        {
+          "heading": "Revenue Multipliers",
+          "bullets": [
+            "Hiring marketplace filtering by Duolingo scores",
+            "Immigration services (visa/residency language proof)",
+            "Professional upskilling / enterprise B2B"
+          ]
+        },
+        {
+          "heading": "Risks & Metrics",
+          "bullets": [
+            "Risks: institutional credibility, cheating/fraud, slow adoption, product complexity",
+            "Primary: verified certifications issued, certification revenue, institutional partnerships"
+          ]
+        }
+      ]
+    },
+    "source_url": "https://app.notion.com/p/321bb28896c6803ca234f4e50c31af34",
+    "is_published": true
+  },
+  {
+    "id": "position-notion-vs-confluence-google-docs",
+    "title": "How would you position this product vs. alternatives? (Notion vs. Confluence + Google Docs)",
+    "category": ["Product Strategy"],
+    "domain_tags": ["SaaS", "Productivity"],
+    "difficulty": "Medium",
+    "clarifying_qs": [
+      "What category are we actually playing in (or creating)?",
+      "Who is the primary buyer, and who is Notion NOT for?",
+      "What do customers actually switch from?",
+      "Where do the alternatives structurally fail?",
+      "How do we validate that positioning is landing in-product?"
+    ],
+    "user_segments": [
+      "Ops/eng lead or founding team at a 20-500 person startup drowning in Google Docs",
+      "ICs who can't find anything in the company wiki",
+      "Teams that have outgrown Docs but aren't ready for Confluence",
+      "NOT: 10k-person enterprises, quick-note phone users, deep Jira-style trackers"
+    ],
+    "pain_points": [
+      "Confluence: rigid hierarchy, terrible editor - written in but never read",
+      "Google Docs: completely flat - no structure, linking, or database layer",
+      "Neither offers connected, structured flexibility",
+      "Notion's own steeper learning curve and large-wiki performance"
+    ],
+    "framework": "The Positioning Stack",
+    "framework_steps": [
+      "Define the category (connected workspace)",
+      "Identify the target customer - and who it's NOT for",
+      "Name the real alternatives and their structural failures",
+      "Find the ownable, defensible gap",
+      "Craft the positioning statement",
+      "Proof points and the aha moment",
+      "Metrics to validate positioning is landing"
+    ],
+    "full_answer": {
+      "sections": [
+        {
+          "heading": "Category & Target",
+          "bullets": [
+            "Category: 'connected workspace' (not a notes app or wiki - both shrink the market and price point)",
+            "Buyer: ops/eng lead at a 20-500 person startup; explicitly NOT enterprises, phone-note users, or Jira-style teams"
+          ]
+        },
+        {
+          "heading": "The Gap",
+          "bullets": [
+            "Confluence gives structure but no flexibility; Google Docs gives flexibility but no structure",
+            "Neither gives connected, structured flexibility - that gap is Notion's territory"
+          ]
+        },
+        {
+          "heading": "Positioning Statement",
+          "bullets": [
+            "'The connected workspace for teams who've outgrown Google Docs but aren't ready to get trapped in Confluence'",
+            "One place where docs, projects, and knowledge live together - built the way your team thinks"
+          ]
+        },
+        {
+          "heading": "Proof Points & Aha Moment",
+          "bullets": [
+            "Bi-directional linking, database relations, block-based editor, AI built in, templates marketplace",
+            "Aha moment: the first time a user links a doc to a database (within first 10-15 min) - engineer onboarding toward it"
+          ]
+        },
+        {
+          "heading": "Metrics",
+          "bullets": [
+            "Primary: trial-to-paid conversion by acquisition source; 'what were you using before?' at signup",
+            "Supporting: % connecting a database to a doc in first session; Counter: time-to-first-value, 30-day churn reason"
+          ]
+        }
+      ]
+    },
+    "source_url": "https://app.notion.com/p/367bb28896c68157bcbef98a1d2f985b",
+    "is_published": true
+  },
+  {
+    "id": "monetization-price-package-uber-mobility",
+    "title": "Monetization: How would you price/package Uber Mobility?",
+    "category": ["Product Strategy"],
+    "domain_tags": ["Mobility"],
+    "difficulty": "Medium",
+    "clarifying_qs": [
+      "Who is actually paying - rider, driver, enterprise, advertiser?",
+      "What value are they getting (certainty, speed, predictability, comfort)?",
+      "What is each segment willing to pay?",
+      "What model fits - per-use, subscription, weekly pass, enterprise contract?",
+      "How do we activate a new pricing tier, not just announce it?"
+    ],
+    "user_segments": [
+      "Daily commuters (predictable, surge-sensitive, high monthly spend)",
+      "Occasional users (transactional, will pay for convenience)",
+      "Premium users (low price sensitivity, want comfort/reliability)",
+      "Corporate travelers and price-sensitive students/Tier 2 riders"
+    ],
+    "pain_points": [
+      "Surge is a trust killer for daily commuters who then switch to Metro/autos",
+      "Uber One is too broad - too pricey for students, too generic for executives",
+      "No frequency reward for light users",
+      "Driver income is unpredictable, feeding back into surge"
+    ],
+    "framework": "VALUE-PRICE FIT",
+    "framework_steps": [
+      "Who is paying (segment the payer)",
+      "What value are they getting",
+      "What are they willing to pay (segment WTP)",
+      "What model fits",
+      "How to package (tiers, bundles, upsell)",
+      "Metrics + activation plan + supply-side"
+    ],
+    "full_answer": {
+      "sections": [
+        {
+          "heading": "Pricing Architecture",
+          "bullets": [
+            "Tier 1: Pay-per-ride (keep surge - margin lives here) for occasional users",
+            "Tier 2 (THE BET): Uber Pass Rs.49/week, 10 rides, no surge - for daily commuters",
+            "Tier 3: Uber One Rs.149/mo refined to protect surge on all ride types",
+            "Tier 4: Uber Business (enterprise); Tier 5: Uber Premier Pass Rs.799/mo for executives"
+          ]
+        },
+        {
+          "heading": "Why Uber Pass (Weekly)",
+          "bullets": [
+            "Rs.49 is an impulse buy; weekly reset creates a Monday re-engagement moment",
+            "Frame: 'Rs.4.90 per ride guaranteed, no surge ever' - wins against Metro",
+            "Lower commitment = faster trial = faster habit, then upsell to monthly"
+          ]
+        },
+        {
+          "heading": "Activation & Supply Side",
+          "bullets": [
+            "Target 3+ weekday rides; trigger Monday 8am: 'Lock in 10 rides for Rs.49, no surge'",
+            "Day 1 'pass active', Day 7 'you saved Rs.X in surge'",
+            "Pass rides get a small driver income top-up so supply stays reliable"
+          ]
+        },
+        {
+          "heading": "Metrics",
+          "bullets": [
+            "Primary: subscription attach rate; Supporting: Pass weekly renewal, rides/week Pass vs. non-Pass",
+            "Counter: blended take-rate per ride, driver acceptance on Pass rides"
+          ]
+        }
+      ]
+    },
+    "source_url": "https://app.notion.com/p/367bb28896c68102876cdcdcb08cb92e",
+    "is_published": true
+  },
+  {
+    "id": "monetization-price-package-uber-swiggy",
+    "title": "Monetization: How would you price/package? (Uber Mobility + Swiggy Food Delivery)",
+    "category": ["Product Strategy"],
+    "domain_tags": ["Mobility", "Food Delivery"],
+    "difficulty": "Medium",
+    "clarifying_qs": [
+      "Who pays - user, driver, restaurant, advertiser?",
+      "What value are they getting?",
+      "What is each segment willing to pay?",
+      "What model fits - per-use, subscription, freemium, marketplace take-rate?",
+      "How do you package into tiers and bundles, and how do you activate them?"
+    ],
+    "user_segments": [
+      "Uber: occasional riders, frequent commuters, corporate accounts, daily commuters",
+      "Swiggy: casual users, students/low-frequency, power users, families/high-AOV",
+      "Supply side: drivers and restaurants",
+      "Advertisers / promoted listings"
+    ],
+    "pain_points": [
+      "One subscription doesn't fit all (students want cheap, professionals want speed, families want value)",
+      "Occasional riders pay full surge while frequent riders need predictability",
+      "Drivers need income stability",
+      "Restaurant commissions can be squeezed when funding subscriptions"
+    ],
+    "framework": "VALUE-PRICE FIT",
+    "framework_steps": [
+      "Segment the payer (user, driver, restaurant, advertiser)",
+      "Identify value delivered per segment",
+      "Assess willingness to pay",
+      "Choose a model that fits",
+      "Package into tiers and bundles",
+      "Pick one bet, add activation and metrics"
+    ],
+    "full_answer": {
+      "sections": [
+        {
+          "heading": "Uber Mobility Tiers",
+          "bullets": [
+            "Pay-per-ride (occasional), Uber One Rs.149/mo (frequent), Uber Business (corporate)",
+            "The bet: Uber Pass Rs.49/week for 10 rides - daily commuters, weekly = low commitment, fast habit"
+          ]
+        },
+        {
+          "heading": "Swiggy Food Delivery Tiers",
+          "bullets": [
+            "Free (casual), Swiggy One Lite Rs.99/mo (students/low-freq), Swiggy One Rs.299/mo (power), Swiggy Max Rs.499/mo (families)",
+            "The bet: Swiggy One Lite Rs.99 - untapped segment who want a sub but can't justify Rs.299; drives free->paid"
+          ]
+        },
+        {
+          "heading": "Activation",
+          "bullets": [
+            "Trigger after 3rd order/ride; Day 1 welcome + first free benefit; Day 7 savings summary"
+          ]
+        },
+        {
+          "heading": "Metrics",
+          "bullets": [
+            "Primary: subscription attach rate; Supporting: ARPU by tier, Lite->One upgrade rate within 90 days",
+            "Counter: restaurant commission blended rate (don't compress margins funding subs)"
+          ]
+        }
+      ]
+    },
+    "source_url": "https://app.notion.com/p/367bb28896c681858f66d67bee5981f4",
+    "is_published": true
+  },
+  {
+    "id": "competitor-cheaper-spotify-instagram",
+    "title": "A competitor launched the same feature cheaper. What do you do? (Spotify + Instagram)",
+    "category": ["Product Strategy"],
+    "domain_tags": ["Consumer", "Streaming", "Social"],
+    "difficulty": "Hard",
+    "clarifying_qs": [
+      "Is this actually a threat, and how big - to which segment?",
+      "Where are we structurally vulnerable vs. structurally strong?",
+      "Should we match, differentiate, or ignore?",
+      "What's the one focused response we'll commit to?",
+      "What metric tells us the response is working?"
+    ],
+    "user_segments": [
+      "Spotify: audiophiles (~5%) vs. the mass earbud/laptop-speaker majority",
+      "Spotify premium subscribers at churn risk",
+      "Instagram: top 1% creators driving ~80% of Reels volume",
+      "Brands and high-purchasing-power 25-40 audience"
+    ],
+    "pain_points": [
+      "Spotify weak on audio quality perception and hardware integration (Apple owns AirPods)",
+      "Instagram creator monetization is opaque; algorithm is a black box",
+      "Risk of overreacting and eating margin across 100% of users for a 5% threat",
+      "Creator flywheel can spin in reverse if top creators leave"
+    ],
+    "framework": "RADAR",
+    "framework_steps": [
+      "Reality check - is this a threat, how big, to whom",
+      "Analyze the gap - where vulnerable vs. strong",
+      "Decide response - match / differentiate / ignore",
+      "Act on one bet",
+      "Results + recheck with a tied metric"
+    ],
+    "full_answer": {
+      "sections": [
+        {
+          "heading": "Spotify - Apple Music Free Spatial Audio",
+          "bullets": [
+            "Reality: affects ~5% audiophiles; threat medium but contained - don't drop price",
+            "Spotify's moat is social + discovery + multi-format + cross-platform, NOT audio quality",
+            "Act: Spotify Jam 2.0 (social listening), AI DJ expansion, Spotify HiFi paid tier"
+          ]
+        },
+        {
+          "heading": "Instagram - TikTok Longer Video + Better Creator Monetization",
+          "bullets": [
+            "Reality: HIGH, potentially existential for the Reels creator flywheel",
+            "Own what TikTok can't: brand-to-creator commerce ('TikTok = go viral, Instagram = get paid')",
+            "Act: Creator Marketplace 2.0, monetization transparency dashboard, longer Reels (table stakes), brand 'Collab' co-posts"
+          ]
+        },
+        {
+          "heading": "Metrics",
+          "bullets": [
+            "Spotify: premium retention rate, churn-reason survey, Jam/HiFi adoption (counter: new-subscriber CAC)",
+            "Instagram: top-10K creator retention, brand-deal volume via Marketplace (counter: Reels watch time)"
+          ]
+        },
+        {
+          "heading": "What NOT to Do",
+          "bullets": [
+            "Don't match the price/feature, don't run 'we're just as good' campaigns - signals insecurity"
+          ]
+        }
+      ]
+    },
+    "source_url": "https://app.notion.com/p/367bb28896c681e795bcc9b1adfe8446",
+    "is_published": true
+  },
+  {
+    "id": "enter-new-market-apple-ai-llms",
+    "title": "Should we enter a new market/vertical? How do you decide? (Apple for AI/LLMs)",
+    "category": ["Product Strategy"],
+    "domain_tags": ["AI", "Hardware"],
+    "difficulty": "Hard",
+    "clarifying_qs": [
+      "Does entering align with where the company is strategically going?",
+      "Is the market big enough, and are we early or late?",
+      "Do we have a right to win - what's the moat?",
+      "What's the mode of entry - build, buy, partner, or invest?",
+      "How will we know it's working?"
+    ],
+    "user_segments": [
+      "1B+ Apple device owners (distribution)",
+      "Privacy-conscious consumers",
+      "Developers building on Apple AI frameworks",
+      "Users frustrated with Siri vs. modern LLMs"
+    ],
+    "pain_points": [
+      "Siri is embarrassing vs. GPT-4; AI moving to the cloud threatens Apple's experience control",
+      "Apple is late to foundation models with no public model or data moat",
+      "Window is closing as Android locks in on-device Gemini",
+      "Privacy expectations must be preserved"
+    ],
+    "framework": "STAMP",
+    "framework_steps": [
+      "Strategic fit - does this align with where we're going",
+      "TAM + Timing - is the market big, are we early/late",
+      "Advantage - do we have a right to win",
+      "Mode of entry - build, buy, partner, invest",
+      "Proof + Metrics"
+    ],
+    "full_answer": {
+      "sections": [
+        {
+          "heading": "STAMP Analysis",
+          "bullets": [
+            "Strategic fit: entering AI is defensive; on-device, privacy-first AI is the next hardware moat",
+            "TAM/Timing: $100B+ by 2030; late to models but early to on-device privacy-preserving AI",
+            "Advantage: can't win the LLM race, but can win the interface layer via distribution + Apple Silicon + privacy",
+            "Mode: don't build foundation models; build the experience layer, partner for the model (OpenAI), acquire talent"
+          ]
+        },
+        {
+          "heading": "Verdict",
+          "bullets": [
+            "Enter - but as the AI experience/OS layer, not a model company",
+            "Moat is privacy + hardware + distribution, not the model"
+          ]
+        },
+        {
+          "heading": "Metrics",
+          "bullets": [
+            "Primary: weekly Siri active query volume; Supporting: Apple Intelligence adoption, developer API calls",
+            "Counter: privacy incident reports / App Store trust score"
+          ]
+        }
+      ]
+    },
+    "source_url": "https://app.notion.com/p/367bb28896c6818582f6ccb3b4ac26b0",
+    "is_published": true
+  },
+  {
+    "id": "meta-reels-invest-strategy-metrics",
+    "title": "You're a PM at Meta. Why should Meta continue investing in Reels? What goals and metrics would you set?",
+    "category": ["Product Strategy"],
+    "domain_tags": ["Social", "Consumer"],
+    "difficulty": "Medium",
+    "clarifying_qs": [
+      "Meta Reels or Instagram Reels?",
+      "What was the initial objective, time since launch, and current standing?",
+      "What is Meta's North Star (MAU)?",
+      "Does 'investing' mean maintain current effort or develop new features?",
+      "Which platform synergy matters (Facebook + Instagram)?"
+    ],
+    "user_segments": [
+      "Viewers / content consumers (AI-driven discovery)",
+      "Creators / content producers (influencers, brands, everyday users)",
+      "Advertisers buying short-form inventory",
+      "Younger Gen Z audiences"
+    ],
+    "pain_points": [
+      "TikTok and YouTube Shorts pull younger users and creator attention",
+      "Risk of losing engagement leadership in short-form video",
+      "Short-form monetization is still evolving",
+      "Bad recommendations or low-quality content cause drop-off"
+    ],
+    "framework": "Mission Alignment -> Why Invest -> Goals -> Metrics",
+    "framework_steps": [
+      "Clarify (Meta vs IG Reels, history, North Star)",
+      "Align Reels to Meta's mission",
+      "Justify continued investment (competition, engagement, ads, creators, synergy)",
+      "Set goals (engagement, retention, growth)",
+      "Define viewer + creator metrics with guardrails"
+    ],
+    "full_answer": {
+      "sections": [
+        {
+          "heading": "Why Continue Investing",
+          "bullets": [
+            "Competitive defense vs. TikTok/YouTube Shorts to protect engagement leadership",
+            "Engagement: short-form keeps users longer; Ad revenue: new in-feed/branded formats",
+            "Creator ecosystem and cross-platform synergy with Facebook/Instagram"
+          ]
+        },
+        {
+          "heading": "Goals",
+          "bullets": [
+            "Maximize engagement, creator retention, and monetization as a still-maturing product"
+          ]
+        },
+        {
+          "heading": "Metrics",
+          "bullets": [
+            "North Star: average watch time per user",
+            "Viewer: reels viewed/shared per day, weekly retention; Creator: uploads/creator, viewer->creator conversion",
+            "Business: Reels ad revenue growth (ARPU)"
+          ]
+        },
+        {
+          "heading": "Guardrails",
+          "bullets": [
+            "Reels churn/drop-off rate, top-creator retention, ad-load perception, % of total IG time on Reels"
+          ]
+        }
+      ]
+    },
+    "source_url": "https://app.notion.com/p/320bb28896c68008893ddc4c48b7464e",
+    "is_published": true
+  },
+  {
+    "id": "guesstimate-ride-hailing-trips-bangalore-monday",
+    "title": "Estimate the total number of ride-hailing trips completed in Bangalore on a typical Monday",
+    "category": ["Guesstimate"],
+    "domain_tags": ["Mobility"],
+    "difficulty": "Medium",
+    "clarifying_qs": [
+      "Trips completed vs. trips requested?",
+      "All ride-hailing or one provider?",
+      "Include autos and bikes, or just cabs?",
+      "Bangalore metro boundary (~12M people)?",
+      "Account for Namma Metro cannibalization?"
+    ],
+    "user_segments": [
+      "Daily corporate commuters",
+      "Occasional users",
+      "Tourists/business travelers",
+      "Airport pickups (Monday post-weekend)"
+    ],
+    "pain_points": [
+      "Risk of conflating trips requested with trips completed",
+      "Demand is uneven across day-parts (morning vs. evening peak)",
+      "Monday-specific behavior shifts (higher corporate travel)",
+      "Metro expansion has shifted some cab demand"
+    ],
+    "framework": "Population-Segment Funnel",
+    "framework_steps": [
+      "Anchor the population (Bangalore metro ~12M)",
+      "Segment by usage (commuters, occasional, tourists)",
+      "Estimate trips/day per segment",
+      "Layer supply constraints and cancellations",
+      "Sanity check against known data points"
+    ],
+    "full_answer": {
+      "sections": [
+        {
+          "heading": "Approach",
+          "bullets": [
+            "Break into morning peak (7-10am), daytime, evening peak (5-9pm), late night",
+            "Acknowledge Namma Metro cannibalization and Monday-specific corporate/airport travel"
+          ]
+        },
+        {
+          "heading": "Metrics",
+          "bullets": [
+            "Primary: trips completed (not requested) - completion rate matters",
+            "Counter: Monday cancellation rates run ~20-25%"
+          ]
+        }
+      ]
+    },
+    "source_url": "https://app.notion.com/p/37bbb28896c6816fb871fa171e54f841",
+    "is_published": true
+  },
+  {
+    "id": "guesstimate-blinkit-grocery-orders-delhi-sunday",
+    "title": "Estimate the number of grocery orders placed on Blinkit in Delhi-NCR on a Sunday morning (6am-12pm)",
+    "category": ["Guesstimate"],
+    "domain_tags": ["Ecommerce", "Quick Commerce"],
+    "difficulty": "Medium",
+    "clarifying_qs": [
+      "Define the Sunday morning window (6am-12pm)?",
+      "What's the Delhi-NCR boundary (~30M people)?",
+      "Should we work in households (~8M) rather than individuals?",
+      "What Blinkit penetration to assume (~12%)?",
+      "What order frequency per active household?"
+    ],
+    "user_segments": [
+      "Active Blinkit households (~1M)",
+      "Weekend morning grocery orderers",
+      "Essentials/top-up shoppers",
+      "High-frequency repeat households"
+    ],
+    "pain_points": [
+      "Must convert population to households then apply penetration",
+      "Sunday-morning peak multiplier is uncertain",
+      "Slot unavailability spikes on Sunday mornings",
+      "Need to validate the final number with a sanity check"
+    ],
+    "framework": "Population -> Households -> Penetration -> Frequency -> Time-slot",
+    "framework_steps": [
+      "Clarify window and boundary",
+      "Segment population into households (~8M)",
+      "Estimate active Blinkit households (~12% -> ~1M)",
+      "Apply order frequency (~1.5/week) and Sunday share (~20%)",
+      "Apply morning peak multiplier and sanity-check"
+    ],
+    "full_answer": {
+      "sections": [
+        {
+          "heading": "Calculation",
+          "bullets": [
+            "8M households -> ~1M active (12% penetration)",
+            "1M x 1.5 orders/week x 0.20 Sunday share = ~300K; morning slot -> ~80-100K orders",
+            "Sanity check: ~1 in 300 Delhi residents in a 6-hour window feels right"
+          ]
+        },
+        {
+          "heading": "Metrics",
+          "bullets": [
+            "Primary: orders per active user per week (frequency metric)",
+            "State assumptions explicitly and validate the landed number"
+          ]
+        }
+      ]
+    },
+    "source_url": "https://app.notion.com/p/37dbb28896c6814cbf13e293c95ff82a",
+    "is_published": true
+  },
+  {
+    "id": "guesstimate-uber-rides-mumbai-weekday-morning",
+    "title": "Estimate the number of Uber rides taken in Mumbai on a weekday morning (7-10 AM)",
+    "category": ["Guesstimate"],
+    "domain_tags": ["Mobility"],
+    "difficulty": "Medium",
+    "clarifying_qs": [
+      "Uber only (not Ola/autos)?",
+      "Mumbai metro, weekday, 7-10 AM window?",
+      "Use working population, not total city population?",
+      "What funnel: commute by road > cab users > Uber share?",
+      "Should we cross-check against the supply side?"
+    ],
+    "user_segments": [
+      "Office commuters",
+      "Airport trips",
+      "School drops",
+      "Intercity/outskirts travelers"
+    ],
+    "pain_points": [
+      "Using total population instead of working population overstates demand",
+      "Need a realistic funnel through road commute, cab use, and Uber share",
+      "Ambiguity in the 3-hour window fraction",
+      "Must triangulate demand estimate with supply"
+    ],
+    "framework": "Demand Funnel + Supply Cross-check",
+    "framework_steps": [
+      "Clarify (Uber only, Mumbai metro, 7-10 AM)",
+      "Segment demand (commuters, airport, school, outskirts)",
+      "Build the funnel from working population to rides in window",
+      "Cross-check with active drivers x rides/hour",
+      "State assumptions and adjust"
+    ],
+    "full_answer": {
+      "sections": [
+        {
+          "heading": "Approach",
+          "bullets": [
+            "Base on ~6M Mumbai office workers, not total population",
+            "Funnel: % road commute > % cab users > % choosing Uber over Ola > 3-hr window fraction"
+          ]
+        },
+        {
+          "heading": "Answer & Cross-check",
+          "bullets": [
+            "Estimated range: 250,000-350,000 rides in the 7-10 AM window",
+            "Supply check: ~80,000 active drivers x 3-4 rides/hr peak ~= 270,000"
+          ]
+        }
+      ]
+    },
+    "source_url": "https://app.notion.com/p/37cbb28896c6819a8427cef779b3371d",
+    "is_published": true
+  },
+  {
+    "id": "guesstimate-restaurants-in-bengaluru",
+    "title": "Estimate the number of restaurants in Bengaluru, India",
+    "category": ["Guesstimate"],
+    "domain_tags": ["Food", "Ecommerce"],
+    "difficulty": "Medium",
+    "clarifying_qs": [
+      "How do we define a restaurant - sit-and-dine only, no delivery/pickup-only?",
+      "Do restaurants within hotels count? Do cafes count?",
+      "Which year do we assume (e.g. 2024)?",
+      "Entire city or specific areas?",
+      "Area-based or population-based approach?"
+    ],
+    "user_segments": [
+      "High-population-density city areas",
+      "Medium-density connecting areas",
+      "Low-density outskirts",
+      "Cafe vs. full-service diners"
+    ],
+    "pain_points": [
+      "Area approach ignores demand and is distorted by hotspots like Koramangala/Whitefield",
+      "Restaurants aren't spread evenly across the city",
+      "Need to factor out street-food/quick-service outlets",
+      "Must sanity-check against real-world data (~12-15K sit-and-dine)"
+    ],
+    "framework": "Population vs. Area Approach",
+    "framework_steps": [
+      "Clarify the definition (sit-and-dine, include cafes, exclude hotels)",
+      "Choose an approach (population-driven is better)",
+      "Estimate restaurants per density block or per N people",
+      "Aggregate to a total",
+      "Sanity-check against known data"
+    ],
+    "full_answer": {
+      "sections": [
+        {
+          "heading": "Population Approach (preferred)",
+          "bullets": [
+            "~12M people; 1 sit-and-dine restaurant per ~200 people -> 60,000 outlets",
+            "Factor out ~75% street-food/QSR -> ~15,000 sit-and-dine restaurants",
+            "Sanity check: real-world data confirms ~12-15K"
+          ]
+        },
+        {
+          "heading": "Area Approach (and why it fails)",
+          "bullets": [
+            "Divide city into high/medium/low density blocks and estimate restaurants/sq km",
+            "Ignores demand; hotspots distort density - landed off the sane range"
+          ]
+        }
+      ]
+    },
+    "source_url": "https://app.notion.com/p/35fbb28896c680b6a5bbc1df9b481728",
+    "is_published": true
+  },
+  {
+    "id": "north-star-ai-employee-ema",
+    "title": "North Star for an 'AI Employee' product like Ema",
+    "category": ["AI", "Analytical"],
+    "domain_tags": ["AI", "SaaS"],
+    "difficulty": "Hard",
+    "clarifying_qs": [
+      "Single North Star for the company or per product line (recruiting, support, FinOps)?",
+      "Who do we optimize for - buyer (CXO), user (function head), or operator (admin)?",
+      "Pre-PMF or post-PMF?",
+      "Is pricing seat-based, task-based, or platform-based?",
+      "What's the time horizon - next 12 months or longer?"
+    ],
+    "user_segments": [
+      "Buyer (CXO) who funds the deployment",
+      "User (function head) who relies on outputs",
+      "Operator (Ema admin) who configures it",
+      "Enterprises of varying account sizes"
+    ],
+    "pain_points": [
+      "DAU is anti-thesis - AI should reduce human time, not require it",
+      "Vanity metrics (agents created, tasks executed) don't capture value",
+      "Time-saved alone is hard to attribute; ARR is a trailing indicator",
+      "Any metric can be gamed without quality + durability checks"
+    ],
+    "framework": "North Star Decomposition",
+    "framework_steps": [
+      "Clarify scope and stakeholder",
+      "Reject bad North Stars and explain why",
+      "Define what 'value delivered' means (work happened, correct, trusted)",
+      "Recommend the North Star and decompose it",
+      "Add supporting, counter, leading, and activation metrics",
+      "Show why it's defensible against gaming"
+    ],
+    "full_answer": {
+      "sections": [
+        {
+          "heading": "The North Star",
+          "bullets": [
+            "Net Successful Autonomous Completions per customer per week",
+            "Tasks Ema completed end-to-end, auto-approved or requiring no significant correction within 7 days",
+            "Captures volume, quality, and durability; normalized per customer and per week"
+          ]
+        },
+        {
+          "heading": "Decomposition (each a product lever)",
+          "bullets": [
+            "Net Successful Completions = Total Tasks x Autonomous Rate x Success Rate x (1 - Correction Rate)",
+            "Maps to four owner teams: Growth, Trust/Autonomy, Model/Workflow Quality, Calibration"
+          ]
+        },
+        {
+          "heading": "Counter-metrics (non-negotiable)",
+          "bullets": [
+            "Hallucination rate, customer-reported error rate, cost per task, escalation rate, false-autonomy rate"
+          ]
+        },
+        {
+          "heading": "Activation & Gaming Defense",
+          "bullets": [
+            "Activation: % of new customers completing 50+ successful autonomous tasks in first 30 days",
+            "7-day correction window punishes volume/autonomy/quality gaming; per-customer normalization stops customer gaming"
+          ]
+        }
+      ]
+    },
+    "source_url": "https://app.notion.com/p/371bb28896c680fe80ded1e5eeda9970",
+    "is_published": true
+  },
+  {
+    "id": "design-trust-layer-enterprise-ai",
+    "title": "Design the 'trust' layer for enterprise AI output (Ema)",
+    "category": ["AI", "Product Design"],
+    "domain_tags": ["AI", "SaaS"],
+    "difficulty": "Hard",
+    "clarifying_qs": [
+      "Specific workflow (finance, recruiting) or universal across all outputs?",
+      "Whose trust - power users, skeptical reviewers, or executives?",
+      "High-stakes outputs (offer letters, refunds) or low-stakes (drafts, summaries)?",
+      "What's the current trust gap - too much friction, not enough verification, or none?",
+      "Net-new design or improving existing trust UX?"
+    ],
+    "user_segments": [
+      "Skeptical reviewers in high-stakes functions (finance, compliance, hiring)",
+      "Power users who use Ema daily",
+      "Executives who occasionally check",
+      "Compliance/finance gatekeepers"
+    ],
+    "pain_points": [
+      "'I don't know where this came from' - no provenance or citations",
+      "'I don't know how confident Ema is' - output looks identical at 99% or 51%",
+      "Verifying takes as long as doing it myself - trust UX adds friction",
+      "One bad output causes asymmetric trust damage; errors of omission are invisible",
+      "Corrections don't seem to change future behavior"
+    ],
+    "framework": "Trust Layer Components + JTBD",
+    "framework_steps": [
+      "Clarify scope and pick the segment/use case (skeptical reviewer, high-stakes)",
+      "State the JTBD (verify correctness quickly)",
+      "Rank pain points by severity x frequency",
+      "Design the trust components",
+      "Design the core flow (fast for high-confidence, deep for low)",
+      "Activation plan, metrics, risks"
+    ],
+    "full_answer": {
+      "sections": [
+        {
+          "heading": "Trust Components",
+          "bullets": [
+            "Provenance and citations - click any claim to see its source",
+            "Calibrated confidence signaling (high/medium/low badges, not raw %)",
+            "Collapsed reasoning trace; explicit 'what Ema didn't use' (errors of omission)",
+            "Verification suggestions, in-context past performance, one-click correction with learning loop"
+          ]
+        },
+        {
+          "heading": "Core Flow",
+          "bullets": [
+            "Output with highlighted citations, confidence badge, 'show reasoning', a 'Verify' panel, Approve/Correct/Reject, past-performance footer",
+            "Fast for high-confidence (one glance, one click), deep for low-confidence (expanded by default)"
+          ]
+        },
+        {
+          "heading": "Metrics",
+          "bullets": [
+            "Primary: % of outputs approved without modification; Supporting: time to approval, % expanding reasoning/verify",
+            "Counter: false-trust rate (approved-then-wrong), confidence calibration error, tenant NPS"
+          ]
+        },
+        {
+          "heading": "Risks & Insight",
+          "bullets": [
+            "Risks: citation fatigue, confidence gaming, reviewer offloading",
+            "Insight: match verification effort to risk - high-confidence+low-stakes = one glance, low-confidence+high-stakes = full expand"
+          ]
+        }
+      ]
+    },
+    "source_url": "https://app.notion.com/p/371bb28896c680639ea6e9ac2fb18849",
+    "is_published": true
+  },
+  {
+    "id": "design-human-in-the-loop-ema-autonomy",
+    "title": "Design human-in-the-loop: when Ema acts autonomously vs. asks",
+    "category": ["AI", "Product Design"],
+    "domain_tags": ["AI", "SaaS"],
+    "difficulty": "Hard",
+    "clarifying_qs": [
+      "What action categories - drafts (low), communications (medium), financial/hiring (high)?",
+      "Single global setting or per-workflow/per-action configurable?",
+      "Greenfield design or improving existing autonomy logic?",
+      "Failure mode being solved - too many interruptions or too many bad autonomous actions?",
+      "Single user or multi-user enterprise with approval chains?"
+    ],
+    "user_segments": [
+      "New users who need more confirmations by default",
+      "Experienced users who've built precedent",
+      "Compliance-bound functions requiring mandatory approval",
+      "Multi-user enterprises with approval chains"
+    ],
+    "pain_points": [
+      "Too many interruptions make users disable autonomy entirely",
+      "Too many autonomous actions backfire on irreversible/high-stakes decisions",
+      "Auto-approve fatigue defeats the safeguard",
+      "Ema being wrong but confident is the dangerous case"
+    ],
+    "framework": "Action x Risk x Confidence x Precedent",
+    "framework_steps": [
+      "Clarify action categories and configurability",
+      "State the JTBD (act when safe, ask when not)",
+      "Apply the four variables (action, risk, confidence, precedent)",
+      "Use the decision matrix for default behavior",
+      "Layer a progressive trust model",
+      "Design UX, activation, metrics, risks"
+    ],
+    "full_answer": {
+      "sections": [
+        {
+          "heading": "Decision Matrix",
+          "bullets": [
+            "Drafts/summaries (reversible, low): autonomous, user reviews when ready",
+            "Schedule/routine reply (reversible w/ effort, high confidence): act then notify, allow undo",
+            "External message (hard to undo): confirm first time, then autonomous for similar",
+            "Hire/refund/financial (irreversible, high): always require explicit approval"
+          ]
+        },
+        {
+          "heading": "Progressive Trust Model",
+          "bullets": [
+            "New user: first 50 actions are explicit approvals",
+            "Build precedent: after 10 approvals of a pattern, offer 'handle automatically next time?'",
+            "User-controlled settings; reset autonomy on a regression/mistake"
+          ]
+        },
+        {
+          "heading": "UX",
+          "bullets": [
+            "Autonomous: post-action card with one-click undo within 5 minutes",
+            "Approval requests inline (not modal), pre-filled with recommendation, countdown for time-sensitive, bulk approval"
+          ]
+        },
+        {
+          "heading": "Metrics",
+          "bullets": [
+            "Primary: % of actions completed autonomously; Supporting: approval rate when Ema asks, modification rate",
+            "Counter: % of autonomous actions later reversed (false-autonomy), approval timeout rate, calibration error"
+          ]
+        }
+      ]
+    },
+    "source_url": "https://app.notion.com/p/371bb28896c680b7b426ce10ff50bc58",
+    "is_published": true
+  },
+  {
+    "id": "design-feedback-mechanism-ema-corrections",
+    "title": "Design a feedback mechanism that improves Ema from user corrections",
+    "category": ["AI", "Product Design"],
+    "domain_tags": ["AI", "SaaS"],
+    "difficulty": "Hard",
+    "clarifying_qs": [
+      "Short-term UX goal or long-term model/prompt improvement?",
+      "Per-tenant learning or global learning across customers?",
+      "Is the corrected output visible to other users in the tenant or private?",
+      "Privacy/compliance constraints - can corrections train shared models?",
+      "Greenfield or improving an existing feedback loop?"
+    ],
+    "user_segments": [
+      "Reviewers who edit outputs (high-value signal)",
+      "Users who give explicit thumbs-down feedback",
+      "Tenants needing isolated, compliance-safe learning",
+      "PM/quality teams monitoring aggregate patterns"
+    ],
+    "pain_points": [
+      "Feedback is noisy, slow, and inconsistent (one user's 'wrong' is another's 'style')",
+      "Models can't be fine-tuned in real time without catastrophic forgetting",
+      "Bad feedback compounds into degraded behavior",
+      "Cross-enterprise feedback can't be naively mixed (compliance, competitive)",
+      "Users stop giving feedback if they don't see results"
+    ],
+    "framework": "Eval-Gated Feedback Pipeline",
+    "framework_steps": [
+      "Clarify goal, scope (per-tenant vs global), privacy",
+      "Capture three feedback types (implicit, modification, explicit)",
+      "Run the pipeline: capture -> categorize -> aggregate -> validate vs evals -> deploy -> close the loop",
+      "Use a two-track (per-tenant + global) architecture",
+      "Design UX, activation, metrics, risks"
+    ],
+    "full_answer": {
+      "sections": [
+        {
+          "heading": "Three Feedback Types",
+          "bullets": [
+            "Implicit (accepted/used downstream) - silent positive, captured automatically",
+            "Modification (the diff) - what was wrong, what was the fix; lightly categorized",
+            "Explicit (thumbs-down/flag) - optional structured tag and free-text"
+          ]
+        },
+        {
+          "heading": "Pipeline",
+          "bullets": [
+            "Capture in the natural flow -> categorize -> aggregate patterns across users/time",
+            "Validate against evals BEFORE any change ships (the step most products skip)",
+            "Deploy versioned/rollback-able; close the loop so users see feedback mattered"
+          ]
+        },
+        {
+          "heading": "Two-Track Architecture",
+          "bullets": [
+            "Per-tenant: enterprise terminology/policy, compliance-safe, visibly learns",
+            "Global: cross-enterprise patterns, gated by full regression suites, slower and careful"
+          ]
+        },
+        {
+          "heading": "Metrics & Insight",
+          "bullets": [
+            "Primary: repeat-correction rate (should fall); Supporting: feedback capture rate, eval pass rate, time-to-applied-change",
+            "Counter: regression rate, tenant-isolation breaches, overfitting to a loud recent sample",
+            "Insight: a feedback mechanism that doesn't feed evals is theater"
+          ]
+        }
+      ]
+    },
+    "source_url": "https://app.notion.com/p/371bb28896c680b0aa91fd0a429ddc2f",
+    "is_published": true
+  },
+  {
+    "id": "nsm-ai-legal-document-reviewer-smbs",
+    "title": "You're PM at a startup building an AI-powered legal document reviewer for Indian SMBs. Define your North Star metric and defend it.",
+    "category": ["AI"],
+    "domain_tags": ["AI", "LegalTech", "SaaS", "Startup"],
+    "difficulty": "Hard",
+    "clarifying_qs": [
+      "What core transformation does the product deliver - time saved, risk avoided, cost reduced?",
+      "What's the user journey - upload doc > AI flags risks > user acts > outcome?",
+      "When does the user feel the 'aha moment'?",
+      "Should the NSM capture both breadth and depth of value?",
+      "Can the metric be gamed, and does it correlate with revenue/retention?"
+    ],
+    "user_segments": [
+      "Indian SMB owners reviewing contracts",
+      "First-time users testing on a real document",
+      "Repeat users relying on AI flags",
+      "Users skeptical of AI recommendations"
+    ],
+    "pain_points": [
+      "'Docs reviewed' is an output, not an outcome",
+      "Users may act on bad recommendations",
+      "Hallucination risk undermines trust",
+      "High override rate signals broken model trust"
+    ],
+    "framework": "AI North Star (value, not activity)",
+    "framework_steps": [
+      "Define the core value (transformation delivered)",
+      "Map the user journey to the aha moment",
+      "Propose an NSM capturing breadth + depth of value",
+      "Stress-test it for gaming and correlation with revenue/retention",
+      "Add AI-specific health counter-metrics"
+    ],
+    "full_answer": {
+      "sections": [
+        {
+          "heading": "Strong Answer Hints",
+          "bullets": [
+            "Don't pick 'docs reviewed' - that's an output, not an outcome",
+            "Strong NSM: # of documents where the user acted on at least one AI recommendation per week",
+            "Captures engagement + trust + utility"
+          ]
+        },
+        {
+          "heading": "Metrics",
+          "bullets": [
+            "Primary NSM: weekly active documents with >=1 actioned AI recommendation",
+            "Counter-metric: AI recommendation override rate; if >40%, model trust is broken"
+          ]
+        },
+        {
+          "heading": "Activation Angle",
+          "bullets": [
+            "Onboard with a free first review on a real uploaded contract - nothing builds trust faster than catching a clause they missed"
+          ]
+        }
+      ]
+    },
+    "source_url": "https://app.notion.com/p/37bbb28896c68179b7bac9512993a756",
+    "is_published": true
+  },
+  {
+    "id": "nsm-ai-sales-email-assistant-gaming",
+    "title": "You're a PM at a startup building an AI-powered sales email assistant. Define your North Star metric and how you'd prevent gaming it.",
+    "category": ["AI"],
+    "domain_tags": ["AI", "SaaS", "Startup"],
+    "difficulty": "Hard",
+    "clarifying_qs": [
+      "Is the user an SDR/AE, and does the AI draft/personalise outbound sequences?",
+      "Is success defined by usage or by outcome quality (deals closed)?",
+      "Should the NSM capture value delivered, not just AI output generated?",
+      "How could reps game the metric?",
+      "How do we instrument it end-to-end?"
+    ],
+    "user_segments": [
+      "SDRs running outbound sequences",
+      "AEs personalising emails",
+      "Sales managers tracking pipeline",
+      "Reps at risk of abandoning AI if quality is poor"
+    ],
+    "pain_points": [
+      "Vanity NSMs like 'emails sent with AI assist' measure adoption, not value",
+      "Reps may force AI assist on every email to inflate numbers",
+      "Bad AI emails cause reps to stop using the tool",
+      "Spam/unsubscribe risk from AI-generated emails"
+    ],
+    "framework": "AI North Star + Anti-Gaming Counters",
+    "framework_steps": [
+      "Clarify the product and user",
+      "Define success as outcome quality, not usage",
+      "Propose an NSM tied to pipeline",
+      "Add counter-metrics to keep it honest",
+      "State end-to-end measurement"
+    ],
+    "full_answer": {
+      "sections": [
+        {
+          "heading": "Strong Answer Hints",
+          "bullets": [
+            "Avoid 'emails sent with AI assist' - measures adoption, not value",
+            "Strong NSM: meetings booked per AI-assisted sequence - ties AI output to pipeline",
+            "Track AI draft acceptance rate as a leading health metric"
+          ]
+        },
+        {
+          "heading": "Metrics",
+          "bullets": [
+            "Primary (NSM): meetings booked per AI-assisted email sequence vs. non-AI baseline",
+            "Counter-metric: unsubscribe rate and spam complaints on AI-generated emails"
+          ]
+        },
+        {
+          "heading": "Activation Angle",
+          "bullets": [
+            "Onboard reps by generating a personalised sample email in under 30 seconds from CRM data - first value before they send"
+          ]
+        }
+      ]
+    },
+    "source_url": "https://app.notion.com/p/37cbb28896c6813cbb49d7ff07c5a5fa",
+    "is_published": true
+  },
+  {
+    "id": "nsm-ai-email-assistant-sales-quality",
+    "title": "You're a PM at a B2B SaaS startup building an AI email assistant for sales teams. What's your North Star metric and how do you measure AI quality?",
+    "category": ["AI"],
+    "domain_tags": ["AI", "SaaS", "Startup"],
+    "difficulty": "Hard",
+    "clarifying_qs": [
+      "Does the AI draft/personalise outbound emails for SDRs and AEs?",
+      "Is the core value time saved, improved reply rates, or both?",
+      "Which NSM candidate - emails sent (vanity), reply rate (outcome), or hours saved (efficiency)?",
+      "What separate AI-quality metrics should we track?",
+      "What's the hallucination/trust guardrail?"
+    ],
+    "user_segments": [
+      "SDRs and AEs drafting outbound",
+      "Sales teams measuring reply rates",
+      "Users who heavily edit AI drafts",
+      "Prospects receiving AI-generated emails"
+    ],
+    "pain_points": [
+      "'Emails sent' is a vanity metric reflecting AI activity, not value",
+      "Product health and AI quality metrics get conflated",
+      "AI inventing a prospect detail is a trust-killer",
+      "Users rewriting 80%+ of a draft means the AI adds no value"
+    ],
+    "framework": "AI NSM + Product Health vs. AI Quality",
+    "framework_steps": [
+      "Define the product (AI drafts/personalises outbound)",
+      "Identify the core value (time saved AND reply-rate lift)",
+      "Compare NSM candidates and pick/defend one",
+      "Separate AI-quality metrics (acceptance, edit distance, regeneration)",
+      "Add hallucination/fact-accuracy guardrails"
+    ],
+    "full_answer": {
+      "sections": [
+        {
+          "heading": "Strong Answer Hints",
+          "bullets": [
+            "NSM should reflect user success, not AI activity",
+            "Separate product-health metrics (activation, retention) from AI-quality metrics (acceptance rate, edit distance)",
+            "One AI-invented prospect detail can kill adoption - add a fact-accuracy guardrail"
+          ]
+        },
+        {
+          "heading": "Metrics",
+          "bullets": [
+            "Primary: reply rate on AI-generated emails vs. manual baseline (aim for parity or +10%)",
+            "Counter-metric: edit distance - track 'high-edit sessions' (>80% rewritten) as a quality failure"
+          ]
+        },
+        {
+          "heading": "Activation Angle",
+          "bullets": [
+            "First-value: user gets a first AI-drafted email accepted (<30% edits) within session 1 - instrument as the activation event"
+          ]
+        }
+      ]
+    },
+    "source_url": "https://app.notion.com/p/37dbb28896c6812e9b50caed96f7af17",
+    "is_published": true
+  },
+  {
+    "id": "rca-support-agent-resolution-drop",
+    "title": "Customer-support agent resolution dropped 70% -> 55% over two weeks",
+    "category": ["RCA", "AI"],
+    "domain_tags": ["AI", "SaaS"],
+    "difficulty": "Hard",
+    "clarifying_qs": [
+      "Is the drop confirmed in data or based on one complaint? Anecdote vs. signal.",
+      "Sudden cliff or gradual decline?",
+      "One customer, a segment, or all customers?",
+      "Did we ship anything - prompt, model swap, KB update, integration change?",
+      "Did the model provider push a silent update? Did the 'resolved' definition change?"
+    ],
+    "user_segments": [
+      "One enterprise vs. one industry vs. all customers",
+      "Ticket types / intent classes degrading differently",
+      "Channels (email vs. chat vs. voice)",
+      "Time-of-day / geography cohorts"
+    ],
+    "pain_points": [
+      "Resolution rate isn't atomic - a small drop in one step compounds end-to-end",
+      "Hosted LLMs change silently",
+      "Customer-side KB/policy changes go unnotified",
+      "Tracking/definition changes can fake a drop"
+    ],
+    "framework": "RCA Funnel (Decompose-Scope-Hypothesize-Prioritize-Validate)",
+    "framework_steps": [
+      "Open with clarifying questions (signal vs. anecdote, cliff vs. gradual, scope, recent changes)",
+      "Decompose the metric into its chain",
+      "Scope the drop (customer, intent, channel, time)",
+      "Generate hypotheses in three buckets (internal, external, data/tracking)",
+      "Prioritize by likelihood x ease-to-check, then validate",
+      "Recommend, define success"
+    ],
+    "full_answer": {
+      "sections": [
+        {
+          "heading": "Decompose the Metric",
+          "bullets": [
+            "Resolution rate = Intent classification x Retrieval x Generation quality x Action execution x User acceptance",
+            "Find the moved term first before hypothesizing"
+          ]
+        },
+        {
+          "heading": "Hypothesis Buckets",
+          "bullets": [
+            "Internal/product: silent model regression, prompt/KB regression, stale vector index, cost-saving model swap, broken integration",
+            "External/customer: new product creating new ticket types, customer KB changes, seasonal spikes",
+            "Data/tracking: 'resolution' definition changed, logging gaps, sampling bias"
+          ]
+        },
+        {
+          "heading": "Prioritize & Validate",
+          "bullets": [
+            "Highest: silent provider update and our-own prompt/KB regression (high likelihood, easy to check)",
+            "Re-run the production eval suite; pull 50 failed cases and trace each to find the modal failure mode"
+          ]
+        },
+        {
+          "heading": "Recommend & Success",
+          "bullets": [
+            "Pattern A (silent model regression): lock to previous model, re-run evals, build a regression suite for every provider update",
+            "Pattern B (KB drift): refresh/re-index, add continuous KB-freshness checks + alerting",
+            "Success: resolution >=68% within 7 days, no eval regression, false-resolution rate doesn't rise"
+          ]
+        }
+      ]
+    },
+    "source_url": "https://app.notion.com/p/370bb28896c680f5804cc205b903ab99",
+    "is_published": true
+  },
+  {
+    "id": "rca-recruiting-candidate-quality-model-update",
+    "title": "Recruiting candidate quality dropped after a model update",
+    "category": ["RCA", "AI"],
+    "domain_tags": ["AI", "SaaS", "HRTech"],
+    "difficulty": "Hard",
+    "clarifying_qs": [
+      "Model swap (different provider) or a version update (e.g. Claude 3.7 -> 4)?",
+      "How is 'candidate quality' defined - ranking accuracy, recruiter accept rate, interview rate, time-to-hire?",
+      "Did our eval suite catch this before deployment?",
+      "Is the drop uniform or concentrated in certain roles/geographies?",
+      "Did anything else change besides the model - prompts, embeddings, scoring weights?"
+    ],
+    "user_segments": [
+      "Recruiters reviewing top-K candidates",
+      "Hiring managers running interviews",
+      "Different roles (tech vs. ops, senior vs. junior, US vs. India)",
+      "Compliance teams monitoring adverse impact"
+    ],
+    "pain_points": [
+      "A new model can parse, score, and calibrate differently",
+      "Few-shot examples tuned for the old model may not generalize",
+      "Bias profiles can shift along seniority/industry/geography",
+      "Embeddings swap can break retrieval upstream; thresholds may not carry over"
+    ],
+    "framework": "RCA on a Known Change (Decompose-Hypothesize-Validate-Route)",
+    "framework_steps": [
+      "Clarify swap vs. version update and the quality definition",
+      "Decompose where the model swap could hurt (JD parse, candidate parse, matching, ranking, explanation)",
+      "Generate hypotheses (model-behavior, prompt-model mismatch, system integration)",
+      "Validate via historical evals + side-by-side old/new traces + A/B holdout",
+      "Recommend rollback + workflow-pinned models (EmaFusion routing)"
+    ],
+    "full_answer": {
+      "sections": [
+        {
+          "heading": "Where the Swap Could Hurt",
+          "bullets": [
+            "JD parsing, candidate parsing, semantic matching, ranking/scoring, explanation generation",
+            "New models parse fields differently, grade with different strictness, and calibrate confidence differently"
+          ]
+        },
+        {
+          "heading": "Hypothesis Buckets",
+          "bullets": [
+            "Model-behavior: stricter grading, tokenization parse issues, non-generalizing few-shots, shifted bias",
+            "Prompt-model mismatch: prompts tuned for the old model interpreted differently",
+            "System integration: embeddings also swapped, scoring thresholds didn't carry over"
+          ]
+        },
+        {
+          "heading": "Validate & Recommend",
+          "bullets": [
+            "Run new model on historical evals; trace 50 flagged candidates old vs. new; 20% A/B holdout on old model",
+            "Immediate: roll back, communicate forensics, pause auto model-rollout",
+            "Strategic (EmaFusion): pin each workflow to its best-scoring model; gate updates on workflow-specific evals"
+          ]
+        },
+        {
+          "heading": "Counter-metrics",
+          "bullets": [
+            "Recruiter accept rate of top-K, time-to-hire, adverse-impact ratio across demographics, explanation hallucination rate"
+          ]
+        }
+      ]
+    },
+    "source_url": "https://app.notion.com/p/370bb28896c6808da6f3c518af767284",
+    "is_published": true
+  },
+  {
+    "id": "rca-hallucination-spike-one-client",
+    "title": "Hallucination complaints spiked from one client, nothing changed in the product",
+    "category": ["RCA", "AI"],
+    "domain_tags": ["AI", "SaaS"],
+    "difficulty": "Hard",
+    "clarifying_qs": [
+      "Confirm 'nothing changed' - no deploys, prompt changes, or model updates (including silent provider ones)?",
+      "Did complaint volume rise or did the hallucination rate per query rise?",
+      "Absolute count or proportion?",
+      "Did the type of hallucination change (factual, fabricated entities, wrong tool calls)?",
+      "Exact week/day it started, and is the client's usage pattern the same?"
+    ],
+    "user_segments": [
+      "The single affected client/tenant",
+      "New user cohort onboarded at the client",
+      "Power users pushing edge cases",
+      "The client's reviewers/auditors flagging issues"
+    ],
+    "pain_points": [
+      "If the product didn't change, the cause is outside the product",
+      "Client KB drift creates ambiguous retrieval the model resolves by fabricating",
+      "Silent model-provider updates shift calibration",
+      "New users/queries surface edge cases the system never trained on"
+    ],
+    "framework": "'What Changed in the World' RCA",
+    "framework_steps": [
+      "Confirm nothing changed internally; clarify rate vs. volume and type",
+      "Enumerate external changes (input data, usage pattern, upstream model, detection/labeling, environment)",
+      "Diagnose with 20 concrete examples traced end-to-end and categorized",
+      "Find the modal cause; check KB ingestion logs, provider changelog, usage logs",
+      "Recommend per pattern; validate with rate-based counter-metrics"
+    ],
+    "full_answer": {
+      "sections": [
+        {
+          "heading": "What Changed in the World",
+          "bullets": [
+            "Input data: client added conflicting/stale KB docs; format/template changes degrade parsing",
+            "Usage: new user cohort, matured power users, rising query complexity",
+            "Upstream model: silent provider update, rate-limit fallback to a smaller model, changed guardrails",
+            "Detection: new reviewer, widened 'hallucination' definition, new internal audit"
+          ]
+        },
+        {
+          "heading": "Diagnosis",
+          "bullets": [
+            "Pull 20 recent examples; trace query -> retrieved context -> output -> action",
+            "Categorize by failure mode; often 70%+ share one root cause",
+            "Check KB ingestion logs (last 4-6 weeks), provider changelog, usage logs"
+          ]
+        },
+        {
+          "heading": "Recommend by Pattern",
+          "bullets": [
+            "A - KB drift: audit/dedupe/version docs, retrain retrieval",
+            "B - silent model update: lock the version, re-evaluate; multi-model routing mitigates",
+            "C - new query types: add adversarial evals, harden prompts, add explicit 'I don't know'"
+          ]
+        },
+        {
+          "heading": "Counter-metrics",
+          "bullets": [
+            "Hallucination rate per 1000 queries (not absolute count), customer-reported vs. internally-detected gap, calibration, tenant health"
+          ]
+        }
+      ]
+    },
+    "source_url": "https://app.notion.com/p/371bb28896c680be855eed358878d082",
+    "is_published": true
+  },
+  {
+    "id": "rca-aov-drops-18-percent-wow",
+    "title": "Average order value on your e-commerce platform drops 18% week-over-week. How do you diagnose and address it?",
+    "category": ["Analytical"],
+    "domain_tags": ["Ecommerce"],
+    "difficulty": "Medium",
+    "clarifying_qs": [
+      "Is the drop global or segment-specific (category, geo, device, new vs. returning)?",
+      "Could it be a data/instrumentation issue (tagging change, attribution shift)?",
+      "Did orders go up while revenue stayed flat, or revenue drop with flat orders?",
+      "Did anything change this week (pricing experiment, coupon campaign, feed ranking)?",
+      "What's the business impact to establish urgency?"
+    ],
+    "user_segments": [
+      "Categories with different AOV norms (electronics vs. fashion vs. grocery)",
+      "Acquisition channels",
+      "New vs. returning user cohorts",
+      "Devices / geographies"
+    ],
+    "pain_points": [
+      "Jumping to solutions before exhausting diagnosis",
+      "Mix shift to lower-priced items goes undetected without category segmentation",
+      "Promo/discount spikes or feed-ranking changes silently move AOV",
+      "Supply issues in high-value categories"
+    ],
+    "framework": "RCA / Root Cause Analysis (Scope-Rule out-Decompose-Hypothesize-Act)",
+    "framework_steps": [
+      "Scope the drop (global vs. segment)",
+      "Rule out data/instrumentation issues",
+      "Break down AOV = revenue / orders",
+      "Hypothesize causes (mix shift, promo spike, supply, algo change)",
+      "Propose a 48-hour diagnostic, then a solution by root cause"
+    ],
+    "full_answer": {
+      "sections": [
+        {
+          "heading": "Strong Answer Hints",
+          "bullets": [
+            "Don't jump to solutions - exhaust diagnosis first",
+            "Sharpest move: segment AOV by category first (wildly different AOV norms)",
+            "Quantify impact early: 18% AOV drop x 1M orders/week = significant revenue at risk"
+          ]
+        },
+        {
+          "heading": "Metrics",
+          "bullets": [
+            "Primary: AOV segmented by category, acquisition channel, and user cohort",
+            "Counter-metric: order volume - if AOV drops but orders surge, net revenue may still be up"
+          ]
+        },
+        {
+          "heading": "Activation Angle",
+          "bullets": [
+            "If root cause is mix shift to lower-priced items: test 'frequently bought together' bundles and a free-delivery minimum-order threshold"
+          ]
+        }
+      ]
+    },
+    "source_url": "https://app.notion.com/p/37cbb28896c681ff9990e177c4feb6ad",
+    "is_published": true
+  },
+  {
+    "id": "measure-success-zepto-buy-again-shortcut",
+    "title": "How would you measure the success of a new 'Buy Again' shortcut feature added to Zepto's home screen?",
+    "category": ["Analytical"],
+    "domain_tags": ["Ecommerce", "Quick Commerce"],
+    "difficulty": "Medium",
+    "clarifying_qs": [
+      "What exactly does the feature do (surface past orders, tap to re-add to cart)?",
+      "What does 'working' mean - engagement, incremental orders, or retention lift?",
+      "What funnel stages should we measure?",
+      "Does it increase order frequency for returning users?",
+      "Could it cannibalize discovery/search or shrink basket size?"
+    ],
+    "user_segments": [
+      "Returning users with 2+ prior orders",
+      "High-frequency repeat buyers",
+      "Users who reorder a small set of staples",
+      "Browse-and-discover users at cannibalization risk"
+    ],
+    "pain_points": [
+      "Engagement metrics (CTR) get confused with impact metrics",
+      "Feature must create incremental orders, not just relocate existing intent",
+      "Cannibalizing catalog exploration could hurt LTV",
+      "Basket may shrink if users only reorder one item"
+    ],
+    "framework": "Feature Success Measurement (Funnel + Holdout)",
+    "framework_steps": [
+      "Clarify the feature",
+      "Define what success means",
+      "Map funnel metrics (impression -> click -> add-to-cart -> checkout -> order)",
+      "Add the retention angle (order frequency lift)",
+      "Set guardrails and design an A/B test with holdout"
+    ],
+    "full_answer": {
+      "sections": [
+        {
+          "heading": "Strong Answer Hints",
+          "bullets": [
+            "Show funnel logic: the feature only succeeds if it creates incremental orders",
+            "Distinguish engagement (CTR) from impact (incremental order rate, repeat-frequency lift)",
+            "Call out cannibalization: reduced exploration can hurt LTV even while boosting short-term conversion"
+          ]
+        },
+        {
+          "heading": "Metrics",
+          "bullets": [
+            "Primary: incremental orders/week attributed to 'Buy Again' (A/B treatment vs. control)",
+            "Counter-metric: avg items per order - a shrinking basket is a revenue problem"
+          ]
+        },
+        {
+          "heading": "Activation Angle",
+          "bullets": [
+            "Activates when a returning user (2+ prior orders) taps 'Buy Again' and checks out; track 7-day repeat rate vs. non-users"
+          ]
+        }
+      ]
+    },
+    "source_url": "https://app.notion.com/p/37dbb28896c6810baa42cc434ed490ee",
+    "is_published": true
+  },
+  {
+    "id": "measure-success-meesho-video-shopping",
+    "title": "How would you measure the success of Meesho's newly launched in-app video shopping feature?",
+    "category": ["Analytical"],
+    "domain_tags": ["Ecommerce", "Social Commerce"],
+    "difficulty": "Medium",
+    "clarifying_qs": [
+      "Is the goal discovery, conversion, engagement, or all three?",
+      "What's the funnel - impressions > play > watch time > product tap > add to cart > purchase?",
+      "How should we layer metrics by stage?",
+      "How do we segment (new vs. returning, Tier 1 vs. Tier 2/3, category)?",
+      "What guardrails tell us the feature is hurting the core experience?"
+    ],
+    "user_segments": [
+      "New vs. returning users",
+      "Tier 1 vs. Tier 2/3 buyers",
+      "Category cohorts (fashion vs. home)",
+      "High-intent search users vs. home-feed browsers"
+    ],
+    "pain_points": [
+      "Listing metrics without ranking them",
+      "Price-sensitive Tier 2/3 base may gain trust before conversion (a lag effect)",
+      "Video could increase scroll depth but kill conversion",
+      "Risk of hurting the core shopping experience"
+    ],
+    "framework": "Feature Success Measurement (Funnel + Holdout)",
+    "framework_steps": [
+      "Clarify the goal (discovery, conversion, engagement)",
+      "Define the video funnel",
+      "Layer metrics by stage (awareness, engagement, conversion, retention)",
+      "Segment the analysis",
+      "Set guardrails and propose a holdout experiment"
+    ],
+    "full_answer": {
+      "sections": [
+        {
+          "heading": "Strong Answer Hints",
+          "bullets": [
+            "Rank metrics: primary = GMV influenced by video; secondary = engagement depth",
+            "Acknowledge Tier 2/3 trust-before-conversion lag",
+            "Propose a holdout: control sees no video vs. test, compare 30-day GMV and retention"
+          ]
+        },
+        {
+          "heading": "Metrics",
+          "bullets": [
+            "Primary: GMV attributed to video-assisted sessions (>10s watched before purchase)",
+            "Counter-metric: session abandonment for video-served vs. not - if scroll depth rises but conversion falls, it's net negative"
+          ]
+        },
+        {
+          "heading": "Activation Angle",
+          "bullets": [
+            "Surface video thumbnails in search results first (not home feed) - high-intent users give cleaner signal fast"
+          ]
+        }
+      ]
+    },
+    "source_url": "https://app.notion.com/p/37bbb28896c681d19217e076b92dc5cf",
+    "is_published": true
+  }
+]
