@@ -15,6 +15,7 @@ import { questions } from '@/data';
 import type { Question } from '@/types/question';
 import { useProgress } from '@/state/useProgress';
 import { FlipCard } from '@/components/FlipCard';
+import { BulletList } from '@/components/blocks';
 import { BottomNavBar } from '@/components/BottomNavBar';
 import { BackButton, ContextStrip, DrillHeader, StepProgress } from '@/components/DrillHeader';
 import { Tag, DifficultyBadge } from '@/components/ui';
@@ -439,7 +440,9 @@ function SolutionMatrixStep({
                 <Text style={styles.impactTagText}>{SOLUTION_IMPACT[i % SOLUTION_IMPACT.length]}</Text>
               </View>
             </View>
-            <Text style={styles.solutionDesc}>{s.bullets.join(' ')}</Text>
+            <View style={styles.solutionDesc}>
+              <BulletList items={s.bullets} />
+            </View>
             <View style={styles.effortRow}>
               <MaterialIcons name="check-circle" size={14} color={colors.primary} />
               <Text style={styles.effortText}>{SOLUTION_EFFORT[i % SOLUTION_EFFORT.length]}</Text>
@@ -493,7 +496,9 @@ function FinalAnswerStep({
               </View>
               <View style={{ flex: 1 }}>
                 <Text style={styles.segmentTitle}>{s.heading}</Text>
-                <Text style={styles.pillarDesc}>{s.bullets.join(' ')}</Text>
+                <View style={styles.pillarDesc}>
+                  <BulletList items={s.bullets} />
+                </View>
               </View>
             </View>
           ))}
@@ -744,7 +749,7 @@ const styles = StyleSheet.create({
     paddingVertical: 2,
   },
   impactTagText: { color: colors.textMuted, fontSize: 11, fontWeight: '600' },
-  solutionDesc: { color: colors.textMuted, fontSize: 13, lineHeight: 19, marginBottom: space.sm },
+  solutionDesc: { marginBottom: space.sm },
   effortRow: { flexDirection: 'row', alignItems: 'center', gap: space.xs },
   effortText: { color: colors.primary, fontSize: 12, fontWeight: '600' },
 
@@ -779,7 +784,7 @@ const styles = StyleSheet.create({
     borderRadius: radius.lg,
     padding: space.lg,
   },
-  pillarDesc: { color: colors.textMuted, fontSize: 13, lineHeight: 19, marginTop: 4 },
+  pillarDesc: { marginTop: 4 },
   finalActions: { flexDirection: 'row', gap: space.md, flexWrap: 'wrap' },
   ghostBtn: {
     flexDirection: 'row',
