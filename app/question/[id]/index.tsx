@@ -16,11 +16,11 @@ import { useProgress } from '@/state/useProgress';
 import { FlipCard } from '@/components/FlipCard';
 import { TimerRing } from '@/components/TimerRing';
 import { BottomSheet } from '@/components/BottomSheet';
-import { AnswerSections, BulletList, SectionLabel } from '@/components/blocks';
+import { AnswerBody, BulletList, SectionLabel } from '@/components/blocks';
 import { CategoryPill, DifficultyDot } from '@/components/ui';
 import { colors, radius, space } from '@/theme/tokens';
 
-// Card steps: 0 Question · 1 Framework · 2 Clarifying · 3 Pointers · 4 Answer.
+// Card steps: 0 Question · 1 Framework · 2 Clarifying · 3 Key Pointers · 4 Answer.
 // 0→1 and 3→4 are flips (within a FlipCard); the rest are swipes.
 type Sheet = { title: string; items: string[] } | null;
 
@@ -35,6 +35,7 @@ export default function QuestionScreen() {
   const [timerKey, setTimerKey] = useState(0);
   const [timerHidden, setTimerHidden] = useState(false);
   const [sheet, setSheet] = useState<Sheet>(null);
+  const [hintSeen, setHintSeen] = useState(false);
 
   useEffect(() => {
     if (id) questions.getById(id).then(setQuestion);
@@ -45,12 +46,16 @@ export default function QuestionScreen() {
     router.back();
   };
   const goNext = () => {
+    setHintSeen(true);
     if (step >= 4) finish();
     else setStep(step + 1);
   };
-  const goPrev = () => setStep(Math.max(0, step - 1));
+  const goPrev = () => {
+    setHintSeen(true);
+    setStep(Math.max(0, step - 1));
+  };
 
-  // Horizontal swipe: left → next, right → previous (PRD card navigation).
+  // Horizontal swipe: left → next, right → previous.
   const swipe = Gesture.Pan()
     .activeOffsetX([-20, 20])
     .failOffsetY([-12, 12])
@@ -85,8 +90,8 @@ export default function QuestionScreen() {
           <Text style={styles.back}>‹</Text>
         </Pressable>
         <View style={styles.pillRow}>
-          {question.category[0] ? (
-            <CategoryPill category={question.category[0]} />
+          {question.categories[0] ? (
+            <CategoryPill category={question.categories[0]} />
           ) : null}
           <DifficultyDot difficulty={question.difficulty} showLabel />
         </View>
@@ -103,7 +108,7 @@ export default function QuestionScreen() {
           {step <= 1 ? (
             <FlipCard
               flipped={step === 1}
-              front={<QuestionFace question={question} />}
+              front={<QuestionFace question={question} showHint={!hintSeen} />}
               back={<FrameworkFace question={question} />}
             />
           ) : step === 2 ? (
@@ -112,7 +117,12 @@ export default function QuestionScreen() {
             <FlipCard
               flipped={step === 4}
               front={<PointersFace question={question} />}
-              back={<AnswerFace question={question} />}
+              back={
+                <AnswerFace
+                  question={question}
+                  onReadFull={() => router.push(`/question/${question.id}/read`)}
+                />
+              }
             />
           )}
         </View>
@@ -137,19 +147,22 @@ export default function QuestionScreen() {
             <PeekTab
               label="Framework"
               onPress={() =>
-                setSheet({ title: 'Framework', items: question.framework_steps })
+                setSheet({ title: 'Framework', items: question.framework.steps })
               }
             />
             <PeekTab
               label="Clarifying Qs"
               onPress={() =>
-                setSheet({ title: 'Clarifying Questions', items: question.clarifying_qs })
+                setSheet({
+                  title: 'Clarifying Questions',
+                  items: question.clarifying_questions,
+                })
               }
             />
             <PeekTab
               label="Key Pointers"
               onPress={() =>
-                setSheet({ title: 'Key Pointers', items: question.pain_points })
+                setSheet({ title: 'Key Pointers', items: question.key_pointers })
               }
             />
           </View>
@@ -214,10 +227,19 @@ export default function QuestionScreen() {
 
 /* ---- Card faces ---- */
 
-function QuestionFace({ question }: { question: Question }) {
+function QuestionFace({
+  question,
+  showHint,
+}: {
+  question: Question;
+  showHint: boolean;
+}) {
   return (
     <View style={styles.faceCenter}>
       <Text style={styles.questionText}>{question.title}</Text>
+      {showHint ? (
+        <Text style={styles.swipeHint}>← swipe or use the buttons →</Text>
+      ) : null}
     </View>
   );
 }
@@ -226,9 +248,9 @@ function FrameworkFace({ question }: { question: Question }) {
   return (
     <ScrollView contentContainerStyle={styles.facePad}>
       <SectionLabel>Framework</SectionLabel>
-      <Text style={styles.frameworkName}>{question.framework}</Text>
+      <Text style={styles.frameworkName}>{question.framework.name}</Text>
       <View style={{ height: space.md }} />
-      <BulletList items={question.framework_steps} />
+      <BulletList items={question.framework.steps} />
     </ScrollView>
   );
 }
@@ -238,7 +260,7 @@ function ClarifyingCard({ question }: { question: Question }) {
     <ScrollView contentContainerStyle={styles.facePad}>
       <SectionLabel>Clarifying Questions</SectionLabel>
       <View style={{ height: space.md }} />
-      <BulletList items={question.clarifying_qs} />
+      <BulletList items={question.clarifying_questions} />
       <View style={{ height: space.xl }} />
       <SectionLabel>Who are you building for?</SectionLabel>
       <View style={{ height: space.md }} />
@@ -248,26 +270,36 @@ function ClarifyingCard({ question }: { question: Question }) {
 }
 
 function PointersFace({ question }: { question: Question }) {
-  const covers = question.full_answer.sections.map((s) => s.heading);
   return (
     <ScrollView contentContainerStyle={styles.facePad}>
       <SectionLabel>Key Pointers</SectionLabel>
       <View style={{ height: space.md }} />
-      <Text style={styles.subLabel}>Pain points</Text>
-      <BulletList items={question.pain_points} />
+      <BulletList items={question.key_pointers} />
       <View style={{ height: space.xl }} />
-      <Text style={styles.subLabel}>What a strong answer covers</Text>
-      <BulletList items={covers} />
+      <View style={styles.readyCallout}>
+        <Text style={styles.readyText}>Ready to see the answer? Flip →</Text>
+      </View>
     </ScrollView>
   );
 }
 
-function AnswerFace({ question }: { question: Question }) {
+function AnswerFace({
+  question,
+  onReadFull,
+}: {
+  question: Question;
+  onReadFull: () => void;
+}) {
   return (
     <ScrollView contentContainerStyle={styles.facePad}>
-      <SectionLabel>Answer</SectionLabel>
+      <View style={styles.answerHeader}>
+        <SectionLabel>Answer</SectionLabel>
+        <Pressable onPress={onReadFull} hitSlop={8}>
+          <Text style={styles.readFull}>Read full answer →</Text>
+        </Pressable>
+      </View>
       <View style={{ height: space.lg }} />
-      <AnswerSections sections={question.full_answer.sections} />
+      <AnswerBody sections={question.answer} />
     </ScrollView>
   );
 }
@@ -313,7 +345,7 @@ const styles = StyleSheet.create({
   bookmark: { color: colors.textMuted, fontSize: 24 },
   bookmarkOn: { color: colors.accent },
   body: { flex: 1, marginVertical: space.lg },
-  faceCenter: { flex: 1, justifyContent: 'center' },
+  faceCenter: { flex: 1, justifyContent: 'center', gap: space.xl },
   facePad: { paddingVertical: space.sm },
   questionText: {
     color: colors.text,
@@ -322,13 +354,22 @@ const styles = StyleSheet.create({
     lineHeight: 36,
     letterSpacing: -0.5,
   },
+  swipeHint: { color: colors.textFaint, fontSize: 13, textAlign: 'center' },
   frameworkName: { color: colors.text, fontSize: 22, fontWeight: '700' },
-  subLabel: {
-    color: colors.textMuted,
-    fontSize: 13,
-    fontWeight: '700',
-    marginBottom: space.sm,
+  answerHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
   },
+  readFull: { color: colors.accent, fontSize: 13, fontWeight: '700' },
+  readyCallout: {
+    backgroundColor: colors.surface,
+    borderLeftWidth: 3,
+    borderLeftColor: colors.accent,
+    borderRadius: radius.sm,
+    padding: space.lg,
+  },
+  readyText: { color: colors.text, fontSize: 15, fontWeight: '600' },
   card1Extras: { gap: space.md, marginBottom: space.md },
   timerRow: { flexDirection: 'row', alignItems: 'center', gap: space.md },
   skip: { color: colors.accent, fontSize: 14, fontWeight: '600' },

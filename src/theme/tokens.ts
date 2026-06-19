@@ -1,7 +1,7 @@
 // Placeholder design tokens. Dark-first per the PRD direction. These are
 // intentionally minimal — final visuals will be matched to mockups later.
 
-import type { Category } from '@/types/question';
+import type { CategoryTag } from '@/types/question';
 
 export const colors = {
   bg: '#0D0D0F',
@@ -52,21 +52,37 @@ export const font = {
   label: 12,
 } as const;
 
-/** Per-category accent used on tiles/pills (PRD home tile colors). */
-export const categoryColor: Record<Category, string> = {
-  'Product Design': '#6B7280',
+/** Per-category accent used on pills / borders. */
+export const categoryColor: Record<CategoryTag, string> = {
+  'Product Design': '#9CA3AF',
   'Product Strategy': '#3FB950',
   Analytical: '#F85149',
-  Guesstimate: '#A371F7',
   AI: '#EC4899',
   RCA: '#388BFD',
+  Guesstimate: '#A371F7',
+  Behavioural: '#E3B341',
+  'Fav Product': '#F0883E',
 };
 
-export const categoryEmoji: Record<Category, string> = {
+/** Very-dark per-category tile background tints (from the v2 spec). */
+export const categoryTint: Record<CategoryTag, string> = {
+  'Product Design': '#1A1410',
+  'Product Strategy': '#0F1A10',
+  Analytical: '#1A100F',
+  AI: '#110F1A',
+  RCA: '#0F151A',
+  Guesstimate: '#1A0F18',
+  Behavioural: '#1A1810',
+  'Fav Product': '#1A1310',
+};
+
+export const categoryEmoji: Record<CategoryTag, string> = {
   'Product Design': '🎨',
   'Product Strategy': '♟️',
   Analytical: '📊',
-  Guesstimate: '🔢',
   AI: '🤖',
   RCA: '🔍',
+  Guesstimate: '🔢',
+  Behavioural: '🗣️',
+  'Fav Product': '⭐',
 };

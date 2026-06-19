@@ -1,9 +1,9 @@
 import React from 'react';
 import { StyleSheet, Text, View, type ViewStyle } from 'react-native';
-import type { Category, Difficulty } from '@/types/question';
+import type { CategoryTag, Difficulty } from '@/types/question';
 import { categoryColor, colors, radius, space } from '@/theme/tokens';
 
-export function CategoryPill({ category }: { category: Category }) {
+export function CategoryPill({ category }: { category: CategoryTag }) {
   return (
     <View style={[styles.pill, { borderColor: categoryColor[category] }]}>
       <View style={[styles.dot, { backgroundColor: categoryColor[category] }]} />

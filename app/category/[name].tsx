@@ -10,7 +10,7 @@ import {
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { questions } from '@/data';
-import type { Category, Question } from '@/types/question';
+import type { CategoryTag, Question } from '@/types/question';
 import { QuestionCard } from '@/components/QuestionCard';
 import { colors, radius, space } from '@/theme/tokens';
 
@@ -18,7 +18,7 @@ export default function CategoryScreen() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
   const { name } = useLocalSearchParams<{ name: string }>();
-  const category = decodeURIComponent(name ?? '') as Category;
+  const category = decodeURIComponent(name ?? '') as CategoryTag;
 
   const [all, setAll] = useState<Question[]>([]);
   const [domains, setDomains] = useState<string[]>([]);
@@ -41,7 +41,8 @@ export default function CategoryScreen() {
   const filtered = useMemo(() => {
     const needle = search.trim().toLowerCase();
     return all.filter((q) => {
-      if (activeDomain && !q.domain_tags.includes(activeDomain)) return false;
+      if (activeDomain && !(q.domain_tags as string[]).includes(activeDomain))
+        return false;
       if (needle && !q.title.toLowerCase().includes(needle)) return false;
       return true;
     });

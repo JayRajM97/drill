@@ -1,29 +1,22 @@
-import type { Category, Question } from '@/types/question';
+import type { CategoryTag, Question } from '@/types/question';
 import { CATEGORIES } from '@/types/question';
-import seed from '../../assets/seed/questions.json';
+import { curatedQuestions } from './curated';
+import { legacyQuestions } from './normalizeLegacy';
 import type {
   CategorySummary,
   QuestionFilters,
   QuestionRepository,
 } from './repository';
 
-// The bundled seed is generated from Notion at build time (see scripts/README).
-// Cast through unknown because JSON loses the literal-union typing.
-const QUESTIONS = (seed as unknown as Question[]).filter((q) => q.is_published);
-
-/** Stable, order-preserving picker driven by a string seed (date) → index. */
-function hashString(s: string): number {
-  let h = 2166136261;
-  for (let i = 0; i < s.length; i++) {
-    h ^= s.charCodeAt(i);
-    h = Math.imul(h, 16777619);
-  }
-  return Math.abs(h);
-}
+// Curated (hand-authored) questions first, then the normalized Notion set.
+// `is_published === false` hides a question; everything else is shown.
+const QUESTIONS: Question[] = [...curatedQuestions, ...legacyQuestions].filter(
+  (q) => q.is_published !== false,
+);
 
 function matches(q: Question, f: QuestionFilters): boolean {
-  if (f.category && !q.category.includes(f.category)) return false;
-  if (f.domain && !q.domain_tags.includes(f.domain)) return false;
+  if (f.category && !q.categories.includes(f.category)) return false;
+  if (f.domain && !q.domain_tags.includes(f.domain as any)) return false;
   if (f.search) {
     const needle = f.search.trim().toLowerCase();
     if (needle && !q.title.toLowerCase().includes(needle)) return false;
@@ -42,13 +35,13 @@ export const localRepository: QuestionRepository = {
     return QUESTIONS.find((q) => q.id === id) ?? null;
   },
 
-  async getDaily(seedStr) {
+  async getDaily() {
+    // Today's question per category = the first (most recently added) in data
+    // order. Curated questions sit at the top of QUESTIONS.
     const picks: Question[] = [];
     for (const category of CATEGORIES) {
-      const pool = QUESTIONS.filter((q) => q.category.includes(category));
-      if (pool.length === 0) continue;
-      const idx = hashString(`${seedStr}:${category}`) % pool.length;
-      picks.push(pool[idx]);
+      const first = QUESTIONS.find((q) => q.categories.includes(category));
+      if (first) picks.push(first);
     }
     return picks;
   },
@@ -56,7 +49,7 @@ export const localRepository: QuestionRepository = {
   async getCategories() {
     return CATEGORIES.map<CategorySummary>((category) => ({
       category,
-      count: QUESTIONS.filter((q) => q.category.includes(category)).length,
+      count: QUESTIONS.filter((q) => q.categories.includes(category)).length,
     }));
   },
 
@@ -67,4 +60,4 @@ export const localRepository: QuestionRepository = {
   },
 };
 
-export const CATEGORY_LIST: Category[] = CATEGORIES;
+export const CATEGORY_LIST: CategoryTag[] = CATEGORIES;

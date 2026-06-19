@@ -1,10 +1,17 @@
 import React from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
-import type { Category } from '@/types/question';
-import { categoryColor, categoryEmoji, colors, radius, space } from '@/theme/tokens';
+import type { CategoryTag } from '@/types/question';
+import {
+  categoryColor,
+  categoryEmoji,
+  categoryTint,
+  colors,
+  radius,
+  space,
+} from '@/theme/tokens';
 
 interface Props {
-  category: Category;
+  category: CategoryTag;
   count: number;
   onPress: () => void;
 }
@@ -15,7 +22,7 @@ export function CategoryTile({ category, count, onPress }: Props) {
       onPress={onPress}
       style={({ pressed }) => [
         styles.tile,
-        { borderColor: categoryColor[category] },
+        { backgroundColor: categoryTint[category], borderColor: categoryColor[category] },
         pressed && styles.pressed,
       ]}
     >

@@ -37,7 +37,7 @@ export default function HomeScreen() {
     >
       {/* Header: wordmark + streak */}
       <View style={styles.header}>
-        <Text style={styles.wordmark}>Drill</Text>
+        <Text style={styles.wordmark}>DRILL</Text>
         <Pressable style={styles.streak} onPress={() => router.push('/bookmarks')}>
           <Text style={styles.streakText}>🔥 {progress.streak}</Text>
         </Pressable>
@@ -60,7 +60,7 @@ export default function HomeScreen() {
               <View style={styles.newBadge}>
                 <Text style={styles.newBadgeText}>New</Text>
               </View>
-              <Text style={styles.dailyCategory}>{q.category[0]}</Text>
+              <Text style={styles.dailyCategory}>{q.categories[0]}</Text>
               <Text style={styles.dailyTitle} numberOfLines={3}>
                 {q.title}
               </Text>
@@ -101,10 +101,10 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   wordmark: {
-    color: colors.text,
-    fontSize: 28,
+    color: colors.accent,
+    fontSize: 26,
     fontWeight: '800',
-    letterSpacing: -0.5,
+    letterSpacing: 1,
   },
   streak: {
     backgroundColor: colors.surface,
