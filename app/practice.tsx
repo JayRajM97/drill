@@ -34,7 +34,7 @@ export default function PracticeScreen() {
 
   const filtered = useMemo(() => {
     return all.filter((q) => {
-      if (category && !q.category.includes(category)) return false;
+      if (category && !q.categories.includes(category)) return false;
       if (domain && !q.domain_tags.includes(domain)) return false;
       if (difficulty && q.difficulty !== difficulty) return false;
       return true;
@@ -124,7 +124,7 @@ export default function PracticeScreen() {
                 {q.title}
               </Text>
               <View style={styles.tagWrap}>
-                {q.category[0] ? <Tag label={q.category[0]} /> : null}
+                {q.categories[0] ? <Tag label={q.categories[0]} /> : null}
                 {q.domain_tags[0] ? <Tag label={q.domain_tags[0]} /> : null}
               </View>
             </Pressable>
@@ -145,7 +145,7 @@ export default function PracticeScreen() {
               <View style={{ flex: 1, gap: space.sm }}>
                 <Text style={styles.rowTitle}>{q.title}</Text>
                 <View style={styles.tagWrap}>
-                  {q.category[0] ? <Tag label={q.category[0]} /> : null}
+                  {q.categories[0] ? <Tag label={q.categories[0]} /> : null}
                   {q.domain_tags[0] ? <Tag label={q.domain_tags[0]} /> : null}
                 </View>
               </View>

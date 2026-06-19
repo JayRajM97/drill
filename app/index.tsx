@@ -96,11 +96,11 @@ export default function HomeScreen() {
             >
               <View style={styles.dailyTopRow}>
                 <DifficultyBadge difficulty={featured.difficulty} />
-                <Text style={styles.dailyCategory}>{featured.category[0]}</Text>
+                <Text style={styles.dailyCategory}>{featured.categories[0]}</Text>
               </View>
               <Text style={styles.dailyTitle}>{featured.title}</Text>
               <Text style={styles.dailyDesc} numberOfLines={2}>
-                Practice with the {featured.framework} framework — explore{' '}
+                Practice with the {featured.framework.name} framework — explore{' '}
                 {featured.domain_tags.slice(0, 2).join(' & ')}.
               </Text>
               <View style={styles.dailyFooter}>

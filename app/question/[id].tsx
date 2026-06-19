@@ -15,7 +15,7 @@ import { questions } from '@/data';
 import type { Question } from '@/types/question';
 import { useProgress } from '@/state/useProgress';
 import { FlipCard } from '@/components/FlipCard';
-import { BulletList } from '@/components/blocks';
+import { SectionContent, StrongVsGeneric } from '@/components/blocks';
 import { BottomNavBar } from '@/components/BottomNavBar';
 import { BackButton, ContextStrip, DrillHeader, StepProgress } from '@/components/DrillHeader';
 import { Tag, DifficultyBadge } from '@/components/ui';
@@ -135,7 +135,7 @@ export default function QuestionScreen() {
             <View style={styles.flashcard}>
               <View style={styles.tagRow}>
                 {question.domain_tags[0] ? <Tag label={question.domain_tags[0]} /> : null}
-                {question.category[0] ? <Tag label={question.category[0]} /> : null}
+                {question.categories[0] ? <Tag label={question.categories[0]} /> : null}
                 <DifficultyBadge difficulty={question.difficulty} />
               </View>
               <View style={styles.faceCenter}>
@@ -218,9 +218,9 @@ function FrameworkStep({
           }
           back={
             <ScrollView style={styles.frameworkBack} contentContainerStyle={{ padding: space.xl }}>
-              <Text style={styles.frameworkFrontTitle}>{question.framework}</Text>
+              <Text style={styles.frameworkFrontTitle}>{question.framework.name}</Text>
               <View style={{ height: space.lg }} />
-              {question.framework_steps.map((step, i) => (
+              {question.framework.steps.map((step, i) => (
                 <View key={i} style={styles.numberedRow}>
                   <View style={styles.numberCircle}>
                     <Text style={styles.numberCircleText}>{i + 1}</Text>
@@ -272,7 +272,7 @@ function ClarifyingStep({
         <Text style={styles.eyebrow}>Key Clarifying Questions</Text>
         <View style={{ height: space.md }} />
         <View style={{ gap: space.md }}>
-          {question.clarifying_qs.map((q, i) => (
+          {question.clarifying_questions.map((q, i) => (
             <View key={i} style={styles.numberedRow}>
               <View style={styles.numberCircle}>
                 <Text style={styles.numberCircleText}>{i + 1}</Text>
@@ -310,7 +310,7 @@ function UserSegmentsStep({
       <View>
         <Text style={styles.eyebrow}>Prompt Breakdown</Text>
         <Text style={styles.stepTitleLeft}>User Segments</Text>
-        <Text style={styles.stepSubLeft}>{question.category.join(' / ')}</Text>
+        <Text style={styles.stepSubLeft}>{question.categories.join(' / ')}</Text>
       </View>
       <View style={styles.card}>
         {question.user_segments.map((seg, i) => (
@@ -362,22 +362,22 @@ function PainPointsStep({
       <StepProgress step={step} total={TOTAL_STEPS} />
       <View>
         <Text style={styles.eyebrow}>Practice Session</Text>
-        <Text style={styles.stepTitleLeft}>Pain Points</Text>
+        <Text style={styles.stepTitleLeft}>Key Pointers</Text>
       </View>
       <View style={styles.articleCard}>
         <View style={styles.articleHeader}>
           <View style={styles.warningIcon}>
-            <MaterialIcons name="warning" size={20} color={colors.onErrorContainer} />
+            <MaterialIcons name="lightbulb" size={20} color={colors.primary} />
           </View>
           <View style={{ flex: 1 }}>
-            <Text style={styles.cardHeadingSm}>Key Pain Points</Text>
+            <Text style={styles.cardHeadingSm}>Key Pointers</Text>
             <Text style={styles.cardSubSm}>
-              Usability hurdles identified for this scenario.
+              What a strong answer covers.
             </Text>
           </View>
         </View>
         <View style={{ padding: space.xl, gap: space.lg }}>
-          {question.pain_points.map((p, i) => (
+          {question.key_pointers.map((p, i) => (
             <View key={i} style={styles.numberedRow}>
               <View style={styles.numberCircle}>
                 <Text style={styles.numberCircleText}>{i + 1}</Text>
@@ -403,8 +403,6 @@ function PainPointsStep({
 
 /* ---- Step 5: Solution Matrix — literal to 12-swiggy-solution-matrix.html ---- */
 const SOLUTION_ICONS: (keyof typeof MaterialIcons.glyphMap)[] = ['lightbulb', 'build', 'trending-up', 'map'];
-const SOLUTION_IMPACT = ['High Impact', 'High Impact', 'Medium Impact', 'Medium Impact'];
-const SOLUTION_EFFORT = ['Low Implementation Effort', 'Medium Implementation Effort', 'High Implementation Effort', 'Medium Implementation Effort'];
 
 function SolutionMatrixStep({
   question,
@@ -415,18 +413,20 @@ function SolutionMatrixStep({
   step: number;
   onNext: () => void;
 }) {
-  const solutions = question.full_answer.sections;
+  // The structured breakdown: everything except the headline recommendation,
+  // which is surfaced on the final step.
+  const sections = question.answer.filter((s) => s.type !== 'callout');
   return (
     <View style={{ gap: space.xl }}>
       <StepProgress step={step} total={TOTAL_STEPS} />
       <View style={styles.matrixHeaderRow}>
         <View>
-          <Text style={styles.cardHeadingSm}>Solution Matrix</Text>
-          <Text style={styles.cardSubSm}>Prioritized by impact vs. effort</Text>
+          <Text style={styles.cardHeadingSm}>The Breakdown</Text>
+          <Text style={styles.cardSubSm}>How a strong answer is structured</Text>
         </View>
       </View>
       <View style={{ gap: space.md }}>
-        {solutions.map((s, i) => (
+        {sections.map((s, i) => (
           <View key={i} style={styles.solutionCard}>
             <View style={[styles.solutionBar, i < 2 && styles.solutionBarHigh]} />
             <View style={styles.solutionHeader}>
@@ -436,16 +436,9 @@ function SolutionMatrixStep({
                 </View>
                 <Text style={styles.segmentTitle}>{s.heading}</Text>
               </View>
-              <View style={styles.impactTag}>
-                <Text style={styles.impactTagText}>{SOLUTION_IMPACT[i % SOLUTION_IMPACT.length]}</Text>
-              </View>
             </View>
             <View style={styles.solutionDesc}>
-              <BulletList items={s.bullets} />
-            </View>
-            <View style={styles.effortRow}>
-              <MaterialIcons name="check-circle" size={14} color={colors.primary} />
-              <Text style={styles.effortText}>{SOLUTION_EFFORT[i % SOLUTION_EFFORT.length]}</Text>
+              <SectionContent section={s} />
             </View>
           </View>
         ))}
@@ -470,7 +463,9 @@ function FinalAnswerStep({
   onRestart: () => void;
   onFinish: () => void;
 }) {
-  const sections = question.full_answer.sections;
+  // The headline recommendation(s) — the callout sections (the bet + senior
+  // insight) — plus the optional strong-vs-generic comparison.
+  const callouts = question.answer.filter((s) => s.type === 'callout');
   const PILLAR_ICONS: (keyof typeof MaterialIcons.glyphMap)[] = ['visibility', 'lightbulb', 'check-circle', 'support-agent'];
   return (
     <View style={{ gap: space.xl }}>
@@ -484,12 +479,12 @@ function FinalAnswerStep({
           </View>
         </View>
         <Text style={styles.finalIntro}>
-          Apply the <Text style={{ fontWeight: '700' }}>{question.framework}</Text> framework,
-          focusing on: {sections.map((s) => s.heading).join(', ')}.
+          Apply the <Text style={{ fontWeight: '700' }}>{question.framework.name}</Text> framework
+          to land a clear, metric-backed recommendation.
         </Text>
-        <Text style={styles.eyebrow}>Core Pillars of the Solution</Text>
+        <Text style={styles.eyebrow}>The Recommendation</Text>
         <View style={{ gap: space.md, marginTop: space.sm }}>
-          {sections.map((s, i) => (
+          {callouts.map((s, i) => (
             <View key={i} style={styles.pillarCard}>
               <View style={styles.numberCircle}>
                 <MaterialIcons name={PILLAR_ICONS[i % PILLAR_ICONS.length]} size={18} color={colors.text} />
@@ -497,12 +492,18 @@ function FinalAnswerStep({
               <View style={{ flex: 1 }}>
                 <Text style={styles.segmentTitle}>{s.heading}</Text>
                 <View style={styles.pillarDesc}>
-                  <BulletList items={s.bullets} />
+                  <Text style={styles.finalIntro}>{s.content as string}</Text>
                 </View>
               </View>
             </View>
           ))}
         </View>
+        {question.strong_vs_generic?.length ? (
+          <View style={{ gap: space.sm, marginTop: space.sm }}>
+            <Text style={styles.eyebrow}>💡 Strong vs. Generic</Text>
+            <StrongVsGeneric rows={question.strong_vs_generic} />
+          </View>
+        ) : null}
       </View>
       <View style={styles.finalActions}>
         <Pressable style={styles.ghostBtn} onPress={onRestart}>
@@ -712,7 +713,7 @@ const styles = StyleSheet.create({
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: colors.errorContainer,
+    backgroundColor: colors.surfaceAlt,
     alignItems: 'center',
     justifyContent: 'center',
   },
