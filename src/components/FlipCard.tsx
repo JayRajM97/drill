@@ -24,22 +24,27 @@ export function FlipCard({ flipped, front, back, style }: Props) {
 
   useEffect(() => {
     progress.value = withSpring(flipped ? 1 : 0, {
-      damping: 14,
-      stiffness: 90,
+      damping: 16,
+      stiffness: 120,
+      mass: 0.9,
     });
   }, [flipped, progress]);
 
+  // A small scale dip at the midpoint (card edge-on) makes the flip feel
+  // physical rather than like a flat rotation.
   const frontStyle = useAnimatedStyle(() => {
     const rotate = interpolate(progress.value, [0, 1], [0, 180]);
+    const scale = interpolate(progress.value, [0, 0.5, 1], [1, 0.94, 1]);
     return {
-      transform: [{ perspective: 1000 }, { rotateY: `${rotate}deg` }],
+      transform: [{ perspective: 1200 }, { rotateY: `${rotate}deg` }, { scale }],
     };
   });
 
   const backStyle = useAnimatedStyle(() => {
     const rotate = interpolate(progress.value, [0, 1], [180, 360]);
+    const scale = interpolate(progress.value, [0, 0.5, 1], [1, 0.94, 1]);
     return {
-      transform: [{ perspective: 1000 }, { rotateY: `${rotate}deg` }],
+      transform: [{ perspective: 1200 }, { rotateY: `${rotate}deg` }, { scale }],
     };
   });
 
