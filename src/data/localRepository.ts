@@ -1,16 +1,16 @@
 import type { CategoryTag, Question } from '@/types/question';
 import { CATEGORIES } from '@/types/question';
 import { curatedQuestions } from './curated';
-import { legacyQuestions } from './normalizeLegacy';
+import { notionQuestions } from './notionQuestions';
 import type {
   CategorySummary,
   QuestionFilters,
   QuestionRepository,
 } from './repository';
 
-// Curated (hand-authored) questions first, then the normalized Notion set.
+// Curated (hand-authored) questions first, then the enriched Notion set.
 // `is_published === false` hides a question; everything else is shown.
-const QUESTIONS: Question[] = [...curatedQuestions, ...legacyQuestions].filter(
+const QUESTIONS: Question[] = [...curatedQuestions, ...notionQuestions].filter(
   (q) => q.is_published !== false,
 );
 
