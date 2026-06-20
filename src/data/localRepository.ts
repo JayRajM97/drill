@@ -1,15 +1,18 @@
 import type { Category, Question } from '@/types/question';
 import { CATEGORIES } from '@/types/question';
-import seed from '../../assets/seed/questions.json';
+import { curatedQuestions } from './curated';
+import { notionQuestions } from './notionQuestions';
 import type {
   CategorySummary,
   QuestionFilters,
   QuestionRepository,
 } from './repository';
 
-// The bundled seed is generated from Notion at build time (see scripts/README).
-// Cast through unknown because JSON loses the literal-union typing.
-const QUESTIONS = (seed as unknown as Question[]).filter((q) => q.is_published);
+// Curated (hand-authored) questions first, then the enriched Notion set.
+// `is_published === false` hides a question; everything else is shown.
+const QUESTIONS: Question[] = [...curatedQuestions, ...notionQuestions].filter(
+  (q) => q.is_published !== false,
+);
 
 /** Stable, order-preserving picker driven by a string seed (date) → index. */
 function hashString(s: string): number {
@@ -22,7 +25,7 @@ function hashString(s: string): number {
 }
 
 function matches(q: Question, f: QuestionFilters): boolean {
-  if (f.category && !q.category.includes(f.category)) return false;
+  if (f.category && !q.categories.includes(f.category)) return false;
   if (f.domain && !q.domain_tags.includes(f.domain)) return false;
   if (f.search) {
     const needle = f.search.trim().toLowerCase();
@@ -45,7 +48,7 @@ export const localRepository: QuestionRepository = {
   async getDaily(seedStr) {
     const picks: Question[] = [];
     for (const category of CATEGORIES) {
-      const pool = QUESTIONS.filter((q) => q.category.includes(category));
+      const pool = QUESTIONS.filter((q) => q.categories.includes(category));
       if (pool.length === 0) continue;
       const idx = hashString(`${seedStr}:${category}`) % pool.length;
       picks.push(pool[idx]);
@@ -56,7 +59,7 @@ export const localRepository: QuestionRepository = {
   async getCategories() {
     return CATEGORIES.map<CategorySummary>((category) => ({
       category,
-      count: QUESTIONS.filter((q) => q.category.includes(category)).length,
+      count: QUESTIONS.filter((q) => q.categories.includes(category)).length,
     }));
   },
 

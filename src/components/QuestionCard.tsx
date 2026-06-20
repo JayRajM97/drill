@@ -42,8 +42,8 @@ export function QuestionCard({ question, onPress, compact, badge }: Props) {
         {question.title}
       </Text>
       <View style={styles.footer}>
-        {question.category[0] ? (
-          <CategoryPill category={question.category[0]} />
+        {question.categories[0] ? (
+          <CategoryPill category={question.categories[0]} />
         ) : null}
         <DifficultyDot difficulty={question.difficulty} showLabel />
       </View>

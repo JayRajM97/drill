@@ -1,5 +1,5 @@
-// Core domain types for Drill. These mirror the PRD `questions` schema and are
-// the contract every data source (local JSON now, Firestore later) conforms to.
+// Core domain types for Drill. Rich v2 question schema (typed answer sections)
+// layered onto the design build's category set.
 
 export type Category =
   | 'Product Design'
@@ -20,34 +20,47 @@ export const CATEGORIES: Category[] = [
   'RCA',
 ];
 
-/** A single section of a structured answer: a heading plus bullet points. */
+export interface TableData {
+  headers: string[];
+  rows: string[][];
+}
+
+/** One section of a structured answer; `content` shape depends on `type`. */
 export interface AnswerSection {
   heading: string;
-  bullets: string[];
+  type: 'text' | 'bullets' | 'table' | 'callout' | 'code';
+  content: string | string[] | TableData;
 }
 
-export interface FullAnswer {
-  sections: AnswerSection[];
+/** A row in the optional "Strong answer vs. Generic" comparison. */
+export interface StrongVsGenericRow {
+  strong: string;
+  generic: string;
 }
 
-/** A practice question. Field names match the PRD `questions` table. */
+/** A practice question (v2 schema). */
 export interface Question {
   id: string;
   title: string;
-  category: Category[];
+  categories: Category[];
   domain_tags: string[];
   difficulty: Difficulty;
-  clarifying_qs: string[];
+  /** One-line descriptor, e.g. "Product Design — Activation / Conversion problem". */
+  question_type: string;
+  clarifying_questions: string[];
   user_segments: string[];
-  pain_points: string[];
-  framework: string;
-  framework_steps: string[];
-  full_answer: FullAnswer;
-  source_url: string;
-  is_published: boolean;
+  framework: { name: string; steps: string[] };
+  /** "What a strong answer covers" hints. */
+  key_pointers: string[];
+  answer: AnswerSection[];
+  strong_vs_generic?: StrongVsGenericRow[];
+  /** Provenance for Notion-sourced questions (optional). */
+  source_url?: string;
+  /** Defaults to published; only `false` hides a question. */
+  is_published?: boolean;
 }
 
-/** Per-question, per-user practice state (PRD `user_sessions`). */
+/** Per-question, per-user practice state. */
 export interface Session {
   questionId: string;
   flipped: boolean;

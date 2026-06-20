@@ -1,30 +1,39 @@
 # Seed data pipeline
 
-`assets/seed/questions.json` is the bundled question dataset the app reads at
-runtime via `src/data/localRepository.ts`. The app **never** calls Notion at
-runtime — seeding is a build-time step.
+The app's question dataset has two parts, merged in `src/data/localRepository.ts`
+(`curated` first, then enriched Notion). The app **never** calls Notion at
+runtime — all seeding is build-time.
 
-## How it was generated
+## Sources
 
-1. Source: the Notion "Questions" database
-   (`collection://31dbb288-96c6-8035-86ef-000b7abb4686`).
-2. Each question page was fetched and its prose body extracted into the
-   structured `Question` shape defined in `src/types/question.ts`
-   (`clarifying_qs`, `user_segments`, `pain_points`, `framework`,
-   `framework_steps`, `full_answer.sections`, …).
-3. Pages containing multiple questions were split into separate records.
-   Non-question reference/master pages were skipped.
-4. `source_url` on every record links back to the originating Notion page, so
-   any extracted content can be verified against the source.
+1. **Curated (`src/data/curated.ts`)** — 8 hand-authored questions written
+   directly in the `Question` shape (`src/types/question.ts`): typed `answer`
+   sections (`text`/`bullets`/`table`/`callout`/`code`), a structured
+   `framework`, `key_pointers`, and optional `strong_vs_generic`.
 
-## Regenerating
+2. **Enriched Notion (`assets/seed/enriched-notion.json`)** — 29 questions
+   sourced from the Notion "Questions" database
+   (`collection://31dbb288-96c6-8035-86ef-000b7abb4686`) and rewritten into the
+   full `Question` schema (tables/callouts/metrics, `framework`, `key_pointers`,
+   `strong_vs_generic`). Loaded by `src/data/notionQuestions.ts`. The raw
+   pre-enrichment export is kept at `assets/seed/legacy-notion.json` for
+   provenance (not bundled).
 
-Re-run the extraction against Notion and overwrite `assets/seed/questions.json`
-with a JSON array of `Question` records. Keep `is_published: true` for records
-that should appear in the app.
+## Deduplication
+
+The 8 curated questions each had a higher-fidelity counterpart among the Notion
+records; those 8 are excluded from `enriched-notion.json`, so the merged set is
+**8 curated + 29 enriched = 37** with no duplicates.
+
+## How it renders
+
+The 6-step drill (`app/question/[id].tsx`) maps fields to the Stitch design:
+framework → clarifying → user segments → key pointers → the structured
+breakdown (non-callout `answer` sections, typed) → final recommendation
+(callout sections + `strong_vs_generic`).
 
 ## Migrating to Firestore (later)
 
-The same JSON can seed a Firestore `questions` collection. Implement
+The merged `Question[]` can seed a Firestore `questions` collection. Implement
 `src/data/firestoreRepository.ts` against the `QuestionRepository` interface and
 switch the active export in `src/data/index.ts`.
