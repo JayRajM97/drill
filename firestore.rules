@@ -1,0 +1,16 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Published questions are world-readable; only the backend (Admin SDK,
+    // which bypasses rules) may write. Unpublished docs are never exposed.
+    match /questions/{id} {
+      allow read: if resource.data.is_published == true;
+      allow write: if false;
+    }
+    // The daily index is public-readable, backend-write-only.
+    match /daily/{date} {
+      allow read: if true;
+      allow write: if false;
+    }
+  }
+}
