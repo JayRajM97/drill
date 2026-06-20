@@ -39,3 +39,7 @@ yarn-error.*
 # generated native folders
 /ios
 /android
+
+# Cloud Functions
+functions/node_modules/
+functions/lib/
