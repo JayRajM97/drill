@@ -75,7 +75,10 @@ export default function NumbersScreen() {
                 {t.emoji} {t.title}
               </Text>
             ) : (
-              <Text style={styles.blurb}>{t.blurb}</Text>
+              <View style={styles.blurbBox}>
+                <Text style={styles.blurbLabel}>{t.title} in one line</Text>
+                <Text style={styles.blurb}>{t.blurb}</Text>
+              </View>
             )}
             {t.groups.map((g) => (
               <View key={g.title} style={styles.group}>
@@ -108,7 +111,7 @@ export default function NumbersScreen() {
       {/* Practice entry points: small, docked bottom-right above the nav. */}
       <View style={[styles.ctaRow, { bottom: Math.max(insets.bottom, space.md) + 76 }]} pointerEvents="box-none">
         <Pressable onPress={() => router.push('/numbers/shuffle')} style={({ pressed }) => [styles.cta, pressed && { opacity: 0.85 }]}>
-          <MaterialIcons name="shuffle" size={16} color={colors.text} />
+          <MaterialIcons name="shuffle" size={16} color={colors.accent} />
           <Text style={styles.ctaText}>Shuffle</Text>
         </Pressable>
         <Pressable
@@ -176,7 +179,9 @@ const styles = StyleSheet.create({
   topic: { gap: space.lg, marginBottom: space.xl },
   topicTitle: {
     paddingHorizontal: space.lg, color: colors.text, fontSize: 20, fontWeight: '800', letterSpacing: -0.3 },
-  blurb: { color: colors.textMuted, fontSize: 14, paddingHorizontal: space.lg },
+  blurbBox: { marginHorizontal: space.lg, backgroundColor: colors.accentSoft, borderRadius: radius.md, paddingHorizontal: space.lg, paddingVertical: space.md, gap: 2 },
+  blurbLabel: { color: colors.accent, fontSize: 11, fontWeight: '800', letterSpacing: 0.8, textTransform: 'uppercase' },
+  blurb: { color: colors.text, fontSize: 15, fontWeight: '600', lineHeight: 21 },
   group: { gap: space.sm },
   groupTitle: { paddingHorizontal: space.lg, color: colors.textFaint, fontSize: 12, fontWeight: '800', letterSpacing: 1, textTransform: 'uppercase' },
   card: {
@@ -199,7 +204,7 @@ const styles = StyleSheet.create({
   partVal: { color: colors.accent, fontSize: 14, fontWeight: '800' },
   note: { color: colors.textMuted, fontSize: 13, lineHeight: 18 },
   empty: { color: colors.textMuted, fontSize: 15, padding: space.lg },
-  ctaRow: { position: 'absolute', right: space.lg, flexDirection: 'row', gap: space.sm },
+  ctaRow: { position: 'absolute', left: 0, right: 0, flexDirection: 'row', justifyContent: 'center', gap: space.sm },
   cta: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -207,9 +212,8 @@ const styles = StyleSheet.create({
     height: 38,
     paddingHorizontal: 14,
     borderRadius: radius.pill,
-    backgroundColor: colors.surface,
-    ...shadow.nav,
+    backgroundColor: colors.accentSoft,
+    ...shadow.card,
   },
-  ctaPrimary: { backgroundColor: colors.accent },
-  ctaText: { color: colors.text, fontSize: 13, fontWeight: '800' },
+  ctaText: { color: colors.accent, fontSize: 14, fontWeight: '800' },
 });

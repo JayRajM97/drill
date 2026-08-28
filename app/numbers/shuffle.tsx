@@ -127,6 +127,7 @@ export default function NumbersShuffle() {
         <GestureDetector gesture={pan}>
           <Animated.View style={[styles.layer, { width: cardW }, front]}>
             <FlipCard
+              key={current.id}
               flipped={revealed}
               front={<FactFace fact={current} revealed={false} topicEmoji={topic?.emoji} topicTitle={topic?.title} onPress={() => setRevealed(true)} />}
               back={<FactFace fact={current} revealed topicEmoji={topic?.emoji} topicTitle={topic?.title} onPress={() => setRevealed(false)} />}
