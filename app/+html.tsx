@@ -39,14 +39,14 @@ export default function Root({ children }: PropsWithChildren) {
         <meta property="og:image:type" content="image/png" />
         <meta property="og:image:width" content="1672" />
         <meta property="og:image:height" content="941" />
-        <meta property="og:image:alt" content="Drill — practice PM interviews one card at a time" />
+        <meta property="og:image:alt" content={TITLE} />
 
         {/* Twitter / X */}
         <meta name="twitter:card" content="summary_large_image" />
         <meta name="twitter:title" content={TITLE} />
         <meta name="twitter:description" content={DESCRIPTION} />
         <meta name="twitter:image" content={IMAGE} />
-        <meta name="twitter:image:alt" content="Drill — practice PM interviews one card at a time" />
+        <meta name="twitter:image:alt" content={TITLE} />
 
         {/* Mobile web app */}
         <meta name="mobile-web-app-capable" content="yes" />

@@ -167,34 +167,34 @@ function FactFace({
   onPress?: () => void;
 }) {
   return (
-    <Pressable onPress={onPress} style={styles.card}>
+    <Pressable onPress={onPress} style={[styles.card, revealed && styles.cardBlue]}>
       <View style={styles.top}>
-        <Eyebrow>{topicTitle ?? 'Anchor'}</Eyebrow>
+        <Eyebrow style={revealed ? { color: colors.onAccentMuted } : undefined}>{topicTitle ?? 'Anchor'}</Eyebrow>
         <Text style={styles.emoji}>{emojiFor(fact, topicEmoji ?? '🔢')}</Text>
       </View>
       <View style={styles.middle}>
         {contextFor(fact) ? (
-          <View style={styles.regionChip}>
-            <Text style={styles.regionText}>{contextFor(fact)}</Text>
+          <View style={[styles.regionChip, revealed && styles.regionChipBlue]}>
+            <Text style={[styles.regionText, revealed && { color: colors.onAccent }]}>{contextFor(fact)}</Text>
           </View>
         ) : null}
-        <Text style={styles.question}>{questionFor(fact)}</Text>
+        <Text style={[styles.question, revealed && styles.onBlue]}>{questionFor(fact)}</Text>
         {revealed ? (
           <View style={styles.answer}>
             {fact.parts ? (
               <View style={styles.parts}>
                 {fact.parts.map((p) => (
-                  <View key={p.label} style={styles.part}>
-                    <Text style={styles.partKey}>{p.label}</Text>
-                    <Text style={styles.partVal}>{p.value}</Text>
+                  <View key={p.label} style={[styles.part, styles.partBlue]}>
+                    <Text style={[styles.partKey, { color: colors.onAccentMuted }]}>{p.label}</Text>
+                    <Text style={[styles.partVal, { color: colors.onAccent }]}>{p.value}</Text>
                   </View>
                 ))}
               </View>
             ) : (
-              <Text style={styles.value}>{fact.value}</Text>
+              <Text style={[styles.value, styles.onBlue]}>{fact.value}</Text>
             )}
-            <Text style={styles.answerLabel}>{fact.label}</Text>
-            {fact.note ? <Text style={styles.note}>→ {fact.note}</Text> : null}
+            <Text style={[styles.answerLabel, { color: colors.onAccentMuted }]}>{fact.label}</Text>
+            {fact.note ? <Text style={[styles.note, { color: colors.onAccent }]}>→ {fact.note}</Text> : null}
           </View>
         ) : (
           <View style={styles.hidden}>
@@ -203,7 +203,7 @@ function FactFace({
           </View>
         )}
       </View>
-      <Text style={styles.hint}>Swipe for another</Text>
+      <Text style={[styles.hint, revealed && { color: colors.onAccentMuted }]}>Swipe for another</Text>
     </Pressable>
   );
 }
@@ -217,6 +217,10 @@ const styles = StyleSheet.create({
   layer: { position: 'absolute', top: 32, bottom: 0 },
   card: { flex: 1, backgroundColor: colors.surface, borderRadius: radius.card, padding: 26, gap: space.md, ...shadow.cardStrong },
   layerInner: { flex: 1 },
+  cardBlue: { backgroundColor: colors.accent, ...shadow.accent },
+  onBlue: { color: colors.onAccent },
+  regionChipBlue: { backgroundColor: 'rgba(255,255,255,0.18)' },
+  partBlue: { backgroundColor: 'rgba(255,255,255,0.18)' },
   top: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
   emoji: { fontSize: 28 },
   middle: { flex: 1, justifyContent: 'center', alignItems: 'center', gap: space.lg },
