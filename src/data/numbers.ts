@@ -19,6 +19,11 @@ export interface Fact {
   emoji?: string;
   /** A term to highlight in the label, e.g. "Prime". */
   tag?: string;
+  /** Explicit quiz/flashcard question; otherwise derived from the label. */
+  q?: string;
+  /** Filled in at build time: the group and topic this fact lives in. */
+  group?: string;
+  topic?: string;
 }
 
 export interface NumberGroup {
@@ -492,6 +497,112 @@ export const NUMBER_TOPICS: NumberTopic[] = [
     ],
   },
   {
+    key: 'quick-commerce',
+    title: 'Quick commerce',
+    emoji: '⚡',
+    blurb: '10-minute delivery: dark stores, dense cities, thin margins.',
+    groups: [
+      {
+        title: 'India',
+        facts: [
+          f('qc.in-gmv', 'Quick commerce GMV', '~$6–8B', '~70–100% YoY growth; already ~a third of e-grocery.', 'IN'),
+          split('qc.in-share', 'Market share', [['Blinkit', '~40–45%'], ['Instamart', '~25–30%'], ['Zepto', '~25–30%']], 'Order of magnitude — shifts quarter to quarter.', 'IN', '🏪'),
+          f('qc.in-aov', 'Average order value', '₹550–650', 'Blinkit ~₹650; Zepto a bit lower.', 'IN'),
+          f('qc.in-orders', 'Orders per day (all players)', '~4–5M', 'Concentrated in the top 10 cities.', 'IN'),
+          f('qc.in-dark-stores', 'Dark stores', '~2,000+', 'Each serves a ~2 km radius; ~1,000–1,500 SKUs.', 'IN'),
+          f('qc.in-take-rate', 'Take rate / contribution', '~15–20% · ~3–5% margin', 'Ad revenue is the profit lever.', 'IN'),
+          f('qc.in-frequency', 'Orders per user / month', '~4–6', 'Habitual users hit 10+.', 'IN'),
+        ],
+      },
+      {
+        title: 'US & Europe',
+        facts: [
+          f('qc.us-dashmart', 'DoorDash grocery / convenience', '~25% of orders', 'DashMart dark stores in ~50 metros; Instacart ~$30B GMV.', 'US'),
+          f('qc.us-instacart', 'Instacart GMV', '~$33B', '~$110 AOV; ~14M monthly active orderers.', 'US'),
+          f('qc.eu', 'Europe quick-commerce', 'Getir / Gorillas mostly gone', '2021 peak ~$10B raised; consolidated into Getir, then Getir exited. Density + AOV did not work.', 'World'),
+          f('qc.delivery-cost', 'Cost per delivery', '~$3–5 (US) · ₹40–60 (India)', 'Rider cost is the floor; batching is the game.'),
+        ],
+      },
+    ],
+  },
+  {
+    key: 'social-usage',
+    title: 'Social usage',
+    emoji: '⏱️',
+    blurb: 'Who uses what, and for how long.',
+    groups: [
+      {
+        title: 'Time per day (global avg)',
+        facts: [
+          split('su.time', 'Minutes per day by app', [['TikTok', '~95'], ['YouTube', '~75'], ['Instagram', '~60'], ['Facebook', '~50'], ['X', '~30']], 'Android users, monthly average.', 'World', '⏱️'),
+          f('su.total', 'Total social time / day', '~2.4 h', 'Peaks ~3.5 h in the Philippines / Brazil; ~2 h US.', 'World'),
+          f('su.platforms', 'Platforms used per person', '~6–7 / month', undefined, 'World'),
+          f('su.checks', 'Phone checks per day', '~100–150', 'Notifications drive ~half of sessions.'),
+        ],
+      },
+      {
+        title: 'Age breakdown',
+        facts: [
+          split('su.tiktok-age', 'TikTok users by age', [['18–24', '~35%'], ['25–34', '~30%'], ['35+', '~35%']], 'Skews youngest of the big apps.', 'World', '🎵'),
+          split('su.fb-age', 'Facebook users by age', [['18–34', '~40%'], ['35–54', '~35%'], ['55+', '~25%']], 'Oldest skew; teens mostly absent.', 'World', '👥'),
+          split('su.ig-age', 'Instagram users by age', [['18–34', '~60%'], ['35–54', '~30%'], ['55+', '~10%']], undefined, 'World', '📸'),
+          split('su.li-age', 'LinkedIn users by age', [['25–34', '~50%'], ['18–24', '~20%'], ['35+', '~30%']], undefined, 'World', '💼'),
+          f('su.teens', 'US teens who use YouTube / TikTok / Instagram', '~90% · ~60% · ~60%', 'Snapchat ~55%; Facebook ~30%.', 'US'),
+        ],
+      },
+      {
+        title: 'India',
+        facts: [
+          f('su.in-time', 'Social time / day', '~2.5–3 h', 'Reels + Shorts dominate after the TikTok ban (2020).', 'IN'),
+          f('su.in-ig', 'Instagram users', '~360M+', 'India is Instagram’s largest market.', 'IN'),
+          f('su.in-yt', 'YouTube users', '~460M+', 'Largest YouTube market; ~60% of watch time on mobile data.', 'IN'),
+          f('su.in-sharechat', 'ShareChat + Moj users', '~300M+', 'Vernacular short video.', 'IN'),
+        ],
+      },
+    ],
+  },
+  {
+    key: 'creator',
+    title: 'Creator economy',
+    emoji: '🎥',
+    blurb: 'Who gets paid, and how much.',
+    groups: [
+      {
+        title: 'Scale',
+        facts: [
+          f('cr.market', 'Creator economy size', '~$250B', 'Projected ~$500B by 2027.', 'World'),
+          f('cr.creators', 'People who call themselves creators', '~200M+', 'Only ~4% earn >$100k / yr.', 'World'),
+          f('cr.yt-payout', 'YouTube paid to creators (3 yrs)', '~$70B', 'Ad revenue share 55% to creators.', 'World'),
+          f('cr.yt-share', 'YouTube ad revenue split', '55% creator / 45% YouTube', 'Shorts: 45% to creators, pooled.', 'World'),
+          f('cr.patreon', 'Patreon creators earning', '~250k', '~8M paying patrons.', 'World'),
+          f('cr.substack', 'Substack paid subscriptions', '~3–4M', 'Take rate 10%.', 'World'),
+          f('cr.in-influencer', 'India influencer marketing', '~₹3,000 Cr (~$350M)', 'Growing ~25% / yr; ~1M+ monetising creators.', 'IN'),
+        ],
+      },
+    ],
+  },
+  {
+    key: 'fintech-in',
+    title: 'Fintech India',
+    emoji: '🏦',
+    blurb: 'The rails behind UPI.',
+    groups: [
+      {
+        title: 'Apps & rails',
+        facts: [
+          split('fi.upi-share', 'UPI app share', [['PhonePe', '~48%'], ['Google Pay', '~37%'], ['Paytm', '~7%']], 'By transaction volume.', 'IN', '📲'),
+          f('fi.upi-merchants', 'UPI-accepting merchants', '~300M+ QR codes', 'Kirana stores are the long tail.', 'IN'),
+          f('fi.upi-ticket', 'UPI average ticket', '₹1,400 (P2P) · ₹600 (P2M)', 'Merchant payments are now >60% of volume.', 'IN'),
+          f('fi.bank-accounts', 'Bank accounts (Jan Dhan)', '~530M', 'Financial inclusion base for everything else.', 'IN'),
+          f('fi.cards', 'Debit vs credit cards', '~950M vs ~100M', 'Credit penetration ~5–6% of adults.', 'IN'),
+          f('fi.mf', 'Mutual fund SIP accounts', '~90M', 'Monthly SIP inflow ~₹20,000 Cr.', 'IN'),
+          f('fi.demat', 'Demat accounts', '~170M+', 'Was ~40M in 2020 — Zerodha / Groww effect.', 'IN'),
+          f('fi.digital-lending', 'Digital lending disbursals', '~$50B+ / yr', 'BNPL / small-ticket dominates by count.', 'IN'),
+        ],
+      },
+    ],
+  },
+  {
     key: 'anchors',
     title: 'Anchors',
     emoji: '🧮',
@@ -544,8 +655,102 @@ export function emojiFor(fact: Fact, fallback: string): string {
   return hit ? hit[1] : fallback;
 }
 
+const Q_OVERRIDES: Record<string, string> = {
+  'e.aov': "What's a typical e-commerce order value?",
+  'tr.hotels': 'How many hotel rooms are there worldwide?',
+  'wk.linkedin-jobs': 'How many people get hired through LinkedIn every minute?',
+  'a.how': 'What are the four moves for using numbers in the room?',
+  's.ai-vs-search': 'Will AI replace search?',
+  'a.arr': '1M users paying $10 a month — what is the ARR?',
+  'a.conv': '10M users at 1% conversion — how many customers?',
+  'a.arpu': '100k customers at $1,000 ARPU — what revenue?',
+  'wk.rule-40': 'What is the Rule of 40?',
+  'wk.ltv-cac': 'What LTV : CAC ratio should a SaaS business target?',
+  'us.geo': 'Which US states hold the most people, and what share?',
+  'fd.india-sizing': 'How would you size India food-delivery orders per month?',
+  'a.penetration': 'What are the US penetration rates to know (phone, internet, Prime, cards)?',
+  'a.frequency': 'What are the frequency baselines (search, social, food, shopping)?',
+  't.rush': 'When are the rush hours?',
+  'fd.peak': 'When is food-delivery demand highest?',
+  's.chatgpt-100m': 'How long did ChatGPT take to reach 100M users?',
+  'm.d1-retention': 'What are typical D1 / D7 / D30 retention rates for a consumer app?',
+  'm.abandoned': 'What share of downloaded apps are never used?',
+  'cr.in-influencer': "How big is India's influencer-marketing market?",
+  'qc.eu': 'What happened to quick commerce in Europe?',
+  'qc.in-take-rate': 'What is the quick-commerce take rate and margin in India?',
+  'us.walmart': 'How many people shop at Walmart every week?',
+  'in.hh-size': 'What is the average household size in India?',
+  'us.card-debt': 'How much credit card debt do Americans carry?',
+  'su.teens': 'What share of US teens use YouTube, TikTok and Instagram?',
+  'fi.cards': 'How many debit vs credit cards are there in India?',
+  'fi.upi-ticket': 'What is the average UPI ticket size?',
+  'qc.delivery-cost': 'What does one quick-commerce delivery cost?',
+};
+
+const BRANDS = new Set(['Google', 'Venmo', 'Flipkart', 'YouTube', 'Netflix', 'Uber', 'Stripe', 'PayPal', 'Zelle', 'Apple', 'Visa', 'Shopify', 'Amazon', 'DoorDash', 'Instacart', 'Blinkit', 'Spotify', 'Disney+', 'Roblox', 'Steam', 'Tesla', 'Microsoft', 'Slack', 'Zoom', 'Salesforce', 'LinkedIn', 'Airbnb', 'Booking.com', 'IndiGo', 'Jio', 'WhatsApp', 'Razorpay', 'Patreon', 'Substack', 'ChatGPT', 'OpenAI', 'Reddit', 'Snapchat', 'Facebook', 'Instagram', 'TikTok', 'X', 'Twitter', 'Costco', 'Walmart', 'Getir', 'Europe', 'India', 'Android', 'iOS', 'ShareChat', 'Gemini', 'Claude', 'DashMart', 'Swiggy', 'Zomato', 'Ola', 'Prime', 'Lyft', 'Grubhub', 'Klarna', 'Pinterest']);
+
+const REGION_PREFIX: Record<Region, string> = { IN: 'In India,', US: 'In the US,', World: 'Worldwide,' };
+
+/** Frame a fact as a question: "In the US, how many households are there?" */
+export function questionFor(fact: Fact): string {
+  if (fact.q) return fact.q;
+  if (Q_OVERRIDES[fact.id]) return Q_OVERRIDES[fact.id];
+  const label = fact.label.replace(/\s*\([^)]*\)\s*$/, '').trim();
+  // Keep brand names and acronyms capitalised; only a generic first word drops its capital.
+  const first = label.split(' ')[0];
+  const keepCase = /^[A-Z][A-Z0-9]/.test(first) || BRANDS.has(first.replace(/[^A-Za-z0-9.+]/g, ''));
+  const lower = keepCase ? label : label.charAt(0).toLowerCase() + label.slice(1);
+  let core: string;
+  const per = /\s*\/\s*(day|week|month|year|yr|minute)\b/i.exec(label);
+  const COUNT = /\b(users?|people|members?|subscribers?|owners?|listeners?|accounts?|cards?|vehicles?|stations?|drivers?|trips?|orders?|searches|hires?|rooms?|cities|stores?|merchants?|creators?|players?|gamers?|passengers?|nights?|packages?|seats?|downloads?|apps?|households?|shoppers?|prompts?|transactions?|codes?|profiles?|listings?|flights?|minutes|smartphones?|patrons?|subscriptions?|dark stores|deliveries|checks|platforms)\b/i;
+  const RATE = /\b(share|rate|fee|penetration|coverage|margin|churn|retention|split|ratio|payback|conversion|nrr|take rate)\b|%/i;
+  const SIZE = /\b(size|gdp|market|gmv|revenue|spend|volume|value|debt|sales|arr|budget|economy|payout|disbursals|inflow)\b/i;
+  const bare = lower.replace(/ride-share|ride share/i, '');
+  const isBrandOnly = !/\s/.test(label) || (label.split(' ').every((w) => BRANDS.has(w) || /^[A-Z]/.test(w)) && label.split(' ').length <= 3 && !COUNT.test(label) && !RATE.test(label) && !SIZE.test(label));
+  if (/\bvs\b|\bby age\b/i.test(label)) core = `what is the ${lower} split?`;
+  else if (/\b(size|debt)$/i.test(label)) core = `what is the ${lower}?`;
+  else if (per) {
+    const raw = label.slice(0, per.index).trim();
+    const base = keepCase ? raw : raw.charAt(0).toLowerCase() + raw.slice(1);
+    const period = per[1].toLowerCase() === 'yr' ? 'year' : per[1].toLowerCase();
+    core = /^(average|avg|median|time|hours|minutes)/i.test(base) || (!COUNT.test(base) && SIZE.test(base))
+      ? `what is the ${base} per ${period}?`
+      : `how many ${base} per ${period}?`;
+  } else if (isBrandOnly && fact.group && /mau|users/i.test(fact.group)) core = `how many monthly active users does ${label} have?`;
+  else if (/^(will|when|which|how|what)\b/i.test(lower)) core = lower.endsWith('?') ? lower : `${lower}?`;
+  else if (/^(population|labour force|working-age)/i.test(lower)) core = `what is the ${lower}?`;
+  else if (/^(average|avg|median|typical|time to|time from|hours|daily|total|peak)\b/i.test(lower)) core = `what is the ${lower}?`;
+  else if (RATE.test(bare)) core = `what is the ${lower}?`;
+  else if (COUNT.test(lower)) core = `how many ${lower} are there?`;
+  else if (SIZE.test(lower)) core = `how big is ${/^(the|global|total)\b/i.test(lower) ? '' : 'the '}${lower}?`;
+  else core = `what is the number for ${lower}?`;
+  const prefix = fact.region ? REGION_PREFIX[fact.region] + ' ' : '';
+  const out = prefix + core;
+  return out.charAt(0).toUpperCase() + out.slice(1);
+}
+
 /** Flat list; ids are unique by construction — assert it in dev. */
-export const ALL_FACTS: Fact[] = NUMBER_TOPICS.flatMap((t) => t.groups.flatMap((g) => g.facts));
+export const ALL_FACTS: Fact[] = NUMBER_TOPICS.flatMap((t) =>
+  t.groups.flatMap((g) =>
+    g.facts.map((f) => {
+      f.group = g.title;
+      f.topic = t.title;
+      return f;
+    }),
+  ),
+);
+
+/** Group titles that are just a region/bucket — not worth showing as context. */
+const GENERIC_GROUP = /^(people|digital|money|macro|markets|scale|patterns|platforms|multipliers|trips|us|india|world|global|us & europe|us market|commerce & mobility|app behaviour|funnel benchmarks|global mau|us mau|processors & wallets|marketplace defaults|back-of-envelope|saas benchmarks|us vehicles|time per day.*|age breakdown|apps & rails|video \(us\)|audio \(us\)|general e-commerce|search & web)$/i;
+
+/** Context chip for a flashcard: "🇺🇸 US · Uber (global)". */
+export function contextFor(fact: Fact): string {
+  const bits: string[] = [];
+  if (fact.region) bits.push(REGION_LABEL[fact.region]);
+  if (fact.group && !GENERIC_GROUP.test(fact.group)) bits.push(fact.group);
+  else if (fact.topic && !fact.region) bits.push(fact.topic);
+  return bits.join(' · ');
+}
 if (__DEV__) {
   const seen = new Set<string>();
   for (const x of ALL_FACTS) {

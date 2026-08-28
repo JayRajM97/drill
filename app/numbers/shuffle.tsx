@@ -5,7 +5,7 @@ import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import Animated, { Easing, interpolate, runOnJS, useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { MaterialIcons } from '@expo/vector-icons';
-import { ALL_FACTS, emojiFor, NUMBER_TOPICS, REGION_LABEL, type Fact } from '@/data/numbers';
+import { ALL_FACTS, emojiFor, NUMBER_TOPICS, contextFor, questionFor, type Fact } from '@/data/numbers';
 import { Eyebrow, IconButton, PillButton } from '@/components/ui';
 import { colors, radius, shadow, space } from '@/theme/tokens';
 
@@ -159,31 +159,39 @@ function FactFace({
   return (
     <Pressable onPress={onPress} style={styles.card}>
       <View style={styles.top}>
-        <Eyebrow>{fact.region ? REGION_LABEL[fact.region] : topicTitle ?? 'Anchor'}</Eyebrow>
+        <Eyebrow>{topicTitle ?? 'Anchor'}</Eyebrow>
         <Text style={styles.emoji}>{emojiFor(fact, topicEmoji ?? '🔢')}</Text>
       </View>
       <View style={styles.middle}>
-        <Text style={styles.label}>{fact.label}</Text>
+        {contextFor(fact) ? (
+          <View style={styles.regionChip}>
+            <Text style={styles.regionText}>{contextFor(fact)}</Text>
+          </View>
+        ) : null}
+        <Text style={styles.question}>{questionFor(fact)}</Text>
         {revealed ? (
-          fact.parts ? (
-            <View style={styles.parts}>
-              {fact.parts.map((p) => (
-                <View key={p.label} style={styles.part}>
-                  <Text style={styles.partKey}>{p.label}</Text>
-                  <Text style={styles.partVal}>{p.value}</Text>
-                </View>
-              ))}
-            </View>
-          ) : (
-            <Text style={styles.value}>{fact.value}</Text>
-          )
+          <View style={styles.answer}>
+            {fact.parts ? (
+              <View style={styles.parts}>
+                {fact.parts.map((p) => (
+                  <View key={p.label} style={styles.part}>
+                    <Text style={styles.partKey}>{p.label}</Text>
+                    <Text style={styles.partVal}>{p.value}</Text>
+                  </View>
+                ))}
+              </View>
+            ) : (
+              <Text style={styles.value}>{fact.value}</Text>
+            )}
+            <Text style={styles.answerLabel}>{fact.label}</Text>
+            {fact.note ? <Text style={styles.note}>→ {fact.note}</Text> : null}
+          </View>
         ) : (
           <View style={styles.hidden}>
             <MaterialIcons name="visibility-off" size={18} color={colors.textFaint} />
             <Text style={styles.hiddenText}>Say your number, then tap to reveal</Text>
           </View>
         )}
-        {revealed && fact.note ? <Text style={styles.note}>{fact.note}</Text> : null}
       </View>
       <Text style={styles.hint}>Swipe for another</Text>
     </Pressable>
@@ -200,16 +208,20 @@ const styles = StyleSheet.create({
   card: { flex: 1, backgroundColor: colors.surface, borderRadius: radius.card, padding: 26, gap: space.md, ...shadow.cardStrong },
   top: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
   emoji: { fontSize: 28 },
-  middle: { flex: 1, justifyContent: 'center', gap: space.lg },
-  label: { color: colors.text, fontSize: 28, lineHeight: 35, fontWeight: '800', letterSpacing: -0.6 },
-  value: { color: colors.accent, fontSize: 44, lineHeight: 50, fontWeight: '800', letterSpacing: -1.2 },
-  hidden: { flexDirection: 'row', alignItems: 'center', gap: 8, backgroundColor: colors.surfaceAlt, borderRadius: radius.md, padding: space.lg },
+  middle: { flex: 1, justifyContent: 'center', alignItems: 'center', gap: space.lg },
+  regionChip: { backgroundColor: colors.accentSoft, borderRadius: radius.pill, paddingHorizontal: 12, paddingVertical: 6 },
+  regionText: { color: colors.accent, fontSize: 13, fontWeight: '800' },
+  question: { color: colors.text, fontSize: 26, lineHeight: 33, fontWeight: '800', letterSpacing: -0.5, textAlign: 'center' },
+  answer: { alignItems: 'center', gap: space.sm, width: '100%' },
+  answerLabel: { color: colors.textMuted, fontSize: 14, fontWeight: '700', textAlign: 'center' },
+  value: { color: colors.accent, fontSize: 44, lineHeight: 50, fontWeight: '800', letterSpacing: -1.2, textAlign: 'center' },
+  hidden: { flexDirection: 'row', alignItems: 'center', gap: 8, backgroundColor: colors.surfaceAlt, borderRadius: radius.md, padding: space.lg, alignSelf: 'stretch' },
   hiddenText: { color: colors.textMuted, fontSize: 14, fontWeight: '600', flex: 1 },
-  parts: { flexDirection: 'row', flexWrap: 'wrap', gap: space.sm },
+  parts: { flexDirection: 'row', flexWrap: 'wrap', gap: space.sm, justifyContent: 'center' },
   part: { flexDirection: 'row', alignItems: 'center', gap: 6, backgroundColor: colors.accentSoft, borderRadius: radius.pill, paddingHorizontal: 12, paddingVertical: 8 },
   partKey: { color: colors.textMuted, fontSize: 13, fontWeight: '700' },
   partVal: { color: colors.accent, fontSize: 16, fontWeight: '800' },
-  note: { color: colors.textMuted, fontSize: 15, lineHeight: 22 },
+  note: { color: colors.textMuted, fontSize: 15, lineHeight: 22, textAlign: 'center' },
   hint: { color: colors.textFaint, fontSize: 13 },
   footer: { flexDirection: 'row', alignItems: 'center', gap: space.md, paddingHorizontal: space.lg, paddingTop: space.sm },
 });

@@ -57,7 +57,7 @@ export function IndexSheet({ visible, deck, current, onJump, onClose }: Props) {
   const activeRow = rows.reduce((acc, r, i) => (r.start <= current ? i : acc), 0);
 
   // Anchor: bottom-right, clear of the footer (button row + index button).
-  const bottom = Math.max(insets.bottom, space.lg) + 56 + 8 + 48 + 12;
+  const bottom = Math.max(insets.bottom, space.lg) + 56 + 12;
 
   return (
     <View style={fill} pointerEvents="box-none">
@@ -131,10 +131,8 @@ const styles = StyleSheet.create({
     paddingHorizontal: space.md,
     paddingVertical: 11,
     borderRadius: radius.sm,
-    borderWidth: 1.5,
-    borderColor: 'transparent',
   },
-  rowActive: { borderColor: colors.accent },
+  rowActive: { backgroundColor: colors.accentSoft },
   rowText: { flex: 1, color: colors.text, fontSize: 15, fontWeight: '600', lineHeight: 20 },
   rowTextActive: { color: colors.accent },
   count: { color: colors.textFaint, fontSize: 13, fontWeight: '700' },

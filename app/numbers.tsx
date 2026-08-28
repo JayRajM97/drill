@@ -39,7 +39,7 @@ export default function NumbersScreen() {
   return (
     <View style={styles.screen}>
       <ScrollView
-        contentContainerStyle={{ paddingTop: insets.top + space.md, paddingBottom: NAV_CLEARANCE }}
+        contentContainerStyle={{ paddingTop: insets.top + space.md, paddingBottom: NAV_CLEARANCE + 64 }}
         showsVerticalScrollIndicator={false}
         keyboardShouldPersistTaps="handled"
       >
@@ -86,10 +86,11 @@ export default function NumbersScreen() {
                       fact={x}
                       fallbackEmoji={t.emoji}
                       hideRegion={
-                        !needle &&
-                        ((t.key === 'india' && x.region === 'IN') ||
-                          (t.key === 'us' && x.region === 'US') ||
-                          (t.key === 'world' && x.region === 'World'))
+                        (!needle &&
+                          ((t.key === 'india' && x.region === 'IN') ||
+                            (t.key === 'us' && x.region === 'US') ||
+                            (t.key === 'world' && x.region === 'World'))) ||
+                        /\b(US|India|World|global)\b/i.test(g.title)
                       }
                     />
                   ))}
@@ -101,19 +102,20 @@ export default function NumbersScreen() {
         {topics.length === 0 ? <Text style={styles.empty}>No number matches.</Text> : null}
       </ScrollView>
 
-      {/* Left: shuffle the whole deck. Right: quiz the current topic. */}
-      <Pressable
-        onPress={() => router.push('/numbers/shuffle')}
-        style={({ pressed }) => [styles.fab, styles.fabLeft, { bottom: Math.max(insets.bottom, space.md) + 76 }, pressed && { opacity: 0.85 }]}
-      >
-        <MaterialIcons name="shuffle" size={26} color={colors.text} />
-      </Pressable>
-      <Pressable
-        onPress={() => router.push(`/numbers/quiz?topic=${encodeURIComponent(needle ? 'all' : topicKey)}`)}
-        style={({ pressed }) => [styles.fab, { bottom: Math.max(insets.bottom, space.md) + 76 }, pressed && { opacity: 0.85 }]}
-      >
-        <MaterialIcons name="play-arrow" size={28} color={colors.onAccent} />
-      </Pressable>
+      {/* Practice entry points, docked above the nav. */}
+      <View style={[styles.ctaRow, { bottom: Math.max(insets.bottom, space.md) + 76 }]} pointerEvents="box-none">
+        <Pressable onPress={() => router.push('/numbers/shuffle')} style={({ pressed }) => [styles.cta, styles.ctaPrimary, pressed && { opacity: 0.85 }]}>
+          <MaterialIcons name="shuffle" size={20} color={colors.onAccent} />
+          <Text style={styles.ctaText}>Shuffle</Text>
+        </Pressable>
+        <Pressable
+          onPress={() => router.push(`/numbers/quiz?topic=${encodeURIComponent(needle ? 'all' : topicKey)}`)}
+          style={({ pressed }) => [styles.cta, pressed && { opacity: 0.85 }]}
+        >
+          <MaterialIcons name="play-arrow" size={22} color={colors.text} />
+          <Text style={[styles.ctaText, { color: colors.text }]}>Test me</Text>
+        </Pressable>
+      </View>
 
       <BottomNavBar active="numbers" />
     </View>
@@ -145,8 +147,8 @@ function FactCard({ fact, fallbackEmoji, hideRegion }: { fact: Fact; fallbackEmo
         <Text style={styles.emoji}>{emojiFor(fact, fallbackEmoji)}</Text>
         <View style={{ flex: 1 }}>
           <Label text={fact.label} tag={fact.tag} />
-          {fact.region && !hideRegion ? <Text style={styles.region}>{REGION_LABEL[fact.region]}</Text> : null}
         </View>
+        {fact.region && !hideRegion ? <Text style={styles.flag}>{REGION_LABEL[fact.region].split(' ')[0]}</Text> : null}
       </View>
       {fact.parts ? (
         <View style={styles.parts}>
@@ -189,7 +191,7 @@ const styles = StyleSheet.create({
   emoji: { fontSize: 20, lineHeight: 24 },
   label: { color: colors.text, fontSize: 14, fontWeight: '700', lineHeight: 19 },
   tag: { color: colors.accent, backgroundColor: colors.accentSoft, fontWeight: '800' },
-  region: { color: colors.textFaint, fontSize: 11, fontWeight: '600', marginTop: 2 },
+  flag: { fontSize: 14, lineHeight: 20 },
   value: { color: colors.text, fontSize: 26, fontWeight: '800', letterSpacing: -0.6 },
   valueWide: { fontSize: 22 },
   parts: { flexDirection: 'row', flexWrap: 'wrap', gap: space.sm },
@@ -198,16 +200,18 @@ const styles = StyleSheet.create({
   partVal: { color: colors.accent, fontSize: 14, fontWeight: '800' },
   note: { color: colors.textMuted, fontSize: 13, lineHeight: 18 },
   empty: { color: colors.textMuted, fontSize: 15, padding: space.lg },
-  fab: {
-    position: 'absolute',
-    right: space.lg,
-    width: 56,
-    height: 56,
-    borderRadius: 28,
-    backgroundColor: colors.accent,
+  ctaRow: { position: 'absolute', left: space.lg, right: space.lg, flexDirection: 'row', gap: space.sm },
+  cta: {
+    flex: 1,
+    flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    ...shadow.accent,
+    gap: 6,
+    height: 48,
+    borderRadius: radius.pill,
+    backgroundColor: colors.surface,
+    ...shadow.nav,
   },
-  fabLeft: { right: undefined, left: space.lg, backgroundColor: colors.surface, ...shadow.nav },
+  ctaPrimary: { backgroundColor: colors.accent, ...shadow.accent },
+  ctaText: { color: colors.onAccent, fontSize: 15, fontWeight: '800' },
 });

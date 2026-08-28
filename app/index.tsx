@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import {
   Pressable,
   ScrollView,
@@ -15,9 +15,25 @@ import type { Question } from '@/types/question';
 import { useDaily } from '@/state/useDaily';
 import { useProgress } from '@/state/useProgress';
 import { CategoryTile } from '@/components/CategoryTile';
+import { ALL_FACTS, emojiFor, type Fact } from '@/data/numbers';
+import { todayKey } from '@/state/useDaily';
 import { BottomNavBar, NAV_CLEARANCE } from '@/components/BottomNavBar';
 import { DifficultyBadge, Tag } from '@/components/ui';
 import { colors, radius, shadow, space } from '@/theme/tokens';
+
+/** Six numbers for today, stable for the date. */
+function todaysNumbers(): Fact[] {
+  const seed = todayKey();
+  let h = 0;
+  for (const ch of seed) h = (h * 31 + ch.charCodeAt(0)) >>> 0;
+  const pool = ALL_FACTS.filter((f) => !f.parts && f.value.length <= 14);
+  const out: Fact[] = [];
+  for (let k = 0; out.length < 6 && k < pool.length; k++) {
+    const f = pool[(h + k * 37) % pool.length];
+    if (!out.includes(f)) out.push(f);
+  }
+  return out;
+}
 
 function greeting(): string {
   const h = new Date().getHours();
@@ -39,7 +55,10 @@ export default function HomeScreen() {
   }, []);
 
   const cardW = Math.min(W - space.lg * 2 - 36, 360);
+  const numbers = useMemo(() => todaysNumbers(), []);
   const doneToday = daily.filter((q) => isCompleted(q.id)).length;
+  // Finished case studies drop to the back of the row.
+  const ordered = [...daily.filter((q) => !isCompleted(q.id)), ...daily.filter((q) => isCompleted(q.id))];
 
   return (
     <View style={styles.screen}>
@@ -59,9 +78,9 @@ export default function HomeScreen() {
           </View>
         </View>
 
-        {/* Today */}
+        {/* Today's case studies */}
         <View style={styles.sectionHead}>
-          <Text style={styles.sectionTitle}>Today</Text>
+          <Text style={styles.sectionTitle}>Today's case studies</Text>
           <Text style={styles.sectionMeta}>
             {doneToday} / {daily.length} done
           </Text>
@@ -73,16 +92,39 @@ export default function HomeScreen() {
           decelerationRate="fast"
           contentContainerStyle={{ paddingHorizontal: space.lg, gap: space.md, paddingBottom: space.sm }}
         >
-          {daily.map((q, i) => (
+          {ordered.map((q, i) => (
             <TodayCard
               key={q.id}
               question={q}
               width={cardW}
-              accent={i === 0}
+              accent={i === 0 && !isCompleted(q.id)}
               done={isCompleted(q.id)}
               onPress={() => router.push(`/question/${q.id}`)}
             />
           ))}
+        </ScrollView>
+
+        {/* Today's numbers: two rows, scroll sideways */}
+        <View style={[styles.sectionHead, { marginTop: space.xl }]}>
+          <Text style={styles.sectionTitle}>Today's numbers</Text>
+          <Pressable onPress={() => router.push('/numbers')} hitSlop={8}>
+            <Text style={styles.link}>All numbers</Text>
+          </Pressable>
+        </View>
+        <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ paddingHorizontal: space.lg, paddingBottom: space.sm }}>
+          <View style={styles.numGrid}>
+            {[numbers.slice(0, 3), numbers.slice(3, 6)].map((row, r) => (
+              <View key={r} style={styles.numRow}>
+                {row.map((f) => (
+                  <Pressable key={f.id} onPress={() => router.push('/numbers')} style={({ pressed }) => [styles.numTile, pressed && { opacity: 0.9 }]}>
+                    <Text style={styles.numEmoji}>{emojiFor(f, '🔢')}</Text>
+                    <Text style={styles.numValue} numberOfLines={1}>{f.value}</Text>
+                    <Text style={styles.numLabel} numberOfLines={2}>{f.label}</Text>
+                  </Pressable>
+                ))}
+              </View>
+            ))}
+          </View>
         </ScrollView>
 
         {/* Categories */}
@@ -123,30 +165,36 @@ function TodayCard({
   done: boolean;
   onPress: () => void;
 }) {
-  const fg = accent ? colors.onAccent : colors.text;
+  const filled = accent || done;
+  const fg = filled ? colors.onAccent : colors.text;
   return (
     <Pressable
       onPress={onPress}
       style={({ pressed }) => [
         styles.today,
         { width },
-        accent ? [styles.todayAccent, shadow.accent] : shadow.card,
+        done ? [styles.todayDone, shadow.card] : accent ? [styles.todayAccent, shadow.accent] : shadow.card,
         pressed && { transform: [{ scale: 0.985 }] },
       ]}
     >
       <View style={styles.todayTop}>
-        <Tag label={question.categories[0] ?? ''} tone={accent ? 'onAccent' : 'accent'} />
+        <Tag label={question.categories[0] ?? ''} tone={filled ? 'onAccent' : 'accent'} />
         {done ? (
-          <MaterialIcons name="check-circle" size={22} color={accent ? colors.onAccent : colors.success} />
+          <View style={styles.doneChip}>
+            <MaterialIcons name="check" size={14} color={colors.success} />
+            <Text style={styles.doneChipText}>Done</Text>
+          </View>
         ) : null}
       </View>
       <Text style={[styles.todayTitle, { color: fg }]} numberOfLines={4}>
         {question.title}
       </Text>
       <View style={styles.todayBottom}>
-        <DifficultyBadge difficulty={question.difficulty} onAccent={accent} />
-        <View style={[styles.play, { backgroundColor: accent ? colors.onAccent : colors.accent }]}>
-          <MaterialIcons name="arrow-forward" size={20} color={accent ? colors.accent : colors.onAccent} />
+        <View style={[styles.diffChip, filled && { backgroundColor: colors.onAccent }]}>
+          <DifficultyBadge difficulty={question.difficulty} />
+        </View>
+        <View style={[styles.play, { backgroundColor: filled ? colors.onAccent : colors.accent }]}>
+          <MaterialIcons name={done ? 'replay' : 'arrow-forward'} size={20} color={done ? colors.success : filled ? colors.accent : colors.onAccent} />
         </View>
       </View>
     </Pressable>
@@ -195,11 +243,21 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
   },
   todayAccent: { backgroundColor: colors.accent },
+  todayDone: { backgroundColor: colors.success },
+  doneChip: { flexDirection: 'row', alignItems: 'center', gap: 4, backgroundColor: colors.onAccent, borderRadius: radius.pill, paddingHorizontal: 10, paddingVertical: 4 },
+  doneChipText: { color: colors.success, fontSize: 12, fontWeight: '800' },
+  diffChip: { backgroundColor: colors.surfaceAlt, borderRadius: radius.pill, paddingHorizontal: 10, paddingVertical: 5 },
   todayTop: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
   todayTitle: { fontSize: 20, lineHeight: 27, fontWeight: '700', letterSpacing: -0.3 },
   todayBottom: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
   play: { width: 44, height: 44, borderRadius: 22, alignItems: 'center', justifyContent: 'center' },
 
+  numGrid: { gap: space.sm },
+  numRow: { flexDirection: 'row', gap: space.sm },
+  numTile: { width: 150, backgroundColor: colors.surface, borderRadius: radius.lg, padding: space.md, gap: 2, ...shadow.card },
+  numEmoji: { fontSize: 16, marginBottom: 2 },
+  numValue: { color: colors.text, fontSize: 20, fontWeight: '800', letterSpacing: -0.5 },
+  numLabel: { color: colors.textMuted, fontSize: 12, fontWeight: '600', lineHeight: 16 },
   grid: { flexDirection: 'row', flexWrap: 'wrap', gap: space.md, paddingHorizontal: space.lg },
   cell: { width: '47%', flexGrow: 1 },
 });

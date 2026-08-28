@@ -3,7 +3,7 @@ import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { MaterialIcons } from '@expo/vector-icons';
-import { ALL_FACTS, emojiFor, NUMBER_TOPICS, REGION_LABEL, type Fact } from '@/data/numbers';
+import { ALL_FACTS, emojiFor, NUMBER_TOPICS, contextFor, questionFor, type Fact } from '@/data/numbers';
 import { IconButton, PillButton, Eyebrow } from '@/components/ui';
 import { colors, radius, shadow, space } from '@/theme/tokens';
 
@@ -124,11 +124,16 @@ export default function NumbersQuiz() {
           ) : (
             <>
               <View style={styles.qTop}>
-                <Eyebrow>{q.fact.region ? REGION_LABEL[q.fact.region] : 'Quick recall'}</Eyebrow>
+                <Eyebrow>Quick recall</Eyebrow>
                 <Text style={styles.emoji}>{emojiFor(q.fact, q.topicEmoji)}</Text>
               </View>
               <View style={[styles.center, { flex: 1 }]}>
-                <Text style={styles.question}>{q.fact.label}</Text>
+                {contextFor(q.fact) ? (
+                  <View style={styles.regionChip}>
+                    <Text style={styles.regionText}>{contextFor(q.fact)}</Text>
+                  </View>
+                ) : null}
+                <Text style={styles.question}>{questionFor(q.fact)}</Text>
                 <Text style={styles.hint}>Pick the number.</Text>
               </View>
               <View style={{ gap: space.sm }}>
@@ -148,7 +153,7 @@ export default function NumbersQuiz() {
                   );
                 })}
               </View>
-              {picked && q.fact.note ? <Text style={styles.note}>{q.fact.note}</Text> : null}
+              {picked && q.fact.note ? <Text style={styles.note}>→ {q.fact.note}</Text> : null}
             </>
           )}
         </View>
@@ -191,7 +196,9 @@ const styles = StyleSheet.create({
   cardPad: { padding: 26, gap: space.md },
   qTop: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
   emoji: { fontSize: 28 },
-  question: { color: colors.text, fontSize: 26, lineHeight: 33, fontWeight: '800', letterSpacing: -0.5, textAlign: 'center' },
+  regionChip: { backgroundColor: colors.accentSoft, borderRadius: radius.pill, paddingHorizontal: 12, paddingVertical: 6, marginBottom: 4 },
+  regionText: { color: colors.accent, fontSize: 13, fontWeight: '800' },
+  question: { color: colors.text, fontSize: 24, lineHeight: 33, fontWeight: '800', letterSpacing: -0.5, textAlign: 'center' },
   hint: { color: colors.textFaint, fontSize: 13 },
   option: {
     flexDirection: 'row',

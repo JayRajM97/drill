@@ -6,6 +6,7 @@ import { questions } from '@/data';
 import type { Category, Question } from '@/types/question';
 import { useProgress } from '@/state/useProgress';
 import { QuestionCard } from '@/components/QuestionCard';
+import { BottomNavBar, NAV_CLEARANCE } from '@/components/BottomNavBar';
 import { CategoryIcon, Chip, IconButton } from '@/components/ui';
 import { categoryDescription, colors, emojiForDomain, space } from '@/theme/tokens';
 
@@ -39,7 +40,7 @@ export default function CategoryScreen() {
   return (
     <View style={styles.screen}>
       <ScrollView
-        contentContainerStyle={{ paddingTop: insets.top + space.sm, paddingBottom: insets.bottom + space.xxl }}
+        contentContainerStyle={{ paddingTop: insets.top + space.sm, paddingBottom: NAV_CLEARANCE }}
         showsVerticalScrollIndicator={false}
       >
         <View style={styles.bar}>
@@ -74,6 +75,8 @@ export default function CategoryScreen() {
           {filtered.length === 0 ? <Text style={styles.empty}>Nothing here yet.</Text> : null}
         </View>
       </ScrollView>
+
+      <BottomNavBar active="practice" />
     </View>
   );
 }

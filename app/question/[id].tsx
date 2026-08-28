@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import {
   Platform,
   Pressable,
@@ -12,11 +12,13 @@ import { useLocalSearchParams, useRouter } from 'expo-router';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import Animated, {
   Easing,
+  cancelAnimation,
   interpolate,
   runOnJS,
   useAnimatedStyle,
   useSharedValue,
   withTiming,
+  type SharedValue,
 } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { MaterialIcons } from '@expo/vector-icons';
@@ -31,7 +33,8 @@ import { colors, radius, shadow, space } from '@/theme/tokens';
 
 const THINK_SECONDS = 30;
 const MOVE = { duration: 380, easing: Easing.inOut(Easing.cubic) };
-const FAST = { duration: 240, easing: Easing.out(Easing.cubic) };
+const FAST = { duration: 110, easing: Easing.out(Easing.quad) };
+const PILL_DWELL_MS = 5000;
 
 /** Dot colour per section so the progress row is honest about where you are. */
 const SECTION_COLOR: Record<Section, string> = {
@@ -58,7 +61,7 @@ export default function QuestionScreen() {
   const [index, setIndex] = useState(0);
   const [busy, setBusy] = useState(false);
   const [incoming, setIncoming] = useState<number | null>(null);
-  const [jumpTarget, setJumpTarget] = useState<number | null>(null);
+  const jumpTarget = useRef<number | null>(null);
   const [indexOpen, setIndexOpen] = useState(false);
 
   useEffect(() => {
@@ -83,44 +86,59 @@ export default function QuestionScreen() {
 
   // Reset motion values in the same JS tick as the index change so the old
   // card never paints a frame at its home position with stale content.
-  const settle = useCallback(
-    (next: number) => {
-      setIndex(next);
-      setIncoming(null);
-      setJumpTarget(null);
-      setBusy(false);
-      x.value = 0;
-      y.value = 0;
-      inX.value = -W;
-    },
-    [x, y, inX, W],
-  );
+  const settle = useCallback((next: number) => {
+    setIndex(next);
+    setIncoming(null);
+    setBusy(false);
+  }, []);
+
+  // Reset motion only once React has committed the new index — after the DOM
+  // update, before paint — so the old card never flashes back to rest.
+  useLayoutEffect(() => {
+    x.value = 0;
+    y.value = 0;
+    inX.value = -W;
+  }, [index, x, y, inX, W]);
 
   const goNext = useCallback(
-    (axis: 'x' | 'y' = 'x') => {
+    (axis: 'x' | 'y' = 'x', timing = MOVE) => {
       if (busy || index + 1 >= total) return;
       setBusy(true);
       const done = (finished?: boolean) => {
         'worklet';
         if (finished) runOnJS(settle)(index + 1);
       };
-      if (axis === 'y') y.value = withTiming(-h.value * 1.1, MOVE, done);
-      else x.value = withTiming(-W * 1.05, MOVE, done);
+      if (axis === 'y') y.value = withTiming(-h.value * 1.1, timing, done);
+      else x.value = withTiming(-W * 1.05, timing, done);
     },
     [busy, index, total, W, x, y, h, settle],
   );
 
-  const goPrev = useCallback(() => {
-    if (busy || index === 0) return;
-    setBusy(true);
-    setIncoming(index - 1);
-    inX.value = -W * 1.05;
-    inX.value = withTiming(0, MOVE, (finished) => {
-      if (finished) runOnJS(settle)(index - 1);
-    });
-  }, [busy, index, W, inX, settle]);
+  const goPrev = useCallback(
+    (timing = MOVE) => {
+      if (busy || index === 0) return;
+      setBusy(true);
+      setIncoming(index - 1);
+      inX.value = -W * 1.05;
+      inX.value = withTiming(0, timing, (finished) => {
+        if (finished) runOnJS(settle)(index - 1);
+      });
+    },
+    [busy, index, W, inX, settle],
+  );
 
-  const go = useCallback((dir: 1 | -1) => (dir === 1 ? goNext() : goPrev()), [goNext, goPrev]);
+  // A jump from the index flips through the cards one by one, fast.
+  useEffect(() => {
+    const target = jumpTarget.current;
+    if (target == null || busy) return;
+    if (target === index) {
+      jumpTarget.current = null;
+      return;
+    }
+    if (target > index) goNext('x', FAST);
+    else goPrev(FAST);
+  }, [index, busy, goNext, goPrev]);
+
 
   // Swipe in any direction: left / up = next, right / down = previous.
   const pan = Gesture.Pan()
@@ -141,55 +159,14 @@ export default function QuestionScreen() {
       const horizontal = Math.abs(e.translationX) >= Math.abs(e.translationY);
       if (horizontal) {
         if (e.translationX < -70 || e.velocityX < -600) runOnJS(goNext)('x');
-        else if (e.translationX > 70 || e.velocityX > 600) runOnJS(goPrev)();
+        else if (e.translationX > 70 || e.velocityX > 600) runOnJS(goPrev)(MOVE);
         else x.value = withTiming(0, MOVE);
       } else {
         if (e.translationY < -90 || e.velocityY < -700) runOnJS(goNext)('y');
-        else if (e.translationY > 90 || e.velocityY > 700) runOnJS(goPrev)();
+        else if (e.translationY > 90 || e.velocityY > 700) runOnJS(goPrev)(MOVE);
         else y.value = withTiming(0, MOVE);
       }
     });
-
-  // Progress of the forward move (0 → 1) drives the stack behind.
-  const frontStyle = useAnimatedStyle(() => {
-    const back = interpolate(inX.value, [-W, 0], [0, 1], 'clamp'); // going back
-    return {
-      transform: [
-        { translateX: x.value },
-        { translateY: y.value },
-        { rotate: `${(x.value / W) * 3}deg` },
-        { scale: interpolate(back, [0, 1], [1, 0.94]) },
-        { translateY: interpolate(back, [0, 1], [0, lift(0.94, 14)]) },
-      ],
-    };
-  });
-  const progress = () => {
-    'worklet';
-    return Math.min(1, Math.max(Math.abs(x.value) / (W * 0.8), Math.abs(y.value) / (h.value * 0.6)));
-  };
-  const ghost1Style = useAnimatedStyle(() => {
-    const p = progress();
-    const back = interpolate(inX.value, [-W, 0], [0, 1], 'clamp');
-    const scale = interpolate(p, [0, 1], [0.94, 1]) - back * 0.06;
-    return {
-      transform: [
-        { scale },
-        { translateY: interpolate(p, [0, 1], [lift(0.94, 14), 0]) + back * (lift(0.88, 28) - lift(0.94, 14)) },
-      ],
-    };
-  });
-  const ghost2Style = useAnimatedStyle(() => {
-    const p = progress();
-    return {
-      transform: [
-        { scale: interpolate(p, [0, 1], [0.88, 0.94]) },
-        { translateY: interpolate(p, [0, 1], [lift(0.88, 28), lift(0.94, 14)]) },
-      ],
-    };
-  });
-  const incomingStyle = useAnimatedStyle(() => ({
-    transform: [{ translateX: inX.value }, { rotate: `${(inX.value / W) * 3}deg` }],
-  }));
 
   // Keyboard arrows on web.
   useEffect(() => {
@@ -203,7 +180,7 @@ export default function QuestionScreen() {
         goNext('y');
       } else if (e.key === 'ArrowLeft' || e.key === 'ArrowDown') {
         e.preventDefault();
-        goPrev();
+        goPrev(MOVE);
       }
     };
     window.addEventListener('keydown', onKey);
@@ -219,23 +196,11 @@ export default function QuestionScreen() {
     y.value = 0;
     settle(0);
   };
-  // Jump from the index: a quick version of the same stack move, forward or back.
   const jumpTo = (i: number) => {
     setIndexOpen(false);
-    if (busy || i === index) return;
-    setBusy(true);
-    if (i > index) {
-      setJumpTarget(i);
-      x.value = withTiming(-W * 1.05, FAST, (finished) => {
-        if (finished) runOnJS(settle)(i);
-      });
-    } else {
-      setIncoming(i);
-      inX.value = -W * 1.05;
-      inX.value = withTiming(0, FAST, (finished) => {
-        if (finished) runOnJS(settle)(i);
-      });
-    }
+    if (i === index) return;
+    jumpTarget.current = i;
+    if (!busy) (i > index ? goNext('x', FAST) : goPrev(FAST));
   };
 
   if (!question || !card) {
@@ -247,7 +212,6 @@ export default function QuestionScreen() {
   }
 
   const isFirst = index === 0;
-  const ahead = jumpTarget != null ? deck.slice(jumpTarget, jumpTarget + 2) : deck.slice(index + 1, index + 3);
   const cta = card.kind === 'question' ? 'Reveal' : card.kind === 'prompt' ? 'Show me' : 'Next';
 
   return (
@@ -281,48 +245,40 @@ export default function QuestionScreen() {
         ))}
       </View>
 
-      {/* Deck */}
-      <View style={styles.deck} onLayout={(e) => { h.value = e.nativeEvent.layout.height - 32; }}>
-        {ahead[1] ? (
-          <Animated.View style={[styles.layer, { width: cardW }, ghost2Style]} pointerEvents="none">
-            <CardView card={ahead[1]} question={question} runKey={-1} />
-          </Animated.View>
-        ) : null}
-        {ahead[0] ? (
-          <Animated.View style={[styles.layer, { width: cardW }, ghost1Style]} pointerEvents="none">
-            <CardView card={ahead[0]} question={question} runKey={-1} />
-          </Animated.View>
-        ) : null}
-        <GestureDetector gesture={pan}>
-          <Animated.View style={[styles.layer, { width: cardW }, frontStyle]}>
-            <CardView card={card} question={question} runKey={index} />
-          </Animated.View>
-        </GestureDetector>
-        {incoming != null ? (
-          <Animated.View style={[styles.layer, { width: cardW }, incomingStyle]} pointerEvents="none">
-            <CardView card={deck[incoming]} question={question} runKey={-1} />
-          </Animated.View>
-        ) : null}
-      </View>
+      {/* Deck: every visible card is its own persistent layer, positioned by
+          its depth (0 = front). Cards keep their element as they move forward,
+          so nothing remounts between swipes. */}
+      <GestureDetector gesture={pan}>
+        <View style={styles.deck} onLayout={(e) => { h.value = e.nativeEvent.layout.height - 32; }}>
+          {[2, 1, 0, -1].map((offset) => {
+            if (offset === -1 && incoming == null) return null;
+            const i = offset === -1 ? incoming! : index + offset;
+            if (i < 0 || i >= total) return null;
+            return (
+              <Layer key={i} offset={offset} x={x} y={y} inX={inX} h={h} W={W} width={cardW}>
+                <CardView
+                  card={deck[i]}
+                  question={question}
+                  runKey={offset === 0 ? index : -1}
+                  fresh={i > 0 && deck[i].section === 'Answer' && deck[i].kind !== 'prompt' && deck[i - 1].title !== deck[i].title}
+                />
+              </Layer>
+            );
+          })}
+        </View>
+      </GestureDetector>
 
-      {/* Floating index button */}
-      <View style={styles.fabWrap} pointerEvents="box-none">
-        <IconButton icon="format-list-bulleted" onPress={() => setIndexOpen(true)} size={48} />
-      </View>
-
-      {/* Footer controls */}
+      {/* Footer controls: back · next · index */}
       <View style={[styles.footer, { paddingBottom: Math.max(insets.bottom, space.lg) }]}>
+        <IconButton icon="arrow-back" onPress={() => goPrev()} style={{ opacity: isFirst ? 0.35 : 1 }} size={56} />
         {card.kind === 'done' ? (
-          <>
-            <PillButton label="Restart" tone="ghost" icon="refresh" onPress={restart} style={{ flex: 1 }} />
-            <PillButton label="Finish" icon="check" onPress={finish} style={{ flex: 1.4 }} />
-          </>
+          <PillButton label="Finish" icon="check" onPress={finish} style={{ flex: 1 }} />
         ) : (
-          <>
-            <IconButton icon="arrow-back" onPress={() => go(-1)} style={{ opacity: isFirst ? 0.35 : 1 }} size={56} />
-            <PillButton label={cta} icon="arrow-forward" onPress={() => go(1)} style={{ flex: 1 }} />
-          </>
+          <PillButton label={cta} icon="arrow-forward" onPress={() => goNext()} style={{ flex: 1 }} />
         )}
+        <Pressable onPress={() => setIndexOpen(true)} style={styles.menuBtn} hitSlop={6}>
+          <MaterialIcons name="format-list-bulleted" size={24} color={colors.accent} />
+        </Pressable>
       </View>
 
       <IndexSheet
@@ -338,12 +294,82 @@ export default function QuestionScreen() {
 
 /* ------------------------------------------------------------------------ */
 
+/**
+ * One card in the stack. `offset` is its resting depth: 0 front, 1 and 2
+ * behind (fanned slightly), -1 the card sliding back in from the left. The
+ * live depth d = offset − forwardProgress + backProgress, so cards glide
+ * continuously between depths while the front card is dragged or animated.
+ */
+function Layer({
+  offset,
+  x,
+  y,
+  inX,
+  h,
+  W,
+  width,
+  children,
+}: {
+  offset: number;
+  x: SharedValue<number>;
+  y: SharedValue<number>;
+  inX: SharedValue<number>;
+  h: SharedValue<number>;
+  W: number;
+  width: number;
+  children: React.ReactNode;
+}) {
+  const style = useAnimatedStyle(() => {
+    if (offset === -1) {
+      return { transform: [{ translateX: inX.value }, { rotate: `${(inX.value / W) * 3}deg` }], zIndex: 10 };
+    }
+    const p = Math.min(1, Math.max(Math.abs(x.value) / (W * 0.8), Math.abs(y.value) / (h.value * 0.6)));
+    const back = interpolate(inX.value, [-W, 0], [0, 1], 'clamp');
+    const d = Math.max(0, offset - p + back);
+    const scale = 1 - 0.06 * d;
+    const lift = -((1 - scale) * h.value) / 2 - 14 * d;
+    // Fan: first card behind leans left, the next leans right.
+    const fanX = d <= 1 ? -7 * d : -7 + 16 * (d - 1);
+    const fanR = d <= 1 ? -2.2 * d : -2.2 + 5 * (d - 1);
+    const drag = offset === 0 ? { tx: x.value, ty: y.value, r: (x.value / W) * 3 } : { tx: 0, ty: 0, r: 0 };
+    return {
+      zIndex: 5 - offset,
+      opacity: d > 2.5 ? 0 : 1,
+      transform: [
+        { translateX: drag.tx + fanX },
+        { translateY: drag.ty + lift },
+        { scale },
+        { rotate: `${drag.r + fanR}deg` },
+      ],
+    };
+  });
+  return <Animated.View style={[styles.layer, { width }, style]}>{children}</Animated.View>;
+}
+
 function pageLabel(card: DeckCard): string {
   const base = card.eyebrow ?? SECTION_LABEL[card.section];
   return card.pages && card.pages > 1 && !/of \d+$/.test(base) ? `${base} · ${card.page} of ${card.pages}` : base;
 }
 
-function CardView({ card, question, runKey }: { card: DeckCard; question: Question; runKey: number }) {
+/** Animated accent underline that draws in — marks the first card of a new answer section. */
+function NewMark({ on }: { on: boolean }) {
+  const w = useSharedValue(0);
+  useEffect(() => {
+    w.value = 0;
+    if (on) w.value = withTiming(1, { duration: 600, easing: Easing.out(Easing.cubic) });
+  }, [on, w]);
+  const style = useAnimatedStyle(() => ({ width: `${w.value * 100}%` }));
+  if (!on) return null;
+  return (
+    <View style={styles.newMarkTrack}>
+      <Animated.View style={[styles.newMarkBar, style]} />
+    </View>
+  );
+}
+
+function CardView({ card, question, runKey, fresh }: { card: DeckCard; question: Question; runKey: number; fresh?: boolean }) {
+  const front = runKey >= 0;
+  const newSection = !!fresh && front;
   switch (card.kind) {
     case 'question':
       return (
@@ -405,6 +431,7 @@ function CardView({ card, question, runKey }: { card: DeckCard; question: Questi
         <View style={[styles.cardBase, styles.cardPad]}>
           <Eyebrow>{pageLabel(card)}</Eyebrow>
           <Text style={styles.title}>{card.title}</Text>
+          <NewMark on={newSection} />
           <ScrollView style={styles.scroll} contentContainerStyle={{ gap: space.md, paddingBottom: space.sm }} showsVerticalScrollIndicator={false}>
             {card.items.map((item, i) => (
               <View key={i} style={styles.item}>
@@ -423,22 +450,23 @@ function CardView({ card, question, runKey }: { card: DeckCard; question: Questi
       );
 
     case 'pills':
-      return <PillsCard card={card} />;
+      return <PillsCard card={card} front={front} newSection={newSection} />;
 
     case 'groups':
-      return <GroupsCard card={card} />;
+      return <GroupsCard card={card} front={front} newSection={newSection} />;
 
     case 'rows':
-      return <RowsCard card={card} />;
+      return <RowsCard card={card} front={front} newSection={newSection} />;
 
     case 'compare':
-      return <CompareCard card={card} />;
+      return <CompareCard card={card} front={front} newSection={newSection} />;
 
     case 'text':
       return (
         <View style={[styles.cardBase, styles.cardPad]}>
           <Eyebrow>{pageLabel(card)}</Eyebrow>
           <Text style={styles.title}>{card.title}</Text>
+          <NewMark on={newSection} />
           <ScrollView style={styles.scroll} showsVerticalScrollIndicator={false}>
             <Text style={[styles.body, card.mono && styles.mono]}>{card.body}</Text>
           </ScrollView>
@@ -460,15 +488,58 @@ function CardView({ card, question, runKey }: { card: DeckCard; question: Questi
   }
 }
 
-/** Selectable pills; the selected one is filled. */
-function PillRow({ pills, open, onSelect }: { pills: Pill[]; open: number | null; onSelect: (i: number) => void }) {
+/**
+ * Selectable pills. When `auto` is on, the selected pill fills up over five
+ * seconds and then hands over to the next one (or calls onEnd after the last).
+ */
+function PillRow({
+  pills,
+  open,
+  onSelect,
+  auto,
+  onEnd,
+}: {
+  pills: Pill[];
+  open: number | null;
+  onSelect: (i: number) => void;
+  auto?: boolean;
+  onEnd?: () => void;
+}) {
+  const fill = useSharedValue(0);
+  const [paused, setPaused] = useState(false);
+  const advance = useCallback(() => {
+    if (open == null) return;
+    if (open < pills.length - 1) onSelect(open + 1);
+    else onEnd?.();
+  }, [open, pills.length, onSelect, onEnd]);
+
+  useEffect(() => {
+    cancelAnimation(fill);
+    fill.value = 0;
+    if (!auto || paused || open == null) return;
+    fill.value = withTiming(1, { duration: PILL_DWELL_MS, easing: Easing.linear }, (finished) => {
+      if (finished) runOnJS(advance)();
+    });
+    return () => cancelAnimation(fill);
+  }, [auto, paused, open, fill, advance]);
+
+  const fillStyle = useAnimatedStyle(() => ({ width: `${fill.value * 100}%` }));
+
   return (
     <View style={styles.rowWrap}>
       {pills.map((p, i) => {
         const on = open === i;
         return (
-          <Pressable key={i} onPress={() => onSelect(i)} style={[styles.pill, pills.length > 1 && styles.pillHalf, on && styles.pillOn]}>
-            <Text style={[styles.pillText, pills.length > 1 && styles.pillTextHalf, on && styles.pillTextOn]} numberOfLines={2}>{p.label}</Text>
+          <Pressable
+            key={i}
+            onPress={() => {
+              setPaused(true); // a tap means the reader is driving — stop auto-advance
+              onSelect(i);
+            }}
+            style={[styles.pill, on && styles.pillOn]}
+          >
+            {on && auto && !paused ? <Animated.View style={[styles.pillFill, fillStyle]} /> : null}
+            <Text style={[styles.pillText, on && styles.pillTextOn]} numberOfLines={1}>{p.label}</Text>
           </Pressable>
         );
       })}
@@ -477,13 +548,14 @@ function PillRow({ pills, open, onSelect }: { pills: Pill[]; open: number | null
 }
 
 /** Detail on top, pills docked at the bottom; first pill selected by default. */
-function PillsCard({ card }: { card: Extract<DeckCard, { kind: 'pills' }> }) {
+function PillsCard({ card, front, newSection }: { card: Extract<DeckCard, { kind: 'pills' }>; front: boolean; newSection: boolean }) {
   const [open, setOpen] = useState(0);
   const sel = card.items[open] ?? card.items[0];
   return (
     <View style={[styles.cardBase, styles.cardPad]}>
       <Eyebrow>{pageLabel(card)}</Eyebrow>
       <Text style={styles.title}>{card.title}</Text>
+      <NewMark on={newSection} />
       {card.intro ? <Text style={styles.intro}>{card.intro}</Text> : null}
       <ScrollView style={styles.grow} contentContainerStyle={styles.detailArea} showsVerticalScrollIndicator={false}>
         {sel?.detail && !sel.detail.toLowerCase().startsWith(sel.label.toLowerCase()) ? (
@@ -497,13 +569,14 @@ function PillsCard({ card }: { card: Extract<DeckCard, { kind: 'pills' }> }) {
 }
 
 /** Table rows as pills: chips for short cells, body for long ones. */
-function RowsCard({ card }: { card: Extract<DeckCard, { kind: 'rows' }> }) {
+function RowsCard({ card, front, newSection }: { card: Extract<DeckCard, { kind: 'rows' }>; front: boolean; newSection: boolean }) {
   const [open, setOpen] = useState(0);
   const r = card.items[open] ?? card.items[0];
   return (
     <View style={[styles.cardBase, styles.cardPad]}>
       <Eyebrow>{pageLabel(card)}</Eyebrow>
       <Text style={styles.title}>{card.title}</Text>
+      <NewMark on={newSection} />
       <ScrollView style={styles.grow} contentContainerStyle={styles.detailArea} showsVerticalScrollIndicator={false}>
         {r.kind ? <Text style={styles.groupLabel}>{r.kind}</Text> : null}
         <Text style={styles.detailBig}>{r.text[0] ?? r.label}</Text>
@@ -521,19 +594,20 @@ function RowsCard({ card }: { card: Extract<DeckCard, { kind: 'rows' }> }) {
           <Text key={i} style={styles.detailSub}>{t}</Text>
         ))}
       </ScrollView>
-      <PillRow pills={card.items.map((i) => ({ label: i.label }))} open={open} onSelect={setOpen} />
+      <PillRow pills={card.items.map((i) => ({ label: i.label }))} open={open} onSelect={setOpen} auto={front} />
     </View>
   );
 }
 
 /** Strong vs generic pairs, one pair at a time. */
-function CompareCard({ card }: { card: Extract<DeckCard, { kind: 'compare' }> }) {
+function CompareCard({ card, front, newSection }: { card: Extract<DeckCard, { kind: 'compare' }>; front: boolean; newSection: boolean }) {
   const [open, setOpen] = useState(0);
   const r = card.rows[open] ?? card.rows[0];
   return (
     <View style={[styles.cardBase, styles.cardPad]}>
       <Eyebrow>{pageLabel(card)}</Eyebrow>
       <Text style={styles.title}>{card.title}</Text>
+      <NewMark on={newSection} />
       <ScrollView style={styles.grow} contentContainerStyle={[styles.detailArea, { gap: space.md }]} showsVerticalScrollIndicator={false}>
         {r.strong ? (
           <View style={[styles.block, { backgroundColor: '#E8F7EE' }]}>
@@ -555,14 +629,14 @@ function CompareCard({ card }: { card: Extract<DeckCard, { kind: 'compare' }> })
         ) : null}
       </ScrollView>
       {card.rows.length > 1 ? (
-        <PillRow pills={card.rows.map((_, i) => ({ label: `${i + 1}` }))} open={open} onSelect={setOpen} />
+        <PillRow pills={card.rows.map((_, i) => ({ label: `${i + 1}` }))} open={open} onSelect={setOpen} auto={front} />
       ) : null}
     </View>
   );
 }
 
 /** Groups: plain bullets when items have no detail; otherwise grouped pills docked at the bottom. */
-function GroupsCard({ card }: { card: Extract<DeckCard, { kind: 'groups' }> }) {
+function GroupsCard({ card, front, newSection }: { card: Extract<DeckCard, { kind: 'groups' }>; front: boolean; newSection: boolean }) {
   const [sel, setSel] = useState<[number, number]>([0, 0]);
   const rich = card.groups.some((g) => g.items.some((p) => p.detail));
 
@@ -571,6 +645,7 @@ function GroupsCard({ card }: { card: Extract<DeckCard, { kind: 'groups' }> }) {
       <View style={[styles.cardBase, styles.cardPad]}>
         <Eyebrow>{pageLabel(card)}</Eyebrow>
         <Text style={styles.title}>{card.title}</Text>
+        <NewMark on={newSection} />
         <ScrollView style={styles.scroll} contentContainerStyle={{ gap: space.lg, paddingBottom: space.sm }} showsVerticalScrollIndicator={false}>
           {card.groups.map((g, gi) => (
             <View key={gi} style={{ gap: space.sm }}>
@@ -594,6 +669,7 @@ function GroupsCard({ card }: { card: Extract<DeckCard, { kind: 'groups' }> }) {
     <View style={[styles.cardBase, styles.cardPad]}>
       <Eyebrow>{pageLabel(card)}</Eyebrow>
       <Text style={styles.title}>{card.title}</Text>
+      <NewMark on={newSection} />
       <ScrollView style={styles.grow} contentContainerStyle={styles.detailArea} showsVerticalScrollIndicator={false}>
         <Text style={styles.groupLabel}>{g.label}</Text>
         {p.detail && !p.detail.toLowerCase().startsWith(p.label.toLowerCase()) ? (
@@ -605,7 +681,13 @@ function GroupsCard({ card }: { card: Extract<DeckCard, { kind: 'groups' }> }) {
         {card.groups.map((grp, gi) => (
           <View key={gi} style={{ gap: 6 }}>
             <Text style={styles.groupLabelSm}>{grp.label}</Text>
-            <PillRow pills={grp.items} open={sel[0] === gi ? sel[1] : null} onSelect={(i) => setSel([gi, i])} />
+            <PillRow
+              pills={grp.items}
+              open={sel[0] === gi ? sel[1] : null}
+              onSelect={(i) => setSel([gi, i])}
+              auto={front}
+              onEnd={() => (gi + 1 < card.groups.length ? setSel([gi + 1, 0]) : undefined)}
+            />
           </View>
         ))}
       </View>
@@ -670,10 +752,11 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
     maxWidth: '100%',
   },
-  pillHalf: { width: '48%', flexGrow: 1, justifyContent: 'center' },
-  pillOn: { backgroundColor: colors.accent },
+  pillOn: { backgroundColor: colors.accent, overflow: 'hidden' },
+  pillFill: { position: 'absolute', left: 0, top: 0, bottom: 0, backgroundColor: 'rgba(255,255,255,0.28)' },
+  newMarkTrack: { height: 3, borderRadius: 2, backgroundColor: colors.accentSoft, marginTop: -4, marginBottom: 4, overflow: 'hidden' },
+  newMarkBar: { height: '100%', backgroundColor: colors.accent, borderRadius: 2 },
   pillText: { color: colors.text, fontSize: 14, fontWeight: '700', flexShrink: 1 },
-  pillTextHalf: { fontSize: 13, lineHeight: 17, textAlign: 'center' },
   pillTextOn: { color: colors.onAccent },
   detailArea: { flexGrow: 1, justifyContent: 'center', gap: space.sm, paddingVertical: space.md },
   detailLabel: { color: colors.accent, fontSize: 13, fontWeight: '800', letterSpacing: 0.6, textTransform: 'uppercase' },
@@ -695,6 +778,6 @@ const styles = StyleSheet.create({
 
   doneIcon: { width: 88, height: 88, borderRadius: 44, backgroundColor: colors.accent, alignItems: 'center', justifyContent: 'center', ...shadow.accent },
 
-  fabWrap: { alignItems: 'flex-end', paddingHorizontal: space.lg, marginTop: -8, marginBottom: 4 },
+  menuBtn: { width: 56, height: 56, borderRadius: 28, backgroundColor: colors.accentSoft, alignItems: 'center', justifyContent: 'center' },
   footer: { flexDirection: 'row', alignItems: 'center', gap: space.md, paddingHorizontal: space.lg, paddingTop: space.sm },
 });
