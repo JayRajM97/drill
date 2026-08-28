@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo, useState } from 'react';
+import React, { useCallback, useLayoutEffect, useMemo, useState } from 'react';
 import { Pressable, StyleSheet, Text, View, useWindowDimensions } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
@@ -62,10 +62,14 @@ export default function NumbersShuffle() {
       } else prev();
       setRevealed(false);
       setBusy(false);
-      x.value = 0;
     },
-    [next, prev, x],
+    [next, prev],
   );
+  // Reset the slide only after React has committed the new card (after DOM
+  // update, before paint) so the old card never flashes back into place.
+  useLayoutEffect(() => {
+    x.value = 0;
+  }, [current.id, x]);
   const go = useCallback(
     (dir: 1 | -1) => {
       if (busy || (dir === -1 && i === 0)) return;
