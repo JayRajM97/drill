@@ -26,7 +26,7 @@ export function CategoryTile({ category, count, onPress }: Props) {
 }
 
 const styles = StyleSheet.create({
-  tile: { flex: 1, minHeight: 150, padding: space.lg, justifyContent: 'space-between', gap: space.lg },
+  tile: { flex: 1, minHeight: 124, padding: space.lg, justifyContent: 'space-between', gap: space.lg },
   name: { color: colors.text, fontSize: 16, fontWeight: '700', letterSpacing: -0.2 },
   desc: { color: colors.textMuted, fontSize: 12, marginTop: 2 },
   count: { color: colors.textFaint, fontSize: 12, fontWeight: '600', marginTop: 8 },

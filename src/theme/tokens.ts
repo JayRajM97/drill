@@ -124,3 +124,20 @@ export const categoryDescription: Record<Category, string> = {
   AI: 'Shipping AI features.',
   RCA: 'Diagnose metric dips.',
 };
+
+/** Emoji for domain-tag filter chips (unknown tags fall back to 🏷️). */
+export const domainEmoji: Record<string, string> = {
+  AI: '🤖',
+  Ecommerce: '🛒',
+  Enterprise: '🏢',
+  Fintech: '💳',
+  Mobility: '🚕',
+  SaaS: '☁️',
+  Startup: '🚀',
+  Consumer: '📱',
+  Social: '💬',
+  Healthcare: '🏥',
+  Edtech: '🎓',
+  Media: '🎬',
+};
+export const emojiForDomain = (d: string): string => domainEmoji[d] ?? '🏷️';

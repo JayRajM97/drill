@@ -7,6 +7,120 @@ import type { Question } from '@/types/question';
  */
 export const curatedQuestions: Question[] = [
   {
+    id: 'q-zomato-buy-again-metrics',
+    title:
+      "How would you measure the success of a new 'Buy again' shortcut on Zomato's home screen?",
+    categories: ['Analytical'],
+    domain_tags: ['Ecommerce'],
+    difficulty: 'Medium',
+    question_type: 'Analytical — Success metrics for a new feature',
+    clarifying_questions: [
+      "What exactly is the shortcut — a single tap that re-orders the last order, or a carousel of past orders to pick from?",
+      'Who sees it — every user, or only users with at least one past order?',
+      'Where does it sit — above the fold on home, or lower in the feed?',
+      'What is the primary business goal — order frequency, time-to-order, or reducing drop-off?',
+      'Is it launching as an A/B test, or a full rollout with pre/post comparison?',
+      'How long do we have before we need to call success — 2 weeks, a quarter?',
+    ],
+    user_segments: [
+      'Habitual repeat orderer — same 2–3 restaurants, orders weekly; this is who the shortcut is built for',
+      'Occasional user — orders monthly, past orders are stale; shortcut may be noise',
+      'New user — no order history, sees nothing (or a placeholder)',
+      'Restaurant partner — repeat orders are cheap demand; watch concentration among a few restaurants',
+    ],
+    not_for: [
+      'New users — no history to buy again from; measure them separately',
+      'Dining-out / Zomato Gold users — different surface, different intent',
+      'Grocery (Blinkit) — separate app and funnel',
+    ],
+    framework: {
+      name: 'Goal → Behaviour → Metric tree',
+      steps: [
+        'State the goal — the shortcut exists to make repeat ordering faster and more frequent',
+        'Map the user behaviour — see shortcut → tap → confirm → order placed → order again next week',
+        'Pick one North Star and 2–3 supporting metrics along that path',
+        'Add counter-metrics — what could this quietly break?',
+        'Define the measurement design — A/B test, guardrails, duration, segments',
+        'Decide in advance what "success" and "kill" look like',
+      ],
+    },
+    key_pointers: [
+      'Anchor on frequency, not clicks — a shortcut that gets tapped but does not lift orders per user is a decoration',
+      'Measure incrementality with a holdout; repeat orders would have happened anyway for many users',
+      'Split by segment — the lift will be concentrated in habitual users; do not average it away',
+      'Name the cannibalisation risk — shortcut orders replacing browse orders is neutral, not a win',
+      'Watch restaurant concentration and discovery — a repeat shortcut can starve new restaurants',
+      'Set the decision rule before launch — e.g. ship if orders/user +3% with no AOV or rating drop',
+    ],
+    answer: [
+      {
+        heading: 'THE BET: Orders per active user per week, from a holdout test',
+        type: 'callout',
+        content:
+          "North Star: orders per active user per week, measured as a lift over a 10% holdout that does not see the shortcut. Supporting: shortcut adoption, time-to-order, repeat-order share. Counter: AOV, discovery of new restaurants, order ratings. Ship if the lift is ≥3% with counter-metrics flat.",
+      },
+      {
+        heading: 'Why frequency is the North Star',
+        type: 'bullets',
+        content: [
+          "Zomato's growth lever is frequency: ~80–100M annual transacting users but only 3–4 orders / month for actives",
+          'The shortcut removes browse friction for a known order — the only thing it can move is how often people re-order',
+          'Revenue = users × frequency × AOV; the shortcut should not touch users or AOV, so frequency is the honest test',
+        ],
+      },
+      {
+        heading: 'Metric tree',
+        type: 'table',
+        content: {
+          headers: ['Metric', 'Type', 'What it tells you'],
+          rows: [
+            ['Orders per active user / week (vs holdout)', 'North Star', 'Did the shortcut create incremental orders?'],
+            ['Shortcut adoption (% of eligible users who tap in 7 days)', 'Supporting', 'Is it discoverable and relevant?'],
+            ['Time from app open to order placed', 'Supporting', 'Is it actually faster? Target −30–40%'],
+            ['Shortcut orders as % of total orders', 'Supporting', 'How much demand flows through it (watch cannibalisation)'],
+            ['Average order value', 'Counter', 'Quick re-orders may skip add-ons'],
+            ['New-restaurant orders per user', 'Counter', 'Are we killing discovery?'],
+            ['Order rating / cancellation rate', 'Guardrail', 'Are people re-ordering things they did not want?'],
+          ],
+        },
+      },
+      {
+        heading: 'Measurement design',
+        type: 'bullets',
+        content: [
+          'A/B test with 10% holdout, user-level randomisation, 4 weeks (covers weekly ordering cycles)',
+          'Eligible population only: users with ≥1 past order in the last 60 days',
+          'Pre-register the primary metric and the decision rule; everything else is exploratory',
+          'Segment cuts: habitual (4+ orders/month) vs occasional; metro vs non-metro; Gold vs non-Gold',
+          'Check novelty effect: compare week 1 vs week 4 lift — a fading lift means curiosity, not habit',
+        ],
+      },
+      {
+        heading: 'Metrics',
+        type: 'bullets',
+        content: [
+          'Primary: Orders per active user per week, lift vs holdout',
+          'Supporting: Shortcut adoption — % of eligible users tapping it within 7 days',
+          'Supporting: Time to order — median seconds from app open to order placed',
+          'Counter: Average order value — should not drop more than 2%',
+          'Counter: New-restaurant orders per user — discovery should stay flat',
+          'Guardrail: Cancellations and 1–2 star ratings on shortcut orders vs normal orders',
+        ],
+      },
+      {
+        heading: 'What makes this answer strong vs. generic',
+        type: 'bullets',
+        content: [
+          'STRONG: Uses a holdout so the lift is incremental, not just "shortcut orders happened"',
+          "STRONG: Names cannibalisation and discovery as explicit counter-metrics",
+          'STRONG: Sets the ship / kill rule before seeing data',
+          'GENERIC: Lists CTR and DAU with no link to orders',
+          'GENERIC: Calls shortcut order volume a success without asking whether those orders were new',
+        ],
+      },
+    ],
+  },
+  {
     id: 'q-meesho-first-buyer',
     title:
       'Design a feature for Meesho to help first-time buyers in Tier 3 cities who browse but never complete their first purchase',

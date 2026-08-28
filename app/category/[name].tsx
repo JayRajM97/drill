@@ -7,7 +7,7 @@ import type { Category, Question } from '@/types/question';
 import { useProgress } from '@/state/useProgress';
 import { QuestionCard } from '@/components/QuestionCard';
 import { CategoryIcon, Chip, IconButton } from '@/components/ui';
-import { categoryDescription, colors, space } from '@/theme/tokens';
+import { categoryDescription, colors, emojiForDomain, space } from '@/theme/tokens';
 
 export default function CategoryScreen() {
   const router = useRouter();
@@ -58,9 +58,9 @@ export default function CategoryScreen() {
 
         {domains.length > 1 ? (
           <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.chips}>
-            <Chip label="All" active={!domain} onPress={() => setDomain(null)} />
+            <Chip label="All" icon="apps" active={!domain} onPress={() => setDomain(null)} />
             {domains.map((d) => (
-              <Chip key={d} label={d} active={domain === d} onPress={() => setDomain(domain === d ? null : d)} />
+              <Chip key={d} label={d} emoji={emojiForDomain(d)} active={domain === d} onPress={() => setDomain(domain === d ? null : d)} />
             ))}
           </ScrollView>
         ) : null}

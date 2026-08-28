@@ -34,6 +34,13 @@ function matches(q: Question, f: QuestionFilters): boolean {
   return true;
 }
 
+/** Ordered ids shown in Home → Today. */
+const TODAY_PINNED = [
+  'position-notion-vs-confluence-google-docs',
+  'q-zomato-buy-again-metrics',
+  'design-netflix-for-kids',
+];
+
 export const localRepository: QuestionRepository = {
   async list(filters = {}) {
     let results = QUESTIONS.filter((q) => matches(q, filters));
@@ -46,13 +53,15 @@ export const localRepository: QuestionRepository = {
   },
 
   async getDaily(seedStr) {
+    // Today is a pinned, ordered set; fall back to one-per-category picks only
+    // for pinned ids that do not exist in this build.
+    const pinned = TODAY_PINNED.map((id) => QUESTIONS.find((q) => q.id === id)).filter((q): q is Question => !!q);
+    if (pinned.length) return pinned;
     const picks: Question[] = [];
     for (const category of CATEGORIES) {
       const pool = QUESTIONS.filter((q) => q.categories.includes(category));
       if (pool.length === 0) continue;
       const idx = hashString(`${seedStr}:${category}`) % pool.length;
-      // A multi-category question may already be today's pick for another
-      // category; walk forward to the next unpicked one so the list is unique.
       for (let k = 0; k < pool.length; k++) {
         const q = pool[(idx + k) % pool.length];
         if (!picks.some((p) => p.id === q.id)) {

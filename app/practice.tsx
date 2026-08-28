@@ -10,7 +10,7 @@ import { BottomNavBar, NAV_CLEARANCE } from '@/components/BottomNavBar';
 import { QuestionCard } from '@/components/QuestionCard';
 import { Chip } from '@/components/ui';
 import { SearchHeader } from '@/components/SearchHeader';
-import { colors, radius, shadow, space } from '@/theme/tokens';
+import { categoryIcon, colors, radius, shadow, space } from '@/theme/tokens';
 
 const DIFFICULTIES: Difficulty[] = ['Easy', 'Medium', 'Hard'];
 const DIFF_COLOR: Record<Difficulty, string> = { Easy: colors.easy, Medium: colors.medium, Hard: colors.hard };
@@ -67,9 +67,9 @@ export default function PracticeScreen() {
           }
         />
         <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.chips}>
-          <Chip label="All" active={!category} onPress={() => setCategory(null)} />
+          <Chip label="All" icon="apps" active={!category} onPress={() => setCategory(null)} />
           {CATEGORIES.map((c) => (
-            <Chip key={c} label={c} active={category === c} onPress={() => setCategory(category === c ? null : c)} />
+            <Chip key={c} label={c} icon={categoryIcon[c] as never} active={category === c} onPress={() => setCategory(category === c ? null : c)} />
           ))}
         </ScrollView>
 

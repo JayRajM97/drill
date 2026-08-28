@@ -120,14 +120,22 @@ export function Chip({
   active,
   onPress,
   count,
+  icon,
+  emoji,
 }: {
   label: string;
   active?: boolean;
   onPress?: () => void;
   count?: number;
+  /** MaterialIcons glyph shown before the label. */
+  icon?: IconName;
+  /** Emoji shown before the label (alternative to icon). */
+  emoji?: string;
 }) {
   return (
     <Pressable onPress={onPress} style={[styles.chip, active && styles.chipActive]}>
+      {icon ? <MaterialIcons name={icon} size={16} color={active ? colors.onAccent : colors.textMuted} /> : null}
+      {emoji ? <Text style={styles.chipEmoji}>{emoji}</Text> : null}
       <Text style={[styles.chipText, active && styles.chipTextActive]}>{label}</Text>
       {count != null ? (
         <Text style={[styles.chipCount, active && { color: colors.onAccentMuted }]}>{count}</Text>
@@ -246,6 +254,7 @@ const styles = StyleSheet.create({
     ...shadow.card,
   },
   chipActive: { backgroundColor: colors.accent },
+  chipEmoji: { fontSize: 14 },
   chipText: { color: colors.text, fontSize: 14, fontWeight: '600' },
   chipTextActive: { color: colors.onAccent },
   chipCount: { color: colors.textFaint, fontSize: 13, fontWeight: '600' },
