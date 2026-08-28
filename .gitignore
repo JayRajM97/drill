@@ -43,3 +43,5 @@ yarn-error.*
 # Cloud Functions
 functions/node_modules/
 functions/lib/
+.vercel
+.env*
