@@ -2,10 +2,11 @@ import { ScrollViewStyleReset } from 'expo-router/html';
 import type { PropsWithChildren } from 'react';
 
 // Web HTML shell — the single place for page metadata (Expo Router web).
-const TITLE = 'Drill — Practice PM interviews one card at a time';
+const TITLE = 'Drill — Practice interview cases one at a time';
 const DESCRIPTION =
-  'Drill is a flashcard-style practice app for product management interviews. Work through real case studies card by card — framework, clarifying questions, users, key pointers, then the full answer — and keep the numbers every PM should know at your fingertips.';
+  'Drill is a flashcard-style practice app for management interviews. Work through real case studies card by card — framework, clarifying questions, users, key pointers, then the full answer — and keep the numbers every PM should know at your fingertips.';
 const URL = 'https://drill-inky.vercel.app';
+const IMAGE = 'https://imgh.in/host/sghe4f';
 
 export default function Root({ children }: PropsWithChildren) {
   return (
@@ -34,11 +35,18 @@ export default function Root({ children }: PropsWithChildren) {
         <meta property="og:description" content={DESCRIPTION} />
         <meta property="og:url" content={URL} />
         <meta property="og:locale" content="en_IN" />
+        <meta property="og:image" content={IMAGE} />
+        <meta property="og:image:type" content="image/png" />
+        <meta property="og:image:width" content="1672" />
+        <meta property="og:image:height" content="941" />
+        <meta property="og:image:alt" content="Drill — practice PM interviews one card at a time" />
 
         {/* Twitter / X */}
-        <meta name="twitter:card" content="summary" />
+        <meta name="twitter:card" content="summary_large_image" />
         <meta name="twitter:title" content={TITLE} />
         <meta name="twitter:description" content={DESCRIPTION} />
+        <meta name="twitter:image" content={IMAGE} />
+        <meta name="twitter:image:alt" content="Drill — practice PM interviews one card at a time" />
 
         {/* Mobile web app */}
         <meta name="mobile-web-app-capable" content="yes" />
