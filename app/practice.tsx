@@ -8,6 +8,7 @@ import type { Category, Difficulty, Question } from '@/types/question';
 import { CATEGORIES } from '@/types/question';
 import { BottomNavBar, NAV_CLEARANCE } from '@/components/BottomNavBar';
 import { QuestionCard } from '@/components/QuestionCard';
+import { Masonry } from '@/components/Masonry';
 import { Chip } from '@/components/ui';
 import { SearchHeader } from '@/components/SearchHeader';
 import { categoryIcon, colors, radius, shadow, space } from '@/theme/tokens';
@@ -73,19 +74,20 @@ export default function PracticeScreen() {
           ))}
         </ScrollView>
 
-        <View style={styles.grid}>
-          {filtered.map((q) => (
-            <View key={q.id} style={styles.cell}>
+        <Masonry
+          items={filtered}
+          keyOf={(q) => q.id}
+          estimate={(q) => 90 + Math.ceil(q.title.length / 22) * 21}
+          render={(q) => (
               <QuestionCard
-                question={q}
-                bookmarked={isBookmarked(q.id)}
-                onToggleBookmark={() => toggleBookmark(q.id)}
-                onPress={() => router.push(`/question/${q.id}`)}
-              />
-            </View>
-          ))}
-          {filtered.length === 0 ? <Text style={styles.empty}>Nothing matches.</Text> : null}
-        </View>
+              question={q}
+              bookmarked={isBookmarked(q.id)}
+              onToggleBookmark={() => toggleBookmark(q.id)}
+              onPress={() => router.push(`/question/${q.id}`)}
+            />
+          )}
+        />
+        {filtered.length === 0 ? <Text style={styles.empty}>Nothing matches.</Text> : null}
       </ScrollView>
 
       <BottomNavBar active="practice" />
@@ -116,7 +118,5 @@ const styles = StyleSheet.create({
   segDot: { width: 8, height: 8, borderRadius: 4 },
   segText: { color: colors.text, fontSize: 13, fontWeight: '700' },
   chips: { gap: space.sm, paddingHorizontal: space.lg, paddingVertical: space.md },
-  grid: { flexDirection: 'row', flexWrap: 'wrap', gap: space.md, paddingHorizontal: space.lg, paddingTop: space.sm },
-  cell: { width: '47%', flexGrow: 1 },
   empty: { color: colors.textMuted, fontSize: 15, padding: space.lg },
 });

@@ -74,7 +74,7 @@ export function QuestionCard({ question, onPress, compact, bookmarked, onToggleB
 }
 
 const styles = StyleSheet.create({
-  card: { flex: 1, padding: space.lg, gap: space.md, minHeight: 148, justifyContent: 'space-between' },
+  card: { padding: space.lg, gap: space.md },
   top: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start' },
   title: { flex: 1, color: colors.text, fontSize: 15, lineHeight: 21, fontWeight: '600', letterSpacing: -0.1 },
   row: { flexDirection: 'row', alignItems: 'center', gap: space.md, padding: space.lg },

@@ -6,6 +6,7 @@ import { questions } from '@/data';
 import type { Category, Question } from '@/types/question';
 import { useProgress } from '@/state/useProgress';
 import { QuestionCard } from '@/components/QuestionCard';
+import { Masonry } from '@/components/Masonry';
 import { BottomNavBar, NAV_CLEARANCE } from '@/components/BottomNavBar';
 import { CategoryIcon, Chip, IconButton } from '@/components/ui';
 import { categoryDescription, colors, emojiForDomain, space } from '@/theme/tokens';
@@ -66,14 +67,15 @@ export default function CategoryScreen() {
           </ScrollView>
         ) : null}
 
-        <View style={styles.grid}>
-          {filtered.map((q) => (
-            <View key={q.id} style={styles.cell}>
+        <Masonry
+          items={filtered}
+          keyOf={(q) => q.id}
+          estimate={(q) => 90 + Math.ceil(q.title.length / 22) * 21}
+          render={(q) => (
               <QuestionCard question={q} done={isCompleted(q.id)} onPress={() => router.push(`/question/${q.id}`)} />
-            </View>
-          ))}
-          {filtered.length === 0 ? <Text style={styles.empty}>Nothing here yet.</Text> : null}
-        </View>
+          )}
+        />
+        {filtered.length === 0 ? <Text style={styles.empty}>Nothing here yet.</Text> : null}
       </ScrollView>
 
       <BottomNavBar active="practice" />
@@ -88,7 +90,5 @@ const styles = StyleSheet.create({
   title: { color: colors.text, fontSize: 28, fontWeight: '800', letterSpacing: -0.6 },
   sub: { color: colors.textMuted, fontSize: 14, marginTop: 4 },
   chips: { gap: space.sm, paddingHorizontal: space.lg, paddingVertical: 6, marginBottom: space.sm },
-  grid: { flexDirection: 'row', flexWrap: 'wrap', gap: space.md, paddingHorizontal: space.lg, paddingTop: space.sm },
-  cell: { width: '47%', flexGrow: 1 },
   empty: { color: colors.textMuted, fontSize: 15, padding: space.lg },
 });
