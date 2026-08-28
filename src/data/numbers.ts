@@ -685,6 +685,9 @@ const Q_OVERRIDES: Record<string, string> = {
   'fi.cards': 'How many debit vs credit cards are there in India?',
   'fi.upi-ticket': 'What is the average UPI ticket size?',
   'qc.delivery-cost': 'What does one quick-commerce delivery cost?',
+  'in.food-aov': 'What is the average food-delivery order value in India?',
+  'fd.us-aov': 'What is the average food-delivery order value in the US?',
+  'qc.in-aov': 'What is the average quick-commerce order value in India?',
 };
 
 const BRANDS = new Set(['Google', 'Venmo', 'Flipkart', 'YouTube', 'Netflix', 'Uber', 'Stripe', 'PayPal', 'Zelle', 'Apple', 'Visa', 'Shopify', 'Amazon', 'DoorDash', 'Instacart', 'Blinkit', 'Spotify', 'Disney+', 'Roblox', 'Steam', 'Tesla', 'Microsoft', 'Slack', 'Zoom', 'Salesforce', 'LinkedIn', 'Airbnb', 'Booking.com', 'IndiGo', 'Jio', 'WhatsApp', 'Razorpay', 'Patreon', 'Substack', 'ChatGPT', 'OpenAI', 'Reddit', 'Snapchat', 'Facebook', 'Instagram', 'TikTok', 'X', 'Twitter', 'Costco', 'Walmart', 'Getir', 'Europe', 'India', 'Android', 'iOS', 'ShareChat', 'Gemini', 'Claude', 'DashMart', 'Swiggy', 'Zomato', 'Ola', 'Prime', 'Lyft', 'Grubhub', 'Klarna', 'Pinterest']);
@@ -719,7 +722,7 @@ export function questionFor(fact: Fact): string {
   } else if (isBrandOnly && fact.group && /mau|users/i.test(fact.group)) core = `how many monthly active users does ${label} have?`;
   else if (/^(will|when|which|how|what)\b/i.test(lower)) core = lower.endsWith('?') ? lower : `${lower}?`;
   else if (/^(population|labour force|working-age)/i.test(lower)) core = `what is the ${lower}?`;
-  else if (/^(average|avg|median|typical|time to|time from|hours|daily|total|peak)\b/i.test(lower)) core = `what is the ${lower}?`;
+  else if (/^(average|avg|median|typical|time to|time from|hours|daily|total|peak)\b/i.test(lower) || /\b(aov|arpu|ticket)\b/i.test(lower)) core = `what is the ${lower}?`;
   else if (RATE.test(bare)) core = `what is the ${lower}?`;
   else if (COUNT.test(lower)) core = `how many ${lower} are there?`;
   else if (SIZE.test(lower)) core = `how big is ${/^(the|global|total)\b/i.test(lower) ? '' : 'the '}${lower}?`;

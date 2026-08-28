@@ -23,11 +23,13 @@
     "web": {
       "favicon": "./assets/favicon.png",
       "bundler": "metro",
-      "output": "single"
+      "output": "static"
     },
     "plugins": [
       "expo-router",
       "expo-status-bar"
-    ]
+    ],
+    "description": "Flashcard-style practice for product management interviews: real case studies broken into cards, plus the numbers every PM should know.",
+    "primaryColor": "#1F5EFF"
   }
 }

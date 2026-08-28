@@ -122,7 +122,8 @@ export default function HomeScreen() {
           showsHorizontalScrollIndicator={false}
           snapToInterval={cardW + space.md}
           decelerationRate="fast"
-          contentContainerStyle={{ paddingHorizontal: space.lg, gap: space.md, paddingBottom: space.sm }}
+          style={{ marginVertical: -space.xl }}
+          contentContainerStyle={{ paddingHorizontal: space.lg, gap: space.md, paddingVertical: space.xl }}
         >
           {ordered.map((q, i) => (
             <TodayCard
@@ -139,11 +140,11 @@ export default function HomeScreen() {
         {/* Today's numbers: two rows, scroll sideways */}
         <View style={[styles.sectionHead, { marginTop: space.xl }]}>
           <Text style={styles.sectionTitle}>Today's numbers</Text>
-          <Pressable onPress={() => router.push('/numbers')} hitSlop={8}>
-            <Text style={styles.link}>All numbers</Text>
+          <Pressable onPress={() => router.push('/numbers')} hitSlop={8} style={styles.moreBtn}>
+            <MaterialIcons name="arrow-forward" size={18} color={colors.text} />
           </Pressable>
         </View>
-        <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ paddingHorizontal: space.lg, paddingBottom: space.sm }}>
+        <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ marginVertical: -space.lg }} contentContainerStyle={{ paddingHorizontal: space.lg, paddingVertical: space.lg }}>
           <View style={styles.numGrid}>
             {[numbers.slice(0, 3), numbers.slice(3, 6)].map((row, r) => (
               <View key={r} style={styles.numRow}>
@@ -154,13 +155,13 @@ export default function HomeScreen() {
                     <Pressable
                       key={f.id}
                       onPress={() => router.push('/numbers')}
-                      style={({ pressed }) => [styles.numTile, { width: wide ? 200 : 140, backgroundColor: tint.bg }, pressed && { opacity: 0.9 }]}
+                      style={({ pressed }) => [styles.numTile, { width: wide ? 200 : 140 }, pressed && { opacity: 0.9 }]}
                     >
                       <View style={styles.numTop}>
                         <Text style={styles.numEmoji}>{emojiFor(f, '🔢')}</Text>
                         <Text style={[styles.numTopic, { color: tint.fg }]} numberOfLines={1}>{f.topic}</Text>
                       </View>
-                      <Text style={[styles.numValue, { color: tint.fg }]} numberOfLines={1} adjustsFontSizeToFit>{f.value}</Text>
+                      <Text style={styles.numValue} numberOfLines={1} adjustsFontSizeToFit>{f.value}</Text>
                       <Text style={styles.numLabel} numberOfLines={2}>{f.label}</Text>
                     </Pressable>
                   );
@@ -173,8 +174,8 @@ export default function HomeScreen() {
         {/* Categories */}
         <View style={[styles.sectionHead, { marginTop: space.xl }]}>
           <Text style={styles.sectionTitle}>Categories</Text>
-          <Pressable onPress={() => router.push('/practice')} hitSlop={8}>
-            <Text style={styles.link}>See all</Text>
+          <Pressable onPress={() => router.push('/practice')} hitSlop={8} style={styles.moreBtn}>
+            <MaterialIcons name="arrow-forward" size={18} color={colors.text} />
           </Pressable>
         </View>
         <View style={styles.grid}>
@@ -269,7 +270,7 @@ const styles = StyleSheet.create({
 
   sectionHead: {
     flexDirection: 'row',
-    alignItems: 'baseline',
+    alignItems: 'center',
     justifyContent: 'space-between',
     paddingHorizontal: space.lg,
     marginBottom: space.md,
@@ -277,6 +278,7 @@ const styles = StyleSheet.create({
   sectionTitle: { color: colors.text, fontSize: 20, fontWeight: '700', letterSpacing: -0.2 },
   sectionMeta: { color: colors.textFaint, fontSize: 13, fontWeight: '600' },
   link: { color: colors.accent, fontSize: 14, fontWeight: '700' },
+  moreBtn: { width: 34, height: 34, borderRadius: 17, backgroundColor: colors.surface, alignItems: 'center', justifyContent: 'center', ...shadow.card },
 
   today: {
     height: 232,
@@ -297,11 +299,11 @@ const styles = StyleSheet.create({
 
   numGrid: { gap: space.sm },
   numRow: { flexDirection: 'row', gap: space.sm },
-  numTile: { height: 122, borderRadius: radius.lg, padding: space.md, justifyContent: 'space-between' },
+  numTile: { height: 122, borderRadius: radius.lg, padding: space.md, justifyContent: 'space-between', backgroundColor: colors.surface, ...shadow.card },
   numTop: { flexDirection: 'row', alignItems: 'center', gap: 6 },
   numEmoji: { fontSize: 16 },
   numTopic: { fontSize: 11, fontWeight: '800', letterSpacing: 0.6, textTransform: 'uppercase', flexShrink: 1 },
-  numValue: { fontSize: 24, fontWeight: '800', letterSpacing: -0.6 },
+  numValue: { color: colors.text, fontSize: 24, fontWeight: '800', letterSpacing: -0.6 },
   numLabel: { color: colors.textMuted, fontSize: 12, fontWeight: '600', lineHeight: 16 },
   grid: { flexDirection: 'row', flexWrap: 'wrap', gap: space.md, paddingHorizontal: space.lg },
   cell: { width: '47%', flexGrow: 1 },

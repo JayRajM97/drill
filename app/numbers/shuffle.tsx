@@ -7,6 +7,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { MaterialIcons } from '@expo/vector-icons';
 import { ALL_FACTS, emojiFor, NUMBER_TOPICS, contextFor, questionFor, type Fact } from '@/data/numbers';
 import { Eyebrow, IconButton, PillButton } from '@/components/ui';
+import { FlipCard } from '@/components/FlipCard';
 import { colors, radius, shadow, space } from '@/theme/tokens';
 
 const MOVE = { duration: 320, easing: Easing.inOut(Easing.cubic) };
@@ -125,7 +126,11 @@ export default function NumbersShuffle() {
         ) : null}
         <GestureDetector gesture={pan}>
           <Animated.View style={[styles.layer, { width: cardW }, front]}>
-            <FactFace fact={current} revealed={revealed} topicEmoji={topic?.emoji} topicTitle={topic?.title} onPress={() => setRevealed((r) => !r)} />
+            <FlipCard
+              flipped={revealed}
+              front={<FactFace fact={current} revealed={false} topicEmoji={topic?.emoji} topicTitle={topic?.title} onPress={() => setRevealed(true)} />}
+              back={<FactFace fact={current} revealed topicEmoji={topic?.emoji} topicTitle={topic?.title} onPress={() => setRevealed(false)} />}
+            />
           </Animated.View>
         </GestureDetector>
       </View>
@@ -206,6 +211,7 @@ const styles = StyleSheet.create({
   deck: { flex: 1, alignItems: 'center', marginTop: space.xl, marginBottom: space.sm },
   layer: { position: 'absolute', top: 32, bottom: 0 },
   card: { flex: 1, backgroundColor: colors.surface, borderRadius: radius.card, padding: 26, gap: space.md, ...shadow.cardStrong },
+  layerInner: { flex: 1 },
   top: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
   emoji: { fontSize: 28 },
   middle: { flex: 1, justifyContent: 'center', alignItems: 'center', gap: space.lg },

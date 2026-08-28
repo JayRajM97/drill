@@ -24,8 +24,9 @@ export function FlipCard({ flipped, front, back, style }: Props) {
 
   useEffect(() => {
     progress.value = withSpring(flipped ? 1 : 0, {
-      damping: 14,
-      stiffness: 90,
+      damping: 16,
+      stiffness: 110,
+      mass: 0.9,
     });
   }, [flipped, progress]);
 

@@ -52,7 +52,7 @@ export type DeckCard =
   | (Base & { kind: 'groups'; groups: Group[] })
   | (Base & { kind: 'callout'; body: string; label: string })
   | (Base & { kind: 'text'; body: string; mono?: boolean })
-  | (Base & { kind: 'rows'; items: RowItem[] })
+  | (Base & { kind: 'rows'; items: RowItem[]; startIndex: number })
   | (Base & { kind: 'compare'; rows: { strong: string; generic: string }[] })
   | (Base & { kind: 'done' });
 
@@ -266,7 +266,14 @@ function answerCards(s: AnswerSection): DeckCard[] {
     }
     case 'table': {
       const t = s.content as TableData;
-      return paged(chunk(tableRows(t), 4).map<DeckCard>((items) => ({ kind: 'rows', section: 'Answer', title, eyebrow: 'Answer', items })));
+      let start = 0;
+      return paged(
+        chunk(tableRows(t), 4).map<DeckCard>((items) => {
+          const card: DeckCard = { kind: 'rows', section: 'Answer', title, eyebrow: 'Answer', items, startIndex: start };
+          start += items.length;
+          return card;
+        }),
+      );
     }
     case 'code':
       return [{ kind: 'text', section: 'Answer', title, eyebrow: 'Answer', body: String(s.content), mono: true }];

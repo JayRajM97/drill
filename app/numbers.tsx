@@ -7,6 +7,7 @@ import { emojiFor, NUMBER_TOPICS, REGION_LABEL, type Fact, type NumberTopic } fr
 import { BottomNavBar, NAV_CLEARANCE } from '@/components/BottomNavBar';
 import { SearchHeader } from '@/components/SearchHeader';
 import { Chip } from '@/components/ui';
+import { Masonry } from '@/components/Masonry';
 import { colors, radius, shadow, space } from '@/theme/tokens';
 
 export default function NumbersScreen() {
@@ -79,10 +80,12 @@ export default function NumbersScreen() {
             {t.groups.map((g) => (
               <View key={g.title} style={styles.group}>
                 <Text style={styles.groupTitle}>{g.title}</Text>
-                <View style={styles.grid}>
-                  {g.facts.map((x) => (
+                <Masonry
+                  items={g.facts}
+                  keyOf={(x) => x.id}
+                  estimate={(x) => 70 + (x.parts ? x.parts.length * 26 : 34) + (x.note ? Math.ceil(x.note.length / 24) * 18 : 0) + Math.ceil(x.label.length / 16) * 19}
+                  render={(x) => (
                     <FactCard
-                      key={x.id}
                       fact={x}
                       fallbackEmoji={t.emoji}
                       hideRegion={
@@ -93,8 +96,8 @@ export default function NumbersScreen() {
                         /\b(US|India|World|global)\b/i.test(g.title)
                       }
                     />
-                  ))}
-                </View>
+                  )}
+                />
               </View>
             ))}
           </View>
@@ -102,18 +105,18 @@ export default function NumbersScreen() {
         {topics.length === 0 ? <Text style={styles.empty}>No number matches.</Text> : null}
       </ScrollView>
 
-      {/* Practice entry points, docked above the nav. */}
+      {/* Practice entry points: small, docked bottom-right above the nav. */}
       <View style={[styles.ctaRow, { bottom: Math.max(insets.bottom, space.md) + 76 }]} pointerEvents="box-none">
-        <Pressable onPress={() => router.push('/numbers/shuffle')} style={({ pressed }) => [styles.cta, styles.ctaPrimary, pressed && { opacity: 0.85 }]}>
-          <MaterialIcons name="shuffle" size={20} color={colors.onAccent} />
+        <Pressable onPress={() => router.push('/numbers/shuffle')} style={({ pressed }) => [styles.cta, pressed && { opacity: 0.85 }]}>
+          <MaterialIcons name="shuffle" size={16} color={colors.text} />
           <Text style={styles.ctaText}>Shuffle</Text>
         </Pressable>
         <Pressable
           onPress={() => router.push(`/numbers/quiz?topic=${encodeURIComponent(needle ? 'all' : topicKey)}`)}
           style={({ pressed }) => [styles.cta, pressed && { opacity: 0.85 }]}
         >
-          <MaterialIcons name="play-arrow" size={22} color={colors.text} />
-          <Text style={[styles.ctaText, { color: colors.text }]}>Test me</Text>
+          <MaterialIcons name="play-arrow" size={18} color={colors.accent} />
+          <Text style={styles.ctaText}>Test me</Text>
         </Pressable>
       </View>
 
@@ -140,9 +143,8 @@ function Label({ text, tag }: { text: string; tag?: string }) {
  * composite values as inline chips, note always visible. No taps needed.
  */
 function FactCard({ fact, fallbackEmoji, hideRegion }: { fact: Fact; fallbackEmoji: string; hideRegion?: boolean }) {
-  const wide = !!fact.parts || fact.value.length > 12;
   return (
-    <View style={[styles.card, wide && styles.cardWide]}>
+    <View style={styles.card}>
       <View style={styles.cardTop}>
         <Text style={styles.emoji}>{emojiFor(fact, fallbackEmoji)}</Text>
         <View style={{ flex: 1 }}>
@@ -160,7 +162,7 @@ function FactCard({ fact, fallbackEmoji, hideRegion }: { fact: Fact; fallbackEmo
           ))}
         </View>
       ) : (
-        <Text style={[styles.value, wide && styles.valueWide]}>{fact.value}</Text>
+        <Text style={[styles.value, fact.value.length > 9 && styles.valueWide]} adjustsFontSizeToFit numberOfLines={2}>{fact.value}</Text>
       )}
       {fact.note ? <Text style={styles.note}>{fact.note}</Text> : null}
     </View>
@@ -171,22 +173,19 @@ const styles = StyleSheet.create({
   screen: { flex: 1, backgroundColor: colors.bg },
   chipRows: { paddingHorizontal: space.lg, paddingVertical: space.md },
   chipRow: { flexDirection: 'row', gap: space.sm },
-  topic: { paddingHorizontal: space.lg, gap: space.lg, marginBottom: space.xl },
-  topicTitle: { color: colors.text, fontSize: 20, fontWeight: '800', letterSpacing: -0.3 },
-  blurb: { color: colors.textMuted, fontSize: 14 },
+  topic: { gap: space.lg, marginBottom: space.xl },
+  topicTitle: {
+    paddingHorizontal: space.lg, color: colors.text, fontSize: 20, fontWeight: '800', letterSpacing: -0.3 },
+  blurb: { color: colors.textMuted, fontSize: 14, paddingHorizontal: space.lg },
   group: { gap: space.sm },
-  groupTitle: { color: colors.textFaint, fontSize: 12, fontWeight: '800', letterSpacing: 1, textTransform: 'uppercase' },
-  grid: { flexDirection: 'row', flexWrap: 'wrap', gap: space.md },
+  groupTitle: { paddingHorizontal: space.lg, color: colors.textFaint, fontSize: 12, fontWeight: '800', letterSpacing: 1, textTransform: 'uppercase' },
   card: {
-    width: '47%',
-    flexGrow: 1,
     backgroundColor: colors.surface,
     borderRadius: radius.lg,
     padding: space.lg,
     gap: space.sm,
     ...shadow.card,
   },
-  cardWide: { width: '100%' },
   cardTop: { flexDirection: 'row', alignItems: 'flex-start', gap: space.sm },
   emoji: { fontSize: 20, lineHeight: 24 },
   label: { color: colors.text, fontSize: 14, fontWeight: '700', lineHeight: 19 },
@@ -200,18 +199,17 @@ const styles = StyleSheet.create({
   partVal: { color: colors.accent, fontSize: 14, fontWeight: '800' },
   note: { color: colors.textMuted, fontSize: 13, lineHeight: 18 },
   empty: { color: colors.textMuted, fontSize: 15, padding: space.lg },
-  ctaRow: { position: 'absolute', left: space.lg, right: space.lg, flexDirection: 'row', gap: space.sm },
+  ctaRow: { position: 'absolute', right: space.lg, flexDirection: 'row', gap: space.sm },
   cta: {
-    flex: 1,
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'center',
     gap: 6,
-    height: 48,
+    height: 38,
+    paddingHorizontal: 14,
     borderRadius: radius.pill,
     backgroundColor: colors.surface,
     ...shadow.nav,
   },
-  ctaPrimary: { backgroundColor: colors.accent, ...shadow.accent },
-  ctaText: { color: colors.onAccent, fontSize: 15, fontWeight: '800' },
+  ctaPrimary: { backgroundColor: colors.accent },
+  ctaText: { color: colors.text, fontSize: 13, fontWeight: '800' },
 });

@@ -13,6 +13,8 @@ import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import Animated, {
   Easing,
   cancelAnimation,
+  withRepeat,
+  withSequence,
   interpolate,
   runOnJS,
   useAnimatedStyle,
@@ -432,7 +434,7 @@ function CardView({ card, question, runKey, fresh }: { card: DeckCard; question:
           <Eyebrow>{pageLabel(card)}</Eyebrow>
           <Text style={styles.title}>{card.title}</Text>
           <NewMark on={newSection} />
-          <ScrollView style={styles.scroll} contentContainerStyle={{ gap: space.md, paddingBottom: space.sm }} showsVerticalScrollIndicator={false}>
+          <ScrollView style={styles.grow} contentContainerStyle={[styles.centerBody, { gap: space.md }]} showsVerticalScrollIndicator={false}>
             {card.items.map((item, i) => (
               <View key={i} style={styles.item}>
                 {card.numbered ? (
@@ -461,17 +463,20 @@ function CardView({ card, question, runKey, fresh }: { card: DeckCard; question:
     case 'compare':
       return <CompareCard card={card} front={front} newSection={newSection} />;
 
-    case 'text':
+    case 'text': {
+      // A paragraph whose title is the punchline ("Why X is the wedge") gets the blue card.
+      const hero = PUNCH.test(card.title);
       return (
-        <View style={[styles.cardBase, styles.cardPad]}>
-          <Eyebrow>{pageLabel(card)}</Eyebrow>
-          <Text style={styles.title}>{card.title}</Text>
-          <NewMark on={newSection} />
+        <View style={[styles.cardBase, styles.cardPad, hero && styles.cardAccent, hero && shadow.accent]}>
+          <Eyebrow style={hero ? { color: colors.onAccentMuted } : undefined}>{pageLabel(card)}</Eyebrow>
+          <Text style={[styles.title, hero && styles.onAccent]}>{card.title}</Text>
+          {hero ? null : <NewMark on={newSection} />}
           <ScrollView style={styles.scroll} showsVerticalScrollIndicator={false}>
-            <Text style={[styles.body, card.mono && styles.mono]}>{card.body}</Text>
+            <Text style={[styles.body, hero && styles.bodyLg, hero && styles.onAccent, card.mono && styles.mono]}>{card.body}</Text>
           </ScrollView>
         </View>
       );
+    }
 
     case 'done':
       return (
@@ -498,12 +503,15 @@ function PillRow({
   onSelect,
   auto,
   onEnd,
+  inverted,
 }: {
   pills: Pill[];
   open: number | null;
   onSelect: (i: number) => void;
   auto?: boolean;
   onEnd?: () => void;
+  /** On a blue card: white pills, selected = solid white with blue text. */
+  inverted?: boolean;
 }) {
   const fill = useSharedValue(0);
   const [paused, setPaused] = useState(false);
@@ -536,10 +544,10 @@ function PillRow({
               setPaused(true); // a tap means the reader is driving — stop auto-advance
               onSelect(i);
             }}
-            style={[styles.pill, on && styles.pillOn]}
+            style={[styles.pill, inverted && styles.pillInv, on && (inverted ? styles.pillInvOn : styles.pillOn)]}
           >
-            {on && auto && !paused ? <Animated.View style={[styles.pillFill, fillStyle]} /> : null}
-            <Text style={[styles.pillText, on && styles.pillTextOn]} numberOfLines={1}>{p.label}</Text>
+            {on && auto && !paused ? <Animated.View style={[styles.pillFill, inverted && { backgroundColor: 'rgba(31,94,255,0.18)' }, fillStyle]} /> : null}
+            <Text style={[styles.pillText, inverted && styles.onAccent, on && (inverted ? { color: colors.accent } : styles.pillTextOn)]} numberOfLines={1}>{p.label}</Text>
           </Pressable>
         );
       })}
@@ -547,10 +555,33 @@ function PillRow({
   );
 }
 
+/** Pills whose content is the "so what" — shown on a blue block so they stand out. */
+const PUNCH = /why it matters|why this|the bet|wedge|insight|takeaway|so what|verdict|recommendation|the answer|bottom line|thesis|north star|the pitch|positioning statement|in one line|tl;dr|the call|the ask|strong answer|key point/i;
+function isPunchline(p: Pill): boolean {
+  return PUNCH.test(p.label) || (!!p.detail && /\b(wedge|the bet is|so what|matters because)\b/i.test(p.detail));
+}
+
 /** Detail on top, pills docked at the bottom; first pill selected by default. */
 function PillsCard({ card, front, newSection }: { card: Extract<DeckCard, { kind: 'pills' }>; front: boolean; newSection: boolean }) {
   const [open, setOpen] = useState(0);
   const sel = card.items[open] ?? card.items[0];
+  // A section whose title is itself the punchline ("Why X is the wedge") gets the blue card.
+  const hero = PUNCH.test(card.title);
+  if (hero) {
+    return (
+      <View style={[styles.cardBase, styles.cardPad, styles.cardAccent, shadow.accent]}>
+        <Eyebrow style={{ color: colors.onAccentMuted }}>{pageLabel(card)}</Eyebrow>
+        <Text style={[styles.title, styles.onAccent]}>{card.title}</Text>
+        <ScrollView style={styles.grow} contentContainerStyle={styles.detailArea} showsVerticalScrollIndicator={false}>
+          {sel?.detail && !sel.detail.toLowerCase().startsWith(sel.label.toLowerCase()) ? (
+            <Text style={[styles.detailLabel, { color: colors.onAccentMuted }]}>{sel.label}</Text>
+          ) : null}
+          <Text style={[styles.detailBig, styles.onAccent]}>{sel?.detail ?? sel?.label}</Text>
+        </ScrollView>
+        <PillRow pills={card.items} open={open} onSelect={setOpen} auto={front} inverted />
+      </View>
+    );
+  }
   return (
     <View style={[styles.cardBase, styles.cardPad]}>
       <Eyebrow>{pageLabel(card)}</Eyebrow>
@@ -558,43 +589,119 @@ function PillsCard({ card, front, newSection }: { card: Extract<DeckCard, { kind
       <NewMark on={newSection} />
       {card.intro ? <Text style={styles.intro}>{card.intro}</Text> : null}
       <ScrollView style={styles.grow} contentContainerStyle={styles.detailArea} showsVerticalScrollIndicator={false}>
-        {sel?.detail && !sel.detail.toLowerCase().startsWith(sel.label.toLowerCase()) ? (
-          <Text style={styles.detailLabel}>{sel.label}</Text>
-        ) : null}
-        <Text style={styles.detailBig}>{sel?.detail ?? sel?.label}</Text>
+        {sel && isPunchline(sel) ? (
+          <View style={styles.punch}>
+            <Text style={[styles.detailLabel, { color: colors.onAccentMuted }]}>{sel.label}</Text>
+            <Text style={[styles.detailBig, { color: colors.onAccent }]}>{sel.detail ?? sel.label}</Text>
+          </View>
+        ) : (
+          <>
+            {sel?.detail && !sel.detail.toLowerCase().startsWith(sel.label.toLowerCase()) ? (
+              <Text style={styles.detailLabel}>{sel.label}</Text>
+            ) : null}
+            <Text style={styles.detailBig}>{sel?.detail ?? sel?.label}</Text>
+          </>
+        )}
       </ScrollView>
       <PillRow pills={card.items} open={open} onSelect={setOpen} auto={front} />
     </View>
   );
 }
 
-/** Table rows as pills: chips for short cells, body for long ones. */
+/** low / medium / high → 0 / 1 / 2 (undefined if not a level). */
+function level(v: string): 0 | 1 | 2 | undefined {
+  const t = v.toLowerCase();
+  if (/\b(very high|high|large|big|strong)\b/.test(t)) return 2;
+  if (/\b(medium|med|mid|moderate)\b/.test(t)) return 1;
+  if (/\b(low|small|light|minimal|easy)\b/.test(t)) return 0;
+  return undefined;
+}
+/** Effort-like axes are "lower is better". */
+const INVERSE = /effort|cost|risk|complexity|time|lift/i;
+function chipTone(key: string, val: string): { bg: string; fg: string; icon?: 'arrow-upward' | 'arrow-downward' | 'remove' } {
+  const l = level(val);
+  if (l === undefined) return { bg: colors.accentSoft, fg: colors.accent };
+  const good = INVERSE.test(key) ? l === 0 : l === 2;
+  const bad = INVERSE.test(key) ? l === 2 : l === 0;
+  const icon = l === 2 ? 'arrow-upward' : l === 0 ? 'arrow-downward' : 'remove';
+  if (good) return { bg: '#E8F7EE', fg: colors.success, icon };
+  if (bad) return { bg: '#FDECEC', fg: colors.danger, icon };
+  return { bg: '#FFF4DE', fg: colors.warning, icon };
+}
+
+/** 2×2 impact-vs-effort grid with a pulsing dot for the selected row. */
+function Matrix({ impact, effort }: { impact: 0 | 1 | 2; effort: 0 | 1 | 2 }) {
+  const pulse = useSharedValue(1);
+  useEffect(() => {
+    pulse.value = withRepeat(withSequence(withTiming(1.35, { duration: 600 }), withTiming(1, { duration: 600 })), -1, false);
+    return () => cancelAnimation(pulse);
+  }, [pulse]);
+  const dot = useAnimatedStyle(() => ({ transform: [{ scale: pulse.value }] }));
+  const SIZE = 120;
+  const x = 12 + (effort / 2) * (SIZE - 24);
+  const y = 12 + ((2 - impact) / 2) * (SIZE - 24);
+  const sweet = impact === 2 && effort === 0;
+  return (
+    <View style={styles.matrixWrap}>
+      <Text style={styles.axisY}>Impact ↑</Text>
+      <View>
+        <View style={[styles.matrix, { width: SIZE, height: SIZE }]}>
+          <View style={[styles.quad, styles.quadSweet, { top: 0, left: 0 }]} />
+          <View style={[styles.quad, { top: 0, right: 0 }]} />
+          <View style={[styles.quad, { bottom: 0, left: 0 }]} />
+          <View style={[styles.quad, { bottom: 0, right: 0 }]} />
+          <Animated.View style={[styles.matrixDot, { left: x - 7, top: y - 7, backgroundColor: sweet ? colors.success : colors.accent }, dot]} />
+        </View>
+        <Text style={styles.axisX}>Effort →</Text>
+      </View>
+      <Text style={styles.matrixNote}>{sweet ? 'High impact, low effort — do this first.' : impact === 2 ? 'High impact — worth the effort.' : effort === 0 ? 'Cheap, but not the lever.' : 'Park it.'}</Text>
+    </View>
+  );
+}
+
+/** Table rows as pills: numbered pills, semantic chips, and an impact/effort grid when the table has both. */
 function RowsCard({ card, front, newSection }: { card: Extract<DeckCard, { kind: 'rows' }>; front: boolean; newSection: boolean }) {
   const [open, setOpen] = useState(0);
   const r = card.items[open] ?? card.items[0];
+  const n = card.startIndex + open + 1;
+  const imp = r.meta.find(([k]) => /impact|value/i.test(k));
+  const eff = r.meta.find(([k]) => /effort|cost/i.test(k));
+  const li = imp ? level(imp[1]) : undefined;
+  const le = eff ? level(eff[1]) : undefined;
   return (
     <View style={[styles.cardBase, styles.cardPad]}>
       <Eyebrow>{pageLabel(card)}</Eyebrow>
-      <Text style={styles.title}>{card.title}</Text>
+      <Text style={styles.title}>
+        {card.title}
+        {card.pages && card.pages > 1 ? <Text style={styles.titlePart}>  · part {card.page}</Text> : null}
+      </Text>
       <NewMark on={newSection} />
       <ScrollView style={styles.grow} contentContainerStyle={styles.detailArea} showsVerticalScrollIndicator={false}>
         {r.kind ? <Text style={styles.groupLabel}>{r.kind}</Text> : null}
         <Text style={styles.detailBig}>{r.text[0] ?? r.label}</Text>
         {r.meta.length ? (
           <View style={[styles.rowWrap, { marginTop: space.xs }]}>
-            {r.meta.map(([k, v]) => (
-              <View key={k} style={styles.chip}>
-                <Text style={styles.chipKey}>{k}</Text>
-                <Text style={styles.chipVal}>{v}</Text>
-              </View>
-            ))}
+            {r.meta.map(([k, v]) => {
+              const tone = chipTone(k, v);
+              return (
+                <View key={k} style={[styles.chip, { backgroundColor: tone.bg }]}>
+                  <Text style={styles.chipKey}>{k}</Text>
+                  <Text style={[styles.chipVal, { color: tone.fg }]}>{v}</Text>
+                  {tone.icon ? <MaterialIcons name={tone.icon} size={14} color={tone.fg} /> : null}
+                </View>
+              );
+            })}
           </View>
         ) : null}
+        {li !== undefined && le !== undefined ? <Matrix impact={li} effort={le} /> : null}
         {r.text.slice(1).map((t, i) => (
           <Text key={i} style={styles.detailSub}>{t}</Text>
         ))}
       </ScrollView>
-      <PillRow pills={card.items.map((i) => ({ label: i.label }))} open={open} onSelect={setOpen} auto={front} />
+      <Text style={styles.pillCaption}>
+        <Text style={{ color: colors.accent }}>#{n}</Text> · {r.label}
+      </Text>
+      <PillRow pills={card.items.map((_, i) => ({ label: `#${card.startIndex + i + 1}` }))} open={open} onSelect={setOpen} auto={front} />
     </View>
   );
 }
@@ -646,7 +753,7 @@ function GroupsCard({ card, front, newSection }: { card: Extract<DeckCard, { kin
         <Eyebrow>{pageLabel(card)}</Eyebrow>
         <Text style={styles.title}>{card.title}</Text>
         <NewMark on={newSection} />
-        <ScrollView style={styles.scroll} contentContainerStyle={{ gap: space.lg, paddingBottom: space.sm }} showsVerticalScrollIndicator={false}>
+        <ScrollView style={styles.grow} contentContainerStyle={[styles.centerBody, { gap: space.lg }]} showsVerticalScrollIndicator={false}>
           {card.groups.map((g, gi) => (
             <View key={gi} style={{ gap: space.sm }}>
               <Text style={styles.groupLabel}>{g.label}</Text>
@@ -717,6 +824,18 @@ const styles = StyleSheet.create({
   cardBase: { flex: 1, backgroundColor: colors.surface, borderRadius: radius.card, overflow: 'hidden', ...shadow.cardStrong },
   cardPad: { padding: 26, gap: space.md, justifyContent: 'center' },
   topAlign: { justifyContent: 'flex-start' },
+  centerBody: { flexGrow: 1, justifyContent: 'center', paddingBottom: space.sm },
+  titlePart: { color: colors.textFaint, fontSize: 16, fontWeight: '700' },
+  punch: { backgroundColor: colors.accent, borderRadius: radius.lg, padding: space.lg, gap: space.sm, ...shadow.accent },
+  pillCaption: { color: colors.text, fontSize: 14, fontWeight: '700', marginBottom: -4 },
+  matrixWrap: { flexDirection: 'row', alignItems: 'center', gap: space.md, marginTop: space.sm },
+  matrix: { borderRadius: radius.md, backgroundColor: colors.surfaceAlt, overflow: 'hidden' },
+  quad: { position: 'absolute', width: '50%', height: '50%', borderColor: colors.surface, borderWidth: 1 },
+  quadSweet: { backgroundColor: '#E8F7EE' },
+  matrixDot: { position: 'absolute', width: 14, height: 14, borderRadius: 7, borderWidth: 2, borderColor: colors.surface },
+  axisY: { color: colors.textFaint, fontSize: 11, fontWeight: '700', transform: [{ rotate: '-90deg' }], width: 64, textAlign: 'center', marginRight: -24, marginLeft: -24 },
+  axisX: { color: colors.textFaint, fontSize: 11, fontWeight: '700', textAlign: 'right', marginTop: 4 },
+  matrixNote: { flex: 1, color: colors.textMuted, fontSize: 13, lineHeight: 18 },
   cardAccent: { backgroundColor: colors.accent },
   cardPrompt: { backgroundColor: colors.accentSoft },
   onAccent: { color: colors.onAccent },
@@ -754,6 +873,8 @@ const styles = StyleSheet.create({
     maxWidth: '100%',
   },
   pillOn: { backgroundColor: colors.accent, overflow: 'hidden' },
+  pillInv: { backgroundColor: 'rgba(255,255,255,0.18)' },
+  pillInvOn: { backgroundColor: colors.onAccent, overflow: 'hidden' },
   pillFill: { position: 'absolute', left: 0, top: 0, bottom: 0, backgroundColor: 'rgba(255,255,255,0.28)' },
   newMarkTrack: { height: 3, borderRadius: 2, backgroundColor: colors.accentSoft, marginTop: -4, marginBottom: 4, overflow: 'hidden' },
   newMarkBar: { height: '100%', backgroundColor: colors.accent, borderRadius: 2 },

@@ -1,12 +1,33 @@
 # Drill
 
-PM interview practice app — flashcard-style question practice with a signature
-3D flip card. Built with **Expo (React Native) + TypeScript + Expo Router**.
+**Practice PM interviews one card at a time.**
+
+Drill is a flashcard-style practice app for product management interviews. Every
+case study is broken into a swipeable deck — think-first prompts, the framework,
+clarifying questions, who you are (and are not) solving for, key pointers, then
+the full answer with the bet, options, metrics and strong-vs-generic — so you
+rehearse the structure, not just read it.
+
+Built with **Expo (React Native) + TypeScript + Expo Router**. Live at
+[drill-inky.vercel.app](https://drill-inky.vercel.app).
+
+## What's inside
+
+| Section | What it does |
+| --- | --- |
+| **Case studies** | 38 PM questions across Product Design, Strategy, Analytical, Guesstimate, AI and RCA, each as a card deck with pinned Today picks, a jump-to index, four-direction swipe, bookmarks and streaks. |
+| **Library** | Browse and filter every question by category, domain and difficulty in a masonry grid. |
+| **Numbers** | 220+ interview anchor figures (India, US, World, mobile, payments, food and quick commerce, social, SaaS, travel, gaming…) as stat cards, with a 4-option quiz and an endless flashcard shuffle. |
+| **You** | Streak, completed drills and saved questions. |
+
+**Coming soon — Frameworks.** A browsable toolbox of the frameworks the answers
+use (positioning stack, goal → behaviour → metric tree, pain-point
+prioritisation, top-down vs bottom-up sizing, "what changed?" RCA, …), surfaced
+above the questions of each category. See [docs/BACKLOG.md](docs/BACKLOG.md).
 
 > Design: "Quiet Cards" — soft grey canvas, white floating cards, one
 > electric-blue accent. A question's answer is split by `src/drill/deck.ts`
-> into a swipeable deck of small single-idea cards (≤3 items / ~320 chars each;
-> table rows become one card apiece) so nothing on a phone is text-heavy.
+> into a swipeable deck of single-idea cards so nothing on a phone is text-heavy.
 
 ## Run
 
