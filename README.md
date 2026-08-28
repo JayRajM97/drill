@@ -3,8 +3,10 @@
 PM interview practice app — flashcard-style question practice with a signature
 3D flip card. Built with **Expo (React Native) + TypeScript + Expo Router**.
 
-> Scaffold stage: structure, navigation, data, and core interactions are in
-> place with neutral dark styling. Final visuals will be matched to mockups.
+> Design: "Quiet Cards" — soft grey canvas, white floating cards, one
+> electric-blue accent. A question's answer is split by `src/drill/deck.ts`
+> into a swipeable deck of small single-idea cards (≤3 items / ~320 chars each;
+> table rows become one card apiece) so nothing on a phone is text-heavy.
 
 ## Run
 

@@ -1,150 +1,107 @@
-import React, { useEffect, useMemo, useRef, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   Pressable,
   ScrollView,
   StyleSheet,
   Text,
-  TextInput,
   View,
+  useWindowDimensions,
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { MaterialIcons } from '@expo/vector-icons';
 import { questions, type CategorySummary } from '@/data';
+import type { Question } from '@/types/question';
 import { useDaily } from '@/state/useDaily';
 import { useProgress } from '@/state/useProgress';
 import { CategoryTile } from '@/components/CategoryTile';
-import { DifficultyBadge } from '@/components/ui';
-import { BottomNavBar } from '@/components/BottomNavBar';
-import { colors, font, radius, space } from '@/theme/tokens';
+import { BottomNavBar, NAV_CLEARANCE } from '@/components/BottomNavBar';
+import { DifficultyBadge, Tag } from '@/components/ui';
+import { colors, radius, shadow, space } from '@/theme/tokens';
 
-// Literal to design/stitch/04-home-2x2-grid.html ("Home - 2x2 Category Grid").
+function greeting(): string {
+  const h = new Date().getHours();
+  if (h < 12) return 'Good morning';
+  if (h < 17) return 'Good afternoon';
+  return 'Good evening';
+}
+
 export default function HomeScreen() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
-  useProgress();
+  const { width: W } = useWindowDimensions();
+  const { progress, isCompleted } = useProgress();
   const { daily } = useDaily();
   const [categories, setCategories] = useState<CategorySummary[]>([]);
-  const [search, setSearch] = useState('');
-  const searchRef = useRef<TextInput>(null);
 
   useEffect(() => {
     questions.getCategories().then(setCategories);
   }, []);
 
-  const needle = search.trim().toLowerCase();
-  const filteredCategories = useMemo(
-    () => categories.filter((c) => c.category.toLowerCase().includes(needle)),
-    [categories, needle]
-  );
-
-  const featured = daily[0];
+  const cardW = Math.min(W - space.lg * 2 - 36, 360);
+  const doneToday = daily.filter((q) => isCompleted(q.id)).length;
 
   return (
     <View style={styles.screen}>
-      {/* TopAppBar */}
-      <View style={[styles.header, { paddingTop: insets.top }]}>
-        <View style={styles.headerLeft}>
-          <View style={styles.flameChip}>
-            <MaterialIcons name="local-fire-department" size={20} color={colors.primary} />
-          </View>
-          <Text style={styles.wordmark}>DRILL</Text>
-        </View>
-        <Pressable
-          style={styles.searchBtn}
-          onPress={() => searchRef.current?.focus()}
-          hitSlop={8}
-        >
-          <MaterialIcons name="search" size={22} color={colors.text} />
-        </Pressable>
-      </View>
-
       <ScrollView
-        contentContainerStyle={{
-          paddingHorizontal: space.lg,
-          paddingTop: space.xl,
-          paddingBottom: space.xxxl,
-          gap: space.xxl,
-        }}
+        contentContainerStyle={{ paddingTop: insets.top + space.lg, paddingBottom: NAV_CLEARANCE }}
+        showsVerticalScrollIndicator={false}
       >
-        {/* Welcome & Search */}
-        <View style={{ gap: space.lg }}>
-          <View style={{ gap: space.xs }}>
-            <Text style={styles.hero}>Ready to focus?</Text>
-            <Text style={styles.heroSub}>Continue your mastery journey.</Text>
+        {/* Top row */}
+        <View style={styles.topRow}>
+          <View>
+            <Text style={styles.greet}>{greeting()}</Text>
+            <Text style={styles.hero}>Ready to drill?</Text>
           </View>
-          <View style={styles.searchWrap}>
-            <MaterialIcons name="search" size={18} color={colors.outline} />
-            <TextInput
-              ref={searchRef}
-              value={search}
-              onChangeText={setSearch}
-              placeholder="Search drills, categories, or concepts..."
-              placeholderTextColor={colors.outline}
-              style={styles.searchInput}
-            />
+          <View style={styles.streak}>
+            <MaterialIcons name="local-fire-department" size={18} color={colors.warning} />
+            <Text style={styles.streakText}>{progress.streak}</Text>
           </View>
         </View>
 
-        {/* Featured Daily Drill */}
-        {featured ? (
-          <View>
-            <Text style={styles.sectionTitle}>Daily Drill</Text>
-            <Pressable
-              style={styles.dailyCard}
-              onPress={() => router.push(`/question/${featured.id}`)}
-            >
-              <View style={styles.dailyTopRow}>
-                <DifficultyBadge difficulty={featured.difficulty} />
-                <Text style={styles.dailyCategory}>{featured.categories[0]}</Text>
-              </View>
-              <Text style={styles.dailyTitle}>{featured.title}</Text>
-              <Text style={styles.dailyDesc} numberOfLines={2}>
-                Practice with the {featured.framework.name} framework — explore{' '}
-                {featured.domain_tags.slice(0, 2).join(' & ')}.
-              </Text>
-              <View style={styles.dailyFooter}>
-                <View style={styles.dailyMeta}>
-                  <MaterialIcons name="bar-chart" size={16} color={colors.textMuted} />
-                  <Text style={styles.dailyMetaText}>{featured.difficulty}</Text>
-                </View>
-                <Pressable
-                  style={styles.startBtn}
-                  onPress={() => router.push(`/question/${featured.id}`)}
-                >
-                  <Text style={styles.startBtnText}>Start Drill</Text>
-                  <MaterialIcons name="play-arrow" size={18} color={colors.onAccent} />
-                </Pressable>
-              </View>
-            </Pressable>
-          </View>
-        ) : null}
+        {/* Today */}
+        <View style={styles.sectionHead}>
+          <Text style={styles.sectionTitle}>Today</Text>
+          <Text style={styles.sectionMeta}>
+            {doneToday} / {daily.length} done
+          </Text>
+        </View>
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          snapToInterval={cardW + space.md}
+          decelerationRate="fast"
+          contentContainerStyle={{ paddingHorizontal: space.lg, gap: space.md, paddingBottom: space.sm }}
+        >
+          {daily.map((q, i) => (
+            <TodayCard
+              key={q.id}
+              question={q}
+              width={cardW}
+              accent={i === 0}
+              done={isCompleted(q.id)}
+              onPress={() => router.push(`/question/${q.id}`)}
+            />
+          ))}
+        </ScrollView>
 
-        {/* Categories grid */}
-        <View style={{ gap: space.md }}>
-          <View style={styles.categoriesHeader}>
-            <Text style={styles.sectionTitle}>Categories</Text>
-            <Pressable
-              style={styles.viewAll}
-              onPress={() => router.push('/practice')}
-            >
-              <Text style={styles.viewAllText}>View All</Text>
-              <MaterialIcons name="arrow-forward" size={14} color={colors.primary} />
-            </Pressable>
-          </View>
-          <View style={styles.grid}>
-            {filteredCategories.map((c) => (
-              <View key={c.category} style={styles.gridCell}>
-                <CategoryTile
-                  category={c.category}
-                  count={c.count}
-                  onPress={() =>
-                    router.push(`/category/${encodeURIComponent(c.category)}`)
-                  }
-                />
-              </View>
-            ))}
-          </View>
+        {/* Categories */}
+        <View style={[styles.sectionHead, { marginTop: space.xl }]}>
+          <Text style={styles.sectionTitle}>Categories</Text>
+          <Pressable onPress={() => router.push('/practice')} hitSlop={8}>
+            <Text style={styles.link}>See all</Text>
+          </Pressable>
+        </View>
+        <View style={styles.grid}>
+          {categories.map((c) => (
+            <View key={c.category} style={styles.cell}>
+              <CategoryTile
+                category={c.category}
+                count={c.count}
+                onPress={() => router.push(`/category/${encodeURIComponent(c.category)}`)}
+              />
+            </View>
+          ))}
         </View>
       </ScrollView>
 
@@ -153,88 +110,96 @@ export default function HomeScreen() {
   );
 }
 
+function TodayCard({
+  question,
+  width,
+  accent,
+  done,
+  onPress,
+}: {
+  question: Question;
+  width: number;
+  accent: boolean;
+  done: boolean;
+  onPress: () => void;
+}) {
+  const fg = accent ? colors.onAccent : colors.text;
+  return (
+    <Pressable
+      onPress={onPress}
+      style={({ pressed }) => [
+        styles.today,
+        { width },
+        accent ? [styles.todayAccent, shadow.accent] : shadow.card,
+        pressed && { transform: [{ scale: 0.985 }] },
+      ]}
+    >
+      <View style={styles.todayTop}>
+        <Tag label={question.categories[0] ?? ''} tone={accent ? 'onAccent' : 'accent'} />
+        {done ? (
+          <MaterialIcons name="check-circle" size={22} color={accent ? colors.onAccent : colors.success} />
+        ) : null}
+      </View>
+      <Text style={[styles.todayTitle, { color: fg }]} numberOfLines={4}>
+        {question.title}
+      </Text>
+      <View style={styles.todayBottom}>
+        <DifficultyBadge difficulty={question.difficulty} onAccent={accent} />
+        <View style={[styles.play, { backgroundColor: accent ? colors.onAccent : colors.accent }]}>
+          <MaterialIcons name="arrow-forward" size={20} color={accent ? colors.accent : colors.onAccent} />
+        </View>
+      </View>
+    </Pressable>
+  );
+}
+
 const styles = StyleSheet.create({
   screen: { flex: 1, backgroundColor: colors.bg },
-  header: {
+  topRow: {
     flexDirection: 'row',
-    alignItems: 'center',
+    alignItems: 'flex-start',
     justifyContent: 'space-between',
     paddingHorizontal: space.lg,
-    paddingBottom: space.md,
-    backgroundColor: colors.surface,
-    borderBottomWidth: 1,
-    borderBottomColor: colors.border,
+    marginBottom: space.xl,
   },
-  headerLeft: { flexDirection: 'row', alignItems: 'center', gap: space.sm },
-  flameChip: {
-    width: 36,
-    height: 36,
-    borderRadius: radius.pill,
-    backgroundColor: `${colors.accent}26`,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  wordmark: { color: colors.text, fontSize: 19, fontWeight: '800', letterSpacing: -0.3 },
-  searchBtn: {
-    width: 36,
-    height: 36,
-    borderRadius: radius.pill,
-    backgroundColor: colors.surfaceAlt,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  hero: { color: colors.text, fontSize: font.display, fontWeight: '700', letterSpacing: -0.5 },
-  heroSub: { color: colors.textMuted, fontSize: 16, lineHeight: 24 },
-  searchWrap: {
+  greet: { color: colors.textMuted, fontSize: 15, fontWeight: '500', marginBottom: 4 },
+  hero: { color: colors.text, fontSize: 34, fontWeight: '800', letterSpacing: -0.8 },
+  streak: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: space.sm,
+    gap: 4,
     backgroundColor: colors.surface,
-    borderWidth: 1,
-    borderColor: colors.border,
-    borderRadius: radius.lg,
-    paddingHorizontal: space.lg,
-    paddingVertical: space.md,
+    borderRadius: radius.pill,
+    paddingHorizontal: 14,
+    paddingVertical: 10,
+    ...shadow.card,
   },
-  searchInput: { flex: 1, color: colors.text, fontSize: 15 },
-  sectionTitle: { color: colors.text, fontSize: 19, fontWeight: '700', marginBottom: space.md },
-  dailyCard: {
-    backgroundColor: colors.surface,
-    borderWidth: 1,
-    borderColor: colors.border,
-    borderRadius: radius.xl,
+  streakText: { color: colors.text, fontSize: 15, fontWeight: '800' },
+
+  sectionHead: {
+    flexDirection: 'row',
+    alignItems: 'baseline',
+    justifyContent: 'space-between',
+    paddingHorizontal: space.lg,
+    marginBottom: space.md,
+  },
+  sectionTitle: { color: colors.text, fontSize: 20, fontWeight: '700', letterSpacing: -0.2 },
+  sectionMeta: { color: colors.textFaint, fontSize: 13, fontWeight: '600' },
+  link: { color: colors.accent, fontSize: 14, fontWeight: '700' },
+
+  today: {
+    height: 232,
+    borderRadius: radius.card,
     padding: space.xl,
-    gap: space.sm,
-  },
-  dailyTopRow: { flexDirection: 'row', alignItems: 'center', gap: space.sm },
-  dailyCategory: { color: colors.textMuted, fontSize: 12, fontWeight: '600' },
-  dailyTitle: { color: colors.text, fontSize: 22, fontWeight: '700', lineHeight: 28 },
-  dailyDesc: { color: colors.textMuted, fontSize: 14, lineHeight: 20 },
-  dailyFooter: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    backgroundColor: colors.surface,
     justifyContent: 'space-between',
-    marginTop: space.sm,
   },
-  dailyMeta: { flexDirection: 'row', alignItems: 'center', gap: 4 },
-  dailyMetaText: { color: colors.textMuted, fontSize: 12, fontWeight: '600' },
-  startBtn: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: space.xs,
-    backgroundColor: colors.accent,
-    borderRadius: radius.lg,
-    paddingHorizontal: space.lg,
-    paddingVertical: space.sm,
-  },
-  startBtnText: { color: colors.onAccent, fontSize: 14, fontWeight: '700' },
-  categoriesHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-  },
-  viewAll: { flexDirection: 'row', alignItems: 'center', gap: 4 },
-  viewAllText: { color: colors.primary, fontSize: 13, fontWeight: '600' },
-  grid: { flexDirection: 'row', flexWrap: 'wrap', gap: space.md },
-  gridCell: { width: '47%', flexGrow: 1 },
+  todayAccent: { backgroundColor: colors.accent },
+  todayTop: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
+  todayTitle: { fontSize: 20, lineHeight: 27, fontWeight: '700', letterSpacing: -0.3 },
+  todayBottom: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
+  play: { width: 44, height: 44, borderRadius: 22, alignItems: 'center', justifyContent: 'center' },
+
+  grid: { flexDirection: 'row', flexWrap: 'wrap', gap: space.md, paddingHorizontal: space.lg },
+  cell: { width: '47%', flexGrow: 1 },
 });

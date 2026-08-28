@@ -1,13 +1,70 @@
 import React from 'react';
-import { StyleSheet, Text, View, type ViewStyle } from 'react-native';
+import {
+  Pressable,
+  StyleSheet,
+  Text,
+  View,
+  type StyleProp,
+  type TextStyle,
+  type ViewStyle,
+} from 'react-native';
+import { MaterialIcons } from '@expo/vector-icons';
 import type { Category, Difficulty } from '@/types/question';
-import { categoryColor, colors, radius, space } from '@/theme/tokens';
+import { categoryIcon, categoryPastel, colors, radius, shadow, space } from '@/theme/tokens';
 
-export function CategoryPill({ category }: { category: Category }) {
+type IconName = keyof typeof MaterialIcons.glyphMap;
+
+/** White floating card — the base surface for everything. */
+export function Card({
+  children,
+  style,
+  onPress,
+}: {
+  children: React.ReactNode;
+  style?: StyleProp<ViewStyle>;
+  onPress?: () => void;
+}) {
+  if (onPress) {
+    return (
+      <Pressable
+        onPress={onPress}
+        style={({ pressed }) => [styles.card, style, pressed && styles.pressed]}
+      >
+        {children}
+      </Pressable>
+    );
+  }
+  return <View style={[styles.card, style]}>{children}</View>;
+}
+
+/** Small rounded label: category / domain / any tag. */
+export function Tag({
+  label,
+  tone = 'neutral',
+  style,
+}: {
+  label: string;
+  tone?: 'neutral' | 'accent' | 'onAccent';
+  style?: StyleProp<ViewStyle>;
+}) {
   return (
-    <View style={[styles.pill, { borderColor: categoryColor[category] }]}>
-      <View style={[styles.dot, { backgroundColor: categoryColor[category] }]} />
-      <Text style={styles.pillText}>{category}</Text>
+    <View
+      style={[
+        styles.tag,
+        tone === 'accent' && styles.tagAccent,
+        tone === 'onAccent' && styles.tagOnAccent,
+        style,
+      ]}
+    >
+      <Text
+        style={[
+          styles.tagText,
+          tone === 'accent' && { color: colors.accent },
+          tone === 'onAccent' && { color: colors.onAccent },
+        ]}
+      >
+        {label}
+      </Text>
     </View>
   );
 }
@@ -18,88 +75,202 @@ const DIFFICULTY_COLOR: Record<Difficulty, string> = {
   Hard: colors.hard,
 };
 
-export function DifficultyDot({
+/** Coloured dot + label, e.g. "● Medium". */
+export function DifficultyBadge({
   difficulty,
-  showLabel = false,
+  onAccent,
 }: {
   difficulty: Difficulty;
-  showLabel?: boolean;
+  onAccent?: boolean;
 }) {
   return (
-    <View style={styles.row}>
-      <View
-        style={[styles.diffDot, { backgroundColor: DIFFICULTY_COLOR[difficulty] }]}
-      />
-      {showLabel ? <Text style={styles.muted}>{difficulty}</Text> : null}
+    <View style={styles.diffRow}>
+      <View style={[styles.diffDot, { backgroundColor: onAccent ? colors.onAccent : DIFFICULTY_COLOR[difficulty] }]} />
+      <Text style={[styles.diffText, onAccent && { color: colors.onAccentMuted }]}>{difficulty}</Text>
     </View>
   );
 }
 
-/** "Hard" style danger badge — matches the error-container tag on the flashcard. */
-export function DifficultyBadge({ difficulty }: { difficulty: Difficulty }) {
-  if (difficulty !== 'Hard') {
-    return (
-      <View style={styles.tag}>
-        <Text style={styles.tagText}>{difficulty.toUpperCase()}</Text>
-      </View>
-    );
-  }
+export function DifficultyDot({ difficulty }: { difficulty: Difficulty }) {
+  return <View style={[styles.diffDot, { backgroundColor: DIFFICULTY_COLOR[difficulty] }]} />;
+}
+
+/** Pastel square with the category icon. */
+export function CategoryIcon({ category, size = 40 }: { category: Category; size?: number }) {
+  const pastel = categoryPastel[category];
   return (
-    <View style={styles.dangerTag}>
-      <Text style={styles.dangerTagText}>HARD</Text>
+    <View
+      style={{
+        width: size,
+        height: size,
+        borderRadius: size * 0.32,
+        backgroundColor: pastel.bg,
+        alignItems: 'center',
+        justifyContent: 'center',
+      }}
+    >
+      <MaterialIcons name={categoryIcon[category] as IconName} size={size * 0.5} color={pastel.fg} />
     </View>
   );
 }
 
-export function Tag({ label, style }: { label: string; style?: ViewStyle }) {
+/** Selectable pill chip for filter rows. */
+export function Chip({
+  label,
+  active,
+  onPress,
+  count,
+}: {
+  label: string;
+  active?: boolean;
+  onPress?: () => void;
+  count?: number;
+}) {
   return (
-    <View style={[styles.tag, style]}>
-      <Text style={styles.tagText}>{label}</Text>
-    </View>
+    <Pressable onPress={onPress} style={[styles.chip, active && styles.chipActive]}>
+      <Text style={[styles.chipText, active && styles.chipTextActive]}>{label}</Text>
+      {count != null ? (
+        <Text style={[styles.chipCount, active && { color: colors.onAccentMuted }]}>{count}</Text>
+      ) : null}
+    </Pressable>
   );
+}
+
+/** Primary / ghost pill button. */
+export function PillButton({
+  label,
+  onPress,
+  icon,
+  tone = 'primary',
+  style,
+  textStyle,
+}: {
+  label: string;
+  onPress: () => void;
+  icon?: IconName;
+  tone?: 'primary' | 'ghost' | 'onAccent';
+  style?: StyleProp<ViewStyle>;
+  textStyle?: StyleProp<TextStyle>;
+}) {
+  const fg =
+    tone === 'primary' ? colors.onAccent : tone === 'onAccent' ? colors.accent : colors.text;
+  return (
+    <Pressable
+      onPress={onPress}
+      style={({ pressed }) => [
+        styles.btn,
+        tone === 'primary' && styles.btnPrimary,
+        tone === 'ghost' && styles.btnGhost,
+        tone === 'onAccent' && styles.btnOnAccent,
+        pressed && { transform: [{ scale: 0.98 }], opacity: 0.92 },
+        style,
+      ]}
+    >
+      <Text style={[styles.btnText, { color: fg }, textStyle]}>{label}</Text>
+      {icon ? <MaterialIcons name={icon} size={18} color={fg} /> : null}
+    </Pressable>
+  );
+}
+
+/** Round icon-only button (header actions, back, close). */
+export function IconButton({
+  icon,
+  onPress,
+  tone = 'surface',
+  size = 44,
+  style,
+}: {
+  icon: IconName;
+  onPress: () => void;
+  tone?: 'surface' | 'muted' | 'accent';
+  size?: number;
+  style?: StyleProp<ViewStyle>;
+}) {
+  const bg =
+    tone === 'accent' ? colors.accent : tone === 'muted' ? colors.surfaceAlt : colors.surface;
+  const fg = tone === 'accent' ? colors.onAccent : colors.text;
+  return (
+    <Pressable
+      onPress={onPress}
+      hitSlop={6}
+      style={({ pressed }) => [
+        styles.iconBtn,
+        tone === 'surface' && shadow.card,
+        { width: size, height: size, borderRadius: size / 2, backgroundColor: bg },
+        pressed && { opacity: 0.8 },
+        style,
+      ]}
+    >
+      <MaterialIcons name={icon} size={size * 0.5} color={fg} />
+    </Pressable>
+  );
+}
+
+/** Small uppercase label above a block. */
+export function Eyebrow({ children, style }: { children: string; style?: StyleProp<TextStyle> }) {
+  return <Text style={[styles.eyebrow, style]}>{children}</Text>;
 }
 
 const styles = StyleSheet.create({
-  row: { flexDirection: 'row', alignItems: 'center', gap: space.xs },
-  pill: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: space.xs,
-    borderWidth: 1,
-    borderRadius: radius.pill,
-    paddingHorizontal: space.md,
-    paddingVertical: space.xs,
-    alignSelf: 'flex-start',
+  card: {
+    backgroundColor: colors.surface,
+    borderRadius: radius.xl,
+    padding: space.xl,
+    ...shadow.card,
   },
-  pillText: { color: colors.text, fontSize: 12, fontWeight: '600' },
-  dot: { width: 6, height: 6, borderRadius: 3 },
-  diffDot: { width: 8, height: 8, borderRadius: 4 },
-  muted: { color: colors.textMuted, fontSize: 12 },
+  pressed: { opacity: 0.94, transform: [{ scale: 0.99 }] },
+
   tag: {
+    alignSelf: 'flex-start',
     backgroundColor: colors.surfaceAlt,
     borderRadius: radius.pill,
     paddingHorizontal: space.md,
-    paddingVertical: space.xs,
-    alignSelf: 'flex-start',
+    paddingVertical: 5,
   },
-  tagText: {
-    color: colors.text,
-    fontSize: 11,
-    fontWeight: '700',
-    letterSpacing: 0.5,
-    textTransform: 'uppercase',
-  },
-  dangerTag: {
-    backgroundColor: colors.errorContainer,
+  tagAccent: { backgroundColor: colors.accentSoft },
+  tagOnAccent: { backgroundColor: 'rgba(255,255,255,0.18)' },
+  tagText: { color: colors.textMuted, fontSize: 12, fontWeight: '600', letterSpacing: 0.2 },
+
+  diffRow: { flexDirection: 'row', alignItems: 'center', gap: 6 },
+  diffDot: { width: 7, height: 7, borderRadius: 4 },
+  diffText: { color: colors.textMuted, fontSize: 12, fontWeight: '600' },
+
+  chip: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    backgroundColor: colors.surface,
     borderRadius: radius.pill,
-    paddingHorizontal: space.md,
-    paddingVertical: space.xs,
-    alignSelf: 'flex-start',
+    paddingHorizontal: space.lg,
+    paddingVertical: 10,
+    ...shadow.card,
   },
-  dangerTagText: {
-    color: colors.onErrorContainer,
-    fontSize: 11,
+  chipActive: { backgroundColor: colors.accent },
+  chipText: { color: colors.text, fontSize: 14, fontWeight: '600' },
+  chipTextActive: { color: colors.onAccent },
+  chipCount: { color: colors.textFaint, fontSize: 13, fontWeight: '600' },
+
+  btn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: space.sm,
+    borderRadius: radius.pill,
+    paddingHorizontal: space.xl,
+    paddingVertical: 16,
+  },
+  btnPrimary: { backgroundColor: colors.accent, ...shadow.accent },
+  btnGhost: { backgroundColor: colors.surface, ...shadow.card },
+  btnOnAccent: { backgroundColor: colors.onAccent },
+  btnText: { fontSize: 16, fontWeight: '700' },
+
+  iconBtn: { alignItems: 'center', justifyContent: 'center' },
+
+  eyebrow: {
+    color: colors.textFaint,
+    fontSize: 12,
     fontWeight: '700',
-    letterSpacing: 0.5,
+    letterSpacing: 1.2,
+    textTransform: 'uppercase',
   },
 });

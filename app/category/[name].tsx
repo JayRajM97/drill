@@ -1,212 +1,91 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import {
-  Pressable,
-  ScrollView,
-  StyleSheet,
-  Text,
-  TextInput,
-  View,
-} from 'react-native';
+import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { questions } from '@/data';
 import type { Category, Question } from '@/types/question';
+import { useProgress } from '@/state/useProgress';
 import { QuestionCard } from '@/components/QuestionCard';
-import { colors, radius, space } from '@/theme/tokens';
+import { CategoryIcon, Chip, IconButton } from '@/components/ui';
+import { categoryDescription, colors, space } from '@/theme/tokens';
 
 export default function CategoryScreen() {
   const router = useRouter();
+  // On a deep link / web refresh there is no history to pop; fall back to Home.
+  const goBack = () => (router.canGoBack() ? router.back() : router.replace('/'));
   const insets = useSafeAreaInsets();
   const { name } = useLocalSearchParams<{ name: string }>();
   const category = decodeURIComponent(name ?? '') as Category;
+  const { isCompleted } = useProgress();
 
   const [all, setAll] = useState<Question[]>([]);
-  const [domains, setDomains] = useState<string[]>([]);
-  const [activeDomain, setActiveDomain] = useState<string | null>(null);
-  const [search, setSearch] = useState('');
-  const [view, setView] = useState<'card' | 'list'>('card');
+  const [domain, setDomain] = useState<string | null>(null);
 
   useEffect(() => {
     questions.list({ category }).then(setAll);
-    questions.getDomains().then(setDomains);
   }, [category]);
 
-  // Only show domain chips that actually exist within this category.
-  const relevantDomains = useMemo(() => {
+  const domains = useMemo(() => {
     const set = new Set<string>();
     all.forEach((q) => q.domain_tags.forEach((d) => set.add(d)));
-    return domains.filter((d) => set.has(d));
-  }, [all, domains]);
+    return [...set].sort();
+  }, [all]);
 
-  const filtered = useMemo(() => {
-    const needle = search.trim().toLowerCase();
-    return all.filter((q) => {
-      if (activeDomain && !q.domain_tags.includes(activeDomain)) return false;
-      if (needle && !q.title.toLowerCase().includes(needle)) return false;
-      return true;
-    });
-  }, [all, activeDomain, search]);
+  const filtered = useMemo(
+    () => all.filter((q) => !domain || q.domain_tags.includes(domain)),
+    [all, domain],
+  );
 
   return (
-    <ScrollView
-      style={styles.container}
-      contentContainerStyle={{
-        paddingTop: insets.top + space.md,
-        paddingBottom: insets.bottom + space.xxxl,
-        gap: space.lg,
-      }}
-      keyboardShouldPersistTaps="handled"
-    >
-      {/* Header */}
-      <View style={styles.header}>
-        <Pressable onPress={() => router.back()} hitSlop={12}>
-          <Text style={styles.back}>‹</Text>
-        </Pressable>
-        <View style={{ flex: 1 }}>
-          <Text style={styles.title}>{category}</Text>
-          <Text style={styles.count}>{filtered.length} questions</Text>
-        </View>
-        <Pressable
-          onPress={() => setView((v) => (v === 'card' ? 'list' : 'card'))}
-          hitSlop={12}
-          style={styles.toggleBtn}
-        >
-          <Text style={styles.toggle}>{view === 'card' ? '☰' : '▦'}</Text>
-        </Pressable>
-      </View>
-
-      {/* Domain filter chips */}
+    <View style={styles.screen}>
       <ScrollView
-        horizontal
-        showsHorizontalScrollIndicator={false}
-        contentContainerStyle={styles.chips}
+        contentContainerStyle={{ paddingTop: insets.top + space.sm, paddingBottom: insets.bottom + space.xxl }}
+        showsVerticalScrollIndicator={false}
       >
-        <Chip
-          label="All"
-          active={activeDomain === null}
-          onPress={() => setActiveDomain(null)}
-        />
-        {relevantDomains.map((d) => (
-          <Chip
-            key={d}
-            label={d}
-            active={activeDomain === d}
-            onPress={() => setActiveDomain((cur) => (cur === d ? null : d))}
-          />
-        ))}
-      </ScrollView>
+        <View style={styles.bar}>
+          <IconButton icon="arrow-back" onPress={() => goBack()} />
+        </View>
 
-      {/* Search */}
-      <View style={styles.searchWrap}>
-        <TextInput
-          value={search}
-          onChangeText={setSearch}
-          placeholder="Search questions"
-          placeholderTextColor={colors.outline}
-          style={styles.search}
-        />
-      </View>
+        <View style={styles.head}>
+          <CategoryIcon category={category} size={56} />
+          <View style={{ flex: 1 }}>
+            <Text style={styles.title}>{category}</Text>
+            <Text style={styles.sub}>
+              {categoryDescription[category]} · {filtered.length} drills
+            </Text>
+          </View>
+        </View>
 
-      {/* Results */}
-      {filtered.length === 0 ? (
-        <Text style={styles.empty}>No questions match these filters.</Text>
-      ) : view === 'card' ? (
+        {domains.length > 1 ? (
+          <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.chips}>
+            <Chip label="All" active={!domain} onPress={() => setDomain(null)} />
+            {domains.map((d) => (
+              <Chip key={d} label={d} active={domain === d} onPress={() => setDomain(domain === d ? null : d)} />
+            ))}
+          </ScrollView>
+        ) : null}
+
         <View style={styles.grid}>
           {filtered.map((q) => (
-            <View key={q.id} style={styles.gridCell}>
-              <QuestionCard
-                question={q}
-                onPress={() => router.push(`/question/${q.id}`)}
-              />
+            <View key={q.id} style={styles.cell}>
+              <QuestionCard question={q} done={isCompleted(q.id)} onPress={() => router.push(`/question/${q.id}`)} />
             </View>
           ))}
+          {filtered.length === 0 ? <Text style={styles.empty}>Nothing here yet.</Text> : null}
         </View>
-      ) : (
-        <View style={{ gap: space.sm, paddingHorizontal: space.lg }}>
-          {filtered.map((q) => (
-            <QuestionCard
-              key={q.id}
-              question={q}
-              compact
-              onPress={() => router.push(`/question/${q.id}`)}
-            />
-          ))}
-        </View>
-      )}
-    </ScrollView>
-  );
-}
-
-function Chip({
-  label,
-  active,
-  onPress,
-}: {
-  label: string;
-  active: boolean;
-  onPress: () => void;
-}) {
-  return (
-    <Pressable
-      onPress={onPress}
-      style={[styles.chip, active && styles.chipActive]}
-    >
-      <Text style={[styles.chipText, active && styles.chipTextActive]}>
-        {label}
-      </Text>
-    </Pressable>
+      </ScrollView>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: colors.bg },
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: space.md,
-    paddingHorizontal: space.lg,
-  },
-  back: { color: colors.text, fontSize: 34, lineHeight: 34 },
-  title: { color: colors.text, fontSize: 22, fontWeight: '800' },
-  count: { color: colors.textMuted, fontSize: 13 },
-  toggleBtn: {
-    width: 36,
-    height: 36,
-    borderRadius: radius.md,
-    backgroundColor: colors.surfaceAlt,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  toggle: { color: colors.text, fontSize: 16 },
-  chips: { gap: space.sm, paddingHorizontal: space.lg },
-  chip: {
-    borderRadius: radius.pill,
-    borderWidth: 1,
-    borderColor: colors.border,
-    backgroundColor: colors.surface,
-    paddingHorizontal: space.md,
-    paddingVertical: space.xs,
-  },
-  chipActive: { backgroundColor: colors.accent, borderColor: colors.accent },
-  chipText: { color: colors.textMuted, fontSize: 13, fontWeight: '600' },
-  chipTextActive: { color: colors.onAccent },
-  searchWrap: { paddingHorizontal: space.lg },
-  search: {
-    backgroundColor: colors.surface,
-    borderWidth: 1,
-    borderColor: colors.border,
-    borderRadius: radius.lg,
-    paddingHorizontal: space.lg,
-    paddingVertical: space.md,
-    color: colors.text,
-    fontSize: 15,
-  },
-  grid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: space.md,
-    paddingHorizontal: space.lg,
-  },
-  gridCell: { width: '47%', flexGrow: 1 },
-  empty: { color: colors.textMuted, fontSize: 14, paddingHorizontal: space.lg },
+  screen: { flex: 1, backgroundColor: colors.bg },
+  bar: { paddingHorizontal: space.lg, marginBottom: space.lg },
+  head: { flexDirection: 'row', alignItems: 'center', gap: space.lg, paddingHorizontal: space.lg, marginBottom: space.lg },
+  title: { color: colors.text, fontSize: 28, fontWeight: '800', letterSpacing: -0.6 },
+  sub: { color: colors.textMuted, fontSize: 14, marginTop: 4 },
+  chips: { gap: space.sm, paddingHorizontal: space.lg, paddingVertical: 6, marginBottom: space.sm },
+  grid: { flexDirection: 'row', flexWrap: 'wrap', gap: space.md, paddingHorizontal: space.lg, paddingTop: space.sm },
+  cell: { width: '47%', flexGrow: 1 },
+  empty: { color: colors.textMuted, fontSize: 15, padding: space.lg },
 });

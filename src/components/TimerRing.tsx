@@ -56,7 +56,7 @@ export function TimerRing({
           cx={size / 2}
           cy={size / 2}
           r={radius}
-          stroke={colors.surfaceAlt}
+          stroke={colors.surfaceHigh}
           strokeWidth={strokeWidth}
           fill="none"
         />
@@ -64,7 +64,7 @@ export function TimerRing({
           cx={size / 2}
           cy={size / 2}
           r={radius}
-          stroke={colors.primary}
+          stroke={colors.accent}
           strokeWidth={strokeWidth}
           fill="none"
           strokeLinecap="round"

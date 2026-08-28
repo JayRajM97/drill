@@ -51,7 +51,15 @@ export const localRepository: QuestionRepository = {
       const pool = QUESTIONS.filter((q) => q.categories.includes(category));
       if (pool.length === 0) continue;
       const idx = hashString(`${seedStr}:${category}`) % pool.length;
-      picks.push(pool[idx]);
+      // A multi-category question may already be today's pick for another
+      // category; walk forward to the next unpicked one so the list is unique.
+      for (let k = 0; k < pool.length; k++) {
+        const q = pool[(idx + k) % pool.length];
+        if (!picks.some((p) => p.id === q.id)) {
+          picks.push(q);
+          break;
+        }
+      }
     }
     return picks;
   },
