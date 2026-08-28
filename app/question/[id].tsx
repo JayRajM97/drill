@@ -464,8 +464,8 @@ function CardView({ card, question, runKey, fresh }: { card: DeckCard; question:
       return <CompareCard card={card} front={front} newSection={newSection} />;
 
     case 'text': {
-      // A paragraph whose title is the punchline ("Why X is the wedge") gets the blue card.
-      const hero = PUNCH.test(card.title);
+      // Text-only cards (a paragraph, no pills) are the punchlines — always blue.
+      const hero = !card.mono;
       return (
         <View style={[styles.cardBase, styles.cardPad, hero && styles.cardAccent, hero && shadow.accent]}>
           <Eyebrow style={hero ? { color: colors.onAccentMuted } : undefined}>{pageLabel(card)}</Eyebrow>
@@ -555,33 +555,10 @@ function PillRow({
   );
 }
 
-/** Pills whose content is the "so what" — shown on a blue block so they stand out. */
-const PUNCH = /why it matters|why this|the bet|wedge|insight|takeaway|so what|verdict|recommendation|the answer|bottom line|thesis|north star|the pitch|positioning statement|in one line|tl;dr|the call|the ask|strong answer|key point/i;
-function isPunchline(p: Pill): boolean {
-  return PUNCH.test(p.label) || (!!p.detail && /\b(wedge|the bet is|so what|matters because)\b/i.test(p.detail));
-}
-
 /** Detail on top, pills docked at the bottom; first pill selected by default. */
 function PillsCard({ card, front, newSection }: { card: Extract<DeckCard, { kind: 'pills' }>; front: boolean; newSection: boolean }) {
   const [open, setOpen] = useState(0);
   const sel = card.items[open] ?? card.items[0];
-  // A section whose title is itself the punchline ("Why X is the wedge") gets the blue card.
-  const hero = PUNCH.test(card.title);
-  if (hero) {
-    return (
-      <View style={[styles.cardBase, styles.cardPad, styles.cardAccent, shadow.accent]}>
-        <Eyebrow style={{ color: colors.onAccentMuted }}>{pageLabel(card)}</Eyebrow>
-        <Text style={[styles.title, styles.onAccent]}>{card.title}</Text>
-        <ScrollView style={styles.grow} contentContainerStyle={styles.detailArea} showsVerticalScrollIndicator={false}>
-          {sel?.detail && !sel.detail.toLowerCase().startsWith(sel.label.toLowerCase()) ? (
-            <Text style={[styles.detailLabel, { color: colors.onAccentMuted }]}>{sel.label}</Text>
-          ) : null}
-          <Text style={[styles.detailBig, styles.onAccent]}>{sel?.detail ?? sel?.label}</Text>
-        </ScrollView>
-        <PillRow pills={card.items} open={open} onSelect={setOpen} auto={front} inverted />
-      </View>
-    );
-  }
   return (
     <View style={[styles.cardBase, styles.cardPad]}>
       <Eyebrow>{pageLabel(card)}</Eyebrow>
@@ -589,19 +566,10 @@ function PillsCard({ card, front, newSection }: { card: Extract<DeckCard, { kind
       <NewMark on={newSection} />
       {card.intro ? <Text style={styles.intro}>{card.intro}</Text> : null}
       <ScrollView style={styles.grow} contentContainerStyle={styles.detailArea} showsVerticalScrollIndicator={false}>
-        {sel && isPunchline(sel) ? (
-          <View style={styles.punch}>
-            <Text style={[styles.detailLabel, { color: colors.onAccentMuted }]}>{sel.label}</Text>
-            <Text style={[styles.detailBig, { color: colors.onAccent }]}>{sel.detail ?? sel.label}</Text>
-          </View>
-        ) : (
-          <>
-            {sel?.detail && !sel.detail.toLowerCase().startsWith(sel.label.toLowerCase()) ? (
-              <Text style={styles.detailLabel}>{sel.label}</Text>
-            ) : null}
-            <Text style={styles.detailBig}>{sel?.detail ?? sel?.label}</Text>
-          </>
-        )}
+        {sel?.detail && !sel.detail.toLowerCase().startsWith(sel.label.toLowerCase()) ? (
+          <Text style={styles.detailLabel}>{sel.label}</Text>
+        ) : null}
+        <Text style={styles.detailBig}>{sel?.detail ?? sel?.label}</Text>
       </ScrollView>
       <PillRow pills={card.items} open={open} onSelect={setOpen} auto={front} />
     </View>
