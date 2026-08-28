@@ -35,6 +35,38 @@ function todaysNumbers(): Fact[] {
   return out;
 }
 
+/** Bento pattern: which tiles are wide, per row/column. */
+const BENTO = [
+  [true, false, false],
+  [false, true, false],
+];
+
+/** Soft tint per topic so the grid reads as colour, not white boxes. */
+const TINT: Record<string, { bg: string; fg: string }> = {
+  India: { bg: '#FFF1E6', fg: '#C2410C' },
+  US: { bg: '#E9EFFF', fg: '#1F5EFF' },
+  World: { bg: '#E6F6EC', fg: '#15803D' },
+  Mobile: { bg: '#F1E8FF', fg: '#7E22CE' },
+  'Search & AI': { bg: '#FDE7F1', fg: '#BE185D' },
+  'Food delivery': { bg: '#FFF7D6', fg: '#A16207' },
+  'Quick commerce': { bg: '#FFF7D6', fg: '#A16207' },
+  'Ride-sharing': { bg: '#E0F3FB', fg: '#0369A1' },
+  Payments: { bg: '#E6F6EC', fg: '#15803D' },
+  'Fintech India': { bg: '#E6F6EC', fg: '#15803D' },
+  'E-commerce': { bg: '#FFF1E6', fg: '#C2410C' },
+  Social: { bg: '#FDE7F1', fg: '#BE185D' },
+  'Social usage': { bg: '#FDE7F1', fg: '#BE185D' },
+  'Creator economy': { bg: '#F1E8FF', fg: '#7E22CE' },
+  Streaming: { bg: '#FDE7F1', fg: '#BE185D' },
+  Transport: { bg: '#E0F3FB', fg: '#0369A1' },
+  Health: { bg: '#E6F6EC', fg: '#15803D' },
+  'Work & SaaS': { bg: '#E9EFFF', fg: '#1F5EFF' },
+  Travel: { bg: '#E0F3FB', fg: '#0369A1' },
+  Gaming: { bg: '#F1E8FF', fg: '#7E22CE' },
+  Anchors: { bg: '#EEF0F3', fg: '#0F1115' },
+  default: { bg: '#E9EFFF', fg: '#1F5EFF' },
+};
+
 function greeting(): string {
   const h = new Date().getHours();
   if (h < 12) return 'Good morning';
@@ -115,13 +147,24 @@ export default function HomeScreen() {
           <View style={styles.numGrid}>
             {[numbers.slice(0, 3), numbers.slice(3, 6)].map((row, r) => (
               <View key={r} style={styles.numRow}>
-                {row.map((f) => (
-                  <Pressable key={f.id} onPress={() => router.push('/numbers')} style={({ pressed }) => [styles.numTile, pressed && { opacity: 0.9 }]}>
-                    <Text style={styles.numEmoji}>{emojiFor(f, '🔢')}</Text>
-                    <Text style={styles.numValue} numberOfLines={1}>{f.value}</Text>
-                    <Text style={styles.numLabel} numberOfLines={2}>{f.label}</Text>
-                  </Pressable>
-                ))}
+                {row.map((f, c) => {
+                  const tint = TINT[f.topic ?? ''] ?? TINT.default;
+                  const wide = BENTO[r][c];
+                  return (
+                    <Pressable
+                      key={f.id}
+                      onPress={() => router.push('/numbers')}
+                      style={({ pressed }) => [styles.numTile, { width: wide ? 200 : 140, backgroundColor: tint.bg }, pressed && { opacity: 0.9 }]}
+                    >
+                      <View style={styles.numTop}>
+                        <Text style={styles.numEmoji}>{emojiFor(f, '🔢')}</Text>
+                        <Text style={[styles.numTopic, { color: tint.fg }]} numberOfLines={1}>{f.topic}</Text>
+                      </View>
+                      <Text style={[styles.numValue, { color: tint.fg }]} numberOfLines={1} adjustsFontSizeToFit>{f.value}</Text>
+                      <Text style={styles.numLabel} numberOfLines={2}>{f.label}</Text>
+                    </Pressable>
+                  );
+                })}
               </View>
             ))}
           </View>
@@ -254,9 +297,11 @@ const styles = StyleSheet.create({
 
   numGrid: { gap: space.sm },
   numRow: { flexDirection: 'row', gap: space.sm },
-  numTile: { width: 150, backgroundColor: colors.surface, borderRadius: radius.lg, padding: space.md, gap: 2, ...shadow.card },
-  numEmoji: { fontSize: 16, marginBottom: 2 },
-  numValue: { color: colors.text, fontSize: 20, fontWeight: '800', letterSpacing: -0.5 },
+  numTile: { height: 122, borderRadius: radius.lg, padding: space.md, justifyContent: 'space-between' },
+  numTop: { flexDirection: 'row', alignItems: 'center', gap: 6 },
+  numEmoji: { fontSize: 16 },
+  numTopic: { fontSize: 11, fontWeight: '800', letterSpacing: 0.6, textTransform: 'uppercase', flexShrink: 1 },
+  numValue: { fontSize: 24, fontWeight: '800', letterSpacing: -0.6 },
   numLabel: { color: colors.textMuted, fontSize: 12, fontWeight: '600', lineHeight: 16 },
   grid: { flexDirection: 'row', flexWrap: 'wrap', gap: space.md, paddingHorizontal: space.lg },
   cell: { width: '47%', flexGrow: 1 },

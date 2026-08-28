@@ -181,11 +181,11 @@ function parseStrongGeneric(items: string[]): { strong: string; generic: string 
   return Array.from({ length: n }, (_, i) => ({ strong: strong[i] ?? '', generic: generic[i] ?? '' }));
 }
 
-/** Split groups so a card never shows more than 2 groups / ~5 pills. */
+/** Pack groups onto cards: at most 4 items per card, groups kept whole when they fit. */
 function groupCards(section: Section, title: string, groups: Group[], eyebrow?: string): DeckCard[] {
-  const flat: Group[] = groups.flatMap((g) =>
-    chunk(g.items, 3).map((items) => ({ label: g.label, items })),
-  );
+  const MAX = 4;
+  // Split any oversized group into runs of ≤MAX first.
+  const runs: Group[] = groups.flatMap((g) => chunk(g.items, MAX).map((items) => ({ label: g.label, items })));
   const cards: DeckCard[] = [];
   let cur: Group[] = [];
   let count = 0;
@@ -194,8 +194,8 @@ function groupCards(section: Section, title: string, groups: Group[], eyebrow?: 
     cur = [];
     count = 0;
   };
-  for (const g of flat) {
-    if (cur.length && (cur.length >= 2 || count + g.items.length > 5)) flush();
+  for (const g of runs) {
+    if (cur.length && count + g.items.length > MAX) flush();
     cur.push(g);
     count += g.items.length;
   }

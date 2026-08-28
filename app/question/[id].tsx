@@ -428,7 +428,7 @@ function CardView({ card, question, runKey, fresh }: { card: DeckCard; question:
 
     case 'list':
       return (
-        <View style={[styles.cardBase, styles.cardPad]}>
+        <View style={[styles.cardBase, styles.cardPad, styles.topAlign]}>
           <Eyebrow>{pageLabel(card)}</Eyebrow>
           <Text style={styles.title}>{card.title}</Text>
           <NewMark on={newSection} />
@@ -563,7 +563,7 @@ function PillsCard({ card, front, newSection }: { card: Extract<DeckCard, { kind
         ) : null}
         <Text style={styles.detailBig}>{sel?.detail ?? sel?.label}</Text>
       </ScrollView>
-      <PillRow pills={card.items} open={open} onSelect={setOpen} />
+      <PillRow pills={card.items} open={open} onSelect={setOpen} auto={front} />
     </View>
   );
 }
@@ -642,7 +642,7 @@ function GroupsCard({ card, front, newSection }: { card: Extract<DeckCard, { kin
 
   if (!rich) {
     return (
-      <View style={[styles.cardBase, styles.cardPad]}>
+      <View style={[styles.cardBase, styles.cardPad, styles.topAlign]}>
         <Eyebrow>{pageLabel(card)}</Eyebrow>
         <Text style={styles.title}>{card.title}</Text>
         <NewMark on={newSection} />
@@ -716,6 +716,7 @@ const styles = StyleSheet.create({
   layer: { position: 'absolute', top: 32, bottom: 0 },
   cardBase: { flex: 1, backgroundColor: colors.surface, borderRadius: radius.card, overflow: 'hidden', ...shadow.cardStrong },
   cardPad: { padding: 26, gap: space.md, justifyContent: 'center' },
+  topAlign: { justifyContent: 'flex-start' },
   cardAccent: { backgroundColor: colors.accent },
   cardPrompt: { backgroundColor: colors.accentSoft },
   onAccent: { color: colors.onAccent },
