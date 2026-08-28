@@ -111,14 +111,14 @@ export default function NumbersScreen() {
       {/* Practice entry points: small, docked bottom-right above the nav. */}
       <View style={[styles.ctaRow, { bottom: Math.max(insets.bottom, space.md) + 76 }]} pointerEvents="box-none">
         <Pressable onPress={() => router.push('/numbers/shuffle')} style={({ pressed }) => [styles.cta, pressed && { opacity: 0.85 }]}>
-          <MaterialIcons name="shuffle" size={16} color={colors.accent} />
+          <MaterialIcons name="shuffle" size={16} color={colors.onAccent} />
           <Text style={styles.ctaText}>Shuffle</Text>
         </Pressable>
         <Pressable
           onPress={() => router.push(`/numbers/quiz?topic=${encodeURIComponent(needle ? 'all' : topicKey)}`)}
           style={({ pressed }) => [styles.cta, pressed && { opacity: 0.85 }]}
         >
-          <MaterialIcons name="play-arrow" size={18} color={colors.accent} />
+          <MaterialIcons name="play-arrow" size={18} color={colors.onAccent} />
           <Text style={styles.ctaText}>Test me</Text>
         </Pressable>
       </View>
@@ -204,7 +204,7 @@ const styles = StyleSheet.create({
   partVal: { color: colors.accent, fontSize: 14, fontWeight: '800' },
   note: { color: colors.textMuted, fontSize: 13, lineHeight: 18 },
   empty: { color: colors.textMuted, fontSize: 15, padding: space.lg },
-  ctaRow: { position: 'absolute', left: 0, right: 0, flexDirection: 'row', justifyContent: 'center', gap: space.sm },
+  ctaRow: { position: 'absolute', right: space.lg, alignItems: 'flex-end', gap: space.sm },
   cta: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -212,8 +212,10 @@ const styles = StyleSheet.create({
     height: 38,
     paddingHorizontal: 14,
     borderRadius: radius.pill,
-    backgroundColor: colors.accentSoft,
-    ...shadow.card,
+    backgroundColor: colors.accent,
+    borderWidth: 2,
+    borderColor: colors.onAccent,
+    ...shadow.accent,
   },
-  ctaText: { color: colors.accent, fontSize: 14, fontWeight: '800' },
+  ctaText: { color: colors.onAccent, fontSize: 14, fontWeight: '800' },
 });
