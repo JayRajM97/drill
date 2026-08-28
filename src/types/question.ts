@@ -49,6 +49,8 @@ export interface Question {
   question_type: string;
   clarifying_questions: string[];
   user_segments: string[];
+  /** Segments deliberately out of scope for this answer ("Name — why"). */
+  not_for?: string[];
   framework: { name: string; steps: string[] };
   /** "What a strong answer covers" hints. */
   key_pointers: string[];

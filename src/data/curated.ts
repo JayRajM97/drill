@@ -28,6 +28,11 @@ export const curatedQuestions: Question[] = [
       'Parents / family member — often the one who introduces app to someone in the household',
       "Meesho's seller — wants more volume, needs trust signals to convert new buyers",
     ],
+    not_for: [
+      "Repeat buyers — trust is already earned; a different retention problem",
+      "Metro / Tier 1 shoppers — reviews and delivery promises already resonate",
+      "Web visitors — the brief is app-first",
+    ],
     framework: {
       name: 'Product Design Framework',
       steps: [
@@ -134,6 +139,11 @@ export const curatedQuestions: Question[] = [
       'Planner buyer — doing a weekly shop, OOS one item feels manageable, just remove and proceed',
       'Impulse buyer — the OOS disrupts the mood; often just abandons entirely',
     ],
+    not_for: [
+      "Bulk / B2B orders — substitution logic differs at that scale",
+      "Users abandoning for price or delivery fee — a separate lever",
+      "Items out of stock before add-to-cart — handled by catalogue, not checkout",
+    ],
     framework: {
       name: 'Product Design Framework',
       steps: [
@@ -233,6 +243,11 @@ export const curatedQuestions: Question[] = [
       'Tried once and dropped — bad first experience, trust + experience gap',
       'Competitor users (Swiggy/Zomato) — habituated elsewhere, habit + switching cost gap',
       'Occasional UberEats users — low frequency, habit formation gap',
+    ],
+    not_for: [
+      "Corporate meal programs — owned by a separate B2B team",
+      "Restaurant partners — supply side, not this brief",
+      "Existing high-frequency loyalists — retention, not acquisition",
     ],
     framework: {
       name: 'Product Strategy Framework',
@@ -350,6 +365,11 @@ export const curatedQuestions: Question[] = [
       'Corporate traveller — expense account, B2B, centralized billing needed',
       'Price-sensitive user — students, Tier 2 cities, auto/metro is the alternative',
     ],
+    not_for: [
+      "Drivers — supply-side incentives are a separate pricing surface",
+      "Uber Eats customers — mobility only",
+      "One-off tourists — no repeat behaviour to package",
+    ],
     framework: {
       name: 'VALUE-PRICE FIT Framework',
       steps: [
@@ -464,6 +484,11 @@ export const curatedQuestions: Question[] = [
       'Ema admin / operator — configures workflows, monitors accuracy, manages escalations',
       "End user of Ema's output — e.g. a candidate who gets an Ema-drafted interview invite",
     ],
+    not_for: [
+      "Prospects in trial — a leading indicator, not the North Star",
+      "Ema's internal ops team — an input metric, not customer value",
+      "Vanity engagement (logins, messages) — activity is not outcome",
+    ],
     framework: {
       name: 'North Star Selection Framework',
       steps: [
@@ -567,6 +592,11 @@ export const curatedQuestions: Question[] = [
       'Cautious operator — wants full control, will never fully trust without a long track record',
       'First-week user — high anxiety, every autonomous action feels risky',
       'Compliance-constrained user — regulated industry, some actions can NEVER be autonomous regardless of confidence',
+    ],
+    not_for: [
+      "Fully manual users — they never delegate, so trust modelling does not apply",
+      "Read-only consumers of Ema output — they do not approve actions",
+      "One-off tasks with no repeat signal — trust needs a track record",
     ],
     framework: {
       name: 'Action × Risk × Confidence × Precedent Framework',
@@ -684,6 +714,11 @@ export const curatedQuestions: Question[] = [
       'Paid reviewer — posts volume of positive reviews across many products for compensation',
       'Malicious competitor reviewer — posts negative reviews to damage a competing seller',
     ],
+    not_for: [
+      "Honest low-effort reviewers — noisy but not abusive",
+      "Sellers with legitimate promotions — enforcement, not detection",
+      "Q&A and ratings without text — a separate surface",
+    ],
     framework: {
       name: 'Trust & Safety Design Framework',
       steps: [
@@ -789,6 +824,11 @@ export const curatedQuestions: Question[] = [
       'Client reviewer — flagging complaints, may be a new person with different calibration',
       'End users of Ema — asking new types of questions as they mature on the platform',
       'Ema admin — responsible for KB management, may have uploaded conflicting documents',
+    ],
+    not_for: [
+      "Other clients with stable complaint rates — the spike is client-specific",
+      "Model-level accuracy across the platform — nothing shipped",
+      "Latency or uptime issues — not the symptom reported",
     ],
     framework: {
       name: "'What Changed in the World' Framework",
