@@ -5,6 +5,14 @@
 
 import type { Category } from '@/types/question';
 
+/** Frameworks also cover interview areas that are not question categories. */
+export type FrameworkArea = Category | 'Behavioural' | 'Execution';
+export const FRAMEWORK_AREAS: FrameworkArea[] = ['Product Design', 'Product Strategy', 'Execution', 'Analytical', 'RCA', 'Guesstimate', 'AI', 'Behavioural'];
+export const AREA_PASTEL: Record<'Behavioural' | 'Execution', { bg: string; fg: string }> = {
+  Behavioural: { bg: '#FFF1DB', fg: '#B45309' },
+  Execution: { bg: '#E0F3FB', fg: '#0369A1' },
+};
+
 export interface FrameworkStep {
   /** Short pill label. */
   label: string;
@@ -16,7 +24,7 @@ export interface Framework {
   key: string;
   name: string;
   emoji: string;
-  categories: Category[];
+  categories: FrameworkArea[];
   /** One sentence: what the framework is for. */
   oneLiner: string;
   /** When to reach for it — the question shapes it fits. */
@@ -28,6 +36,8 @@ export interface Framework {
   drills: string[];
   /** Well-known public cousin, if any. */
   alsoKnownAs?: string;
+  /** Senior signals: what makes an answer with this framework land. */
+  tips?: string[];
 }
 
 export const FRAMEWORKS: Framework[] = [
@@ -209,7 +219,7 @@ export const FRAMEWORKS: Framework[] = [
     key: 'now-next-later',
     name: 'Now / Next / Later with a North Star',
     emoji: '🗺️',
-    categories: ['Product Strategy'],
+    categories: ['Product Strategy', 'Execution'],
     oneLiner: 'Sequence a strategy over time; each phase gets its own metric.',
     whenToUse: 'Market entry, 1-year strategy, roadmaps, "how would you launch in country X".',
     steps: [
@@ -221,6 +231,12 @@ export const FRAMEWORKS: Framework[] = [
       { label: 'Later (6–12M)', detail: 'Defensibility: raise switching costs. Its own metric.' },
     ],
     trap: 'A roadmap with no sequencing logic — say why Now must come before Next.',
+    tips: [
+      'Now = protect the core metric: blockers, hygiene, retention and revenue.',
+      'Next = growth and differentiation bets with clear ROI.',
+      'Later = strategic or platform investments — sequencing discipline is the senior signal.',
+      'Justify every sequence with impact, effort, dependencies, strategic alignment and opportunity cost.',
+    ],
     drills: ['swiggy-international-expansion-strategy'],
   },
   {
@@ -369,12 +385,192 @@ export const FRAMEWORKS: Framework[] = [
     trap: 'Averaging two wildly different answers instead of finding the broken assumption.',
     drills: ['guesstimate-restaurants-in-bengaluru'],
   },
+  // ------------------------------------------------------------ Execution
+  {
+    key: 'pace',
+    name: 'PACE',
+    emoji: '🏁',
+    categories: ['Execution'],
+    oneLiner: 'Problem → Alternatives → Choice → Execute: the shape for any prioritisation call.',
+    whenToUse: '"How would you prioritise?", "What would you do first?", "How would you allocate the team?"',
+    steps: [
+      { label: 'Problem', detail: 'Clarify the goal, the metric, the timeline and the constraints. Tie it to an OKR and name the guardrails.' },
+      { label: 'Alternatives', detail: 'Lay out two or three real options. Structured thinking beats instinct here.' },
+      { label: 'Choice', detail: 'Select with explicit criteria — impact, effort, confidence, dependencies — and call out the trade-offs.' },
+      { label: 'Execute', detail: 'Milestones, owners, risks with mitigation, the metric you will watch, and the review cadence.' },
+    ],
+    trap: 'Listing options without choosing. The interviewer is grading the decision, not the menu.',
+    tips: [
+      'Start with the objective before any feature.',
+      'Say the constraints out loud: team size, time, dependencies.',
+      'Say what you will NOT do.',
+      'Call out trade-offs and opportunity cost.',
+      'Mention the communication rhythm — weekly reviews, stakeholder syncs.',
+      'Include risk mitigation and tie everything back to a measurable outcome.',
+    ],
+    drills: [],
+  },
+  {
+    key: 'trade',
+    name: 'TRADE',
+    emoji: '⚖️',
+    categories: ['Execution', 'Product Strategy'],
+    oneLiner: 'Target → Risks → Alternatives → Decision → Explain: making a trade-off and landing it.',
+    whenToUse: 'Revenue vs engagement, tech debt vs new feature, speed vs quality, ads vs user experience.',
+    steps: [
+      { label: 'Target', detail: 'What metric are we actually optimising? Name it before you weigh anything.' },
+      { label: 'Risks', detail: 'What could break — UX, revenue, tech, trust? Be concrete.' },
+      { label: 'Alternatives', detail: 'What other options exist, including "do nothing" and "do both, sequenced"?' },
+      { label: 'Decision', detail: 'Make a clear call. One sentence, no hedging.' },
+      { label: 'Explain', detail: 'Align stakeholders with the rationale and what would make you revisit it.' },
+    ],
+    trap: '"It depends." It does — so say on what, then decide anyway.',
+    drills: [],
+  },
+  // ---------------------------------------------------------- Behavioural
+  {
+    key: 'star',
+    name: 'STAR',
+    emoji: '⭐',
+    categories: ['Behavioural'],
+    oneLiner: 'Situation → Task → Action → Result: the default for "tell me about a time…".',
+    whenToUse: 'Any behavioural question: conflict, failure, influence without authority, a launch you led.',
+    steps: [
+      { label: 'Situation', detail: 'Set the context — who, what, when, where — in two sentences. Do not drown in backstory.' },
+      { label: 'Task', detail: 'What was YOUR responsibility? Make the ownership unmistakable.' },
+      { label: 'Action', detail: 'What you did to move things forward. Emphasise product thinking and how you brought people along.' },
+      { label: 'Result', detail: 'What happened — quantified. "15% uplift", "3× faster", "shipped two weeks early".' },
+    ],
+    trap: 'Spending 80% of the time on Situation. Get to Action inside 30 seconds.',
+    drills: [],
+  },
+  {
+    key: 'parla',
+    name: 'PARLA',
+    emoji: '🎓',
+    categories: ['Behavioural'],
+    oneLiner: 'Problem → Action → Result → Learning → Application: STAR with reflection, for senior PMs.',
+    whenToUse: 'Failure stories, "what would you do differently", any question where growth is the point.',
+    steps: [
+      { label: 'Problem', detail: 'The context and the challenge you faced.' },
+      { label: 'Action', detail: 'What you did — decisions, not activity.' },
+      { label: 'Result', detail: 'The outcome and its impact, including the parts that did not work.' },
+      { label: 'Learning', detail: 'What you learned. Specific and a little uncomfortable is better than generic.' },
+      { label: 'Application', detail: 'How you have applied that learning since — the proof that it stuck.' },
+    ],
+    trap: 'A "learning" that is really a humble-brag. If it cost you nothing, it is not a learning.',
+    drills: [],
+  },
+  // ----------------------------------------------------- Product Design +
+  {
+    key: 'drive',
+    name: 'D.R.I.V.E.',
+    emoji: '🧱',
+    categories: ['Product Design'],
+    oneLiner: 'Describe → Real pain → Ideate → Validate → Evolve: user-centred design with a validation step.',
+    whenToUse: 'Design questions where the interviewer cares about how you would test the idea, not just what it is.',
+    steps: [
+      { label: 'Describe', detail: 'Who is the user and what is their goal? Be specific — never "everyone".' },
+      { label: 'Real pain', detail: 'What is broken or inefficient for them now? Surface the emotional or contextual friction.' },
+      { label: 'Ideate', detail: 'What could solve it and what is the core value? Outcomes, not features.' },
+      { label: 'Validate', detail: 'How would you test the direction — MVP, experiment, user feedback loop?' },
+      { label: 'Evolve', detail: 'Next steps and how you will measure success: metrics, rollout, iterations.' },
+    ],
+    trap: 'Skipping Validate. A design answer with no test plan is a pitch, not a plan.',
+    drills: [],
+  },
+  {
+    key: 'jtbd',
+    name: 'Jobs-to-be-Done',
+    emoji: '🔧',
+    categories: ['Product Design', 'AI'],
+    alsoKnownAs: 'JTBD (Christensen / Ulwick)',
+    oneLiner: 'Job → Obstacles → Success: outcome-first design for zero-to-one and GenAI products.',
+    whenToUse: 'Unconventional products, marketplaces, behaviour-change tools, anything where "user" and "feature" are not yet defined.',
+    steps: [
+      { label: 'Job', detail: 'What job is the user hiring the product to do? Phrase it as progress they want to make, not a task.' },
+      { label: 'Obstacles', detail: 'What makes that job painful today — the workarounds they tolerate?' },
+      { label: 'Success', detail: 'What does done look like, functionally and emotionally?' },
+      { label: 'Design', detail: 'Build for the job and the obstacles, then measure against the success definition.' },
+    ],
+    trap: 'Writing the job as a feature ("hire an app to send emails"). The job is the progress, not the tool.',
+    drills: ['design-trust-layer-enterprise-ai'],
+  },
+  {
+    key: 'uux',
+    name: 'U.U.X.',
+    emoji: '🌀',
+    categories: ['Product Design'],
+    oneLiner: 'Users → Use cases → UX: a fast three-lens filter for improving an existing flow.',
+    whenToUse: 'Improving an existing product, mobile-first flows, when you have five minutes not thirty.',
+    steps: [
+      { label: 'Users', detail: 'Who exactly is this for? One segment.' },
+      { label: 'Use cases', detail: 'What moments or tasks will they use it for? Pick the top two.' },
+      { label: 'UX', detail: 'How do we make that journey smooth and, where it counts, delightful?' },
+    ],
+    trap: 'Treating it as the whole answer. It is a filter — follow it with a solution and a metric.',
+    drills: [],
+  },
+  // ---------------------------------------------------------- Analytical +
+  {
+    key: 'goals',
+    name: 'G.O.A.L.S.',
+    emoji: '🧭',
+    categories: ['Analytical'],
+    oneLiner: 'Goal → Object → Actions → Levers → Scorecard: define success for a product or feature.',
+    whenToUse: 'Metrics and success-definition questions at senior level, when the interviewer wants a scorecard not a metric.',
+    steps: [
+      { label: 'Goal', detail: 'Clarify the business AND user goal — growth, retention, revenue, trust — and state the trade-off upfront.' },
+      { label: 'Object', detail: 'Define what success looks like as observable user behaviour.' },
+      { label: 'Actions', detail: 'The key actions that indicate progress — favour leading indicators like activation and intent.' },
+      { label: 'Levers', detail: 'The product levers that move those actions, and the constraints: tech, ops, policy.' },
+      { label: 'Scorecard', detail: 'One North Star, 3–5 input metrics, 2–4 quality guardrails (latency, churn, returns, abuse).' },
+    ],
+    trap: 'A scorecard with no guardrails. Every growth metric can be bought with quality.',
+    tips: ['Output format interviewers love: North Star (1) · Input metrics (3–5) · Quality / guardrails (2–4).'],
+    drills: ['q-ema-north-star'],
+  },
+  {
+    key: 'dive',
+    name: 'D.I.V.E.',
+    emoji: '🕵️',
+    categories: ['RCA', 'Analytical'],
+    oneLiner: 'Define → Isolate → Verify → Execute: root-cause a metric drop or spike.',
+    whenToUse: 'Any "X dropped / spiked — why?" question, especially when you have to show leadership after the diagnosis.',
+    steps: [
+      { label: 'Define', detail: 'Confirm the metric definition, time window, segment and impact. Two or three sharp clarifiers, not an interrogation.' },
+      { label: 'Isolate', detail: 'Break down by funnel step, segment, platform, geo. Start with the big cuts that explain most of the variance.' },
+      { label: 'Verify', detail: 'Form hypotheses; validate with data, logs and UX checks. Separate data issue vs product issue vs external.' },
+      { label: 'Execute', detail: 'Mitigation → fix → prevention, with a comms plan, owners and a timeline.' },
+    ],
+    trap: 'Forgetting instrumentation. Half of "drops" are a tracking or ETL change.',
+    tips: [
+      'Default diagnostic tree: 1) Instrumentation 2) Traffic mix 3) Funnel step 4) Experience (latency, crashes, pricing, availability) 5) Policy / external.',
+    ],
+    drills: ['rca-aov-drops-18-percent-wow'],
+  },
+  {
+    key: 'hadi',
+    name: 'H.A.D.I.',
+    emoji: '🧪',
+    categories: ['Analytical', 'Execution'],
+    oneLiner: 'Hypothesis → Assumptions → Design → Interpret: run an A/B test properly.',
+    whenToUse: 'Experimentation questions, "how would you test this", launch decisions.',
+    steps: [
+      { label: 'Hypothesis', detail: '"If we do X for Y users, then Z improves because…" — tie it to a metric and a mechanism.' },
+      { label: 'Assumptions', detail: 'What must be true? Risks, confounders, novelty effects, selection bias.' },
+      { label: 'Design', detail: 'Population, control vs variant, duration, success criteria, guardrails, segments, rollout plan.' },
+      { label: 'Interpret', detail: 'What do the results mean and what next — ship, iterate or roll back — stated with confidence.' },
+    ],
+    trap: 'Calling a test after three days because the line went up. Cover full weekly cycles and name the stopping rule first.',
+    drills: ['measure-success-zepto-buy-again-shortcut'],
+  },
 ];
 
 export const FRAMEWORK_BY_KEY: Record<string, Framework> = Object.fromEntries(FRAMEWORKS.map((f) => [f.key, f]));
 
 /** Frameworks that apply to a category, most-used first. */
-export function frameworksFor(category: Category): Framework[] {
+export function frameworksFor(category: FrameworkArea): Framework[] {
   return FRAMEWORKS.filter((f) => f.categories.includes(category)).sort((a, b) => b.drills.length - a.drills.length);
 }
 

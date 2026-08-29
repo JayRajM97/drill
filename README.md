@@ -20,7 +20,7 @@ Built with **Expo (React Native) + TypeScript + Expo Router**. Live at
 | **Numbers** | 220+ interview anchor figures (India, US, World, mobile, payments, food and quick commerce, social, SaaS, travel, gaming…) as stat cards, with a 4-option quiz and an endless flashcard shuffle. |
 | **You** | Streak, completed drills and saved questions. |
 
-| **Frameworks** | The toolbox behind the answers — 18 frameworks (positioning stack, goal → behaviour → metric tree, RADAR, STAMP, value–price fit, top-down sizing, "what changed?" RCA, trust ladder, …) each with steps, when to use it, the trap, and the drills that apply it. Surfaced on Home, in the Library, and above each category's questions. |
+| **Frameworks** | The toolbox behind the answers — 28 frameworks (STAR, PARLA, PACE, TRADE, DRIVE, JTBD, GOALS, DIVE, HADI, positioning stack, goal → behaviour → metric tree, RADAR, STAMP, value–price fit, top-down sizing, "what changed?" RCA, trust ladder, …) each with steps, when to use it, the trap, and the drills that apply it. Surfaced on Home, in the Library, and above each category's questions. |
 
 > Design: "Quiet Cards" — soft grey canvas, white floating cards, one
 > electric-blue accent. A question's answer is split by `src/drill/deck.ts`

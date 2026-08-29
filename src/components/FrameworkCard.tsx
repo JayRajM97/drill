@@ -1,13 +1,13 @@
 import React from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
-import type { Framework } from '@/data/frameworks';
+import { AREA_PASTEL, type Framework } from '@/data/frameworks';
 import { categoryPastel, colors, radius, shadow, space } from '@/theme/tokens';
 
 /** Compact framework card: emoji, name, category, one-liner, step count. */
 export function FrameworkCard({ framework, onPress, wide }: { framework: Framework; onPress: () => void; wide?: boolean }) {
   const cat = framework.categories[0];
-  const pastel = categoryPastel[cat];
+  const pastel = cat === 'Behavioural' || cat === 'Execution' ? AREA_PASTEL[cat] : categoryPastel[cat];
   return (
     <Pressable onPress={onPress} style={({ pressed }) => [styles.card, wide && styles.wide, pressed && { opacity: 0.92 }]}>
       <View style={styles.top}>
@@ -24,7 +24,7 @@ export function FrameworkCard({ framework, onPress, wide }: { framework: Framewo
       </Text>
       <View style={styles.meta}>
         <Text style={styles.metaText}>
-          {framework.steps.length} steps · {framework.drills.length} drill{framework.drills.length === 1 ? '' : 's'}
+          {framework.steps.length} steps{framework.drills.length ? ` · ${framework.drills.length} drill${framework.drills.length === 1 ? '' : 's'}` : ''}
         </Text>
         <MaterialIcons name="arrow-forward" size={16} color={colors.accent} />
       </View>

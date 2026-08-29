@@ -4,7 +4,7 @@ import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { MaterialIcons } from '@expo/vector-icons';
 import Animated, { Easing, cancelAnimation, runOnJS, useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
-import { FRAMEWORK_BY_KEY } from '@/data/frameworks';
+import { AREA_PASTEL, FRAMEWORK_BY_KEY } from '@/data/frameworks';
 import { questions } from '@/data';
 import type { Question } from '@/types/question';
 import { QuestionCard } from '@/components/QuestionCard';
@@ -62,7 +62,7 @@ export default function FrameworkScreen() {
   }
 
   const cat = fw.categories[0];
-  const pastel = categoryPastel[cat];
+  const pastel = cat === 'Behavioural' || cat === 'Execution' ? AREA_PASTEL[cat] : categoryPastel[cat];
   const current = fw.steps[step];
 
   return (
@@ -124,6 +124,17 @@ export default function FrameworkScreen() {
             </View>
             <Text style={styles.blockText}>{fw.trap}</Text>
           </View>
+          {fw.tips?.length ? (
+            <View style={[styles.block, { backgroundColor: colors.accentSoft }]}>
+              <View style={styles.blockHead}>
+                <MaterialIcons name="auto-awesome" size={18} color={colors.accent} />
+                <Text style={[styles.blockLabel, { color: colors.accent }]}>Senior signals</Text>
+              </View>
+              {fw.tips.map((t, i) => (
+                <Text key={i} style={styles.blockText}>• {t}</Text>
+              ))}
+            </View>
+          ) : null}
         </View>
 
         {drills.length ? (

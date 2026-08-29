@@ -2,9 +2,7 @@ import React, { useMemo, useState } from 'react';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { FRAMEWORKS } from '@/data/frameworks';
-import type { Category } from '@/types/question';
-import { CATEGORIES } from '@/types/question';
+import { FRAMEWORK_AREAS, FRAMEWORKS, type FrameworkArea } from '@/data/frameworks';
 import { BottomNavBar, NAV_CLEARANCE } from '@/components/BottomNavBar';
 import { FrameworkCard } from '@/components/FrameworkCard';
 import { Masonry } from '@/components/Masonry';
@@ -15,7 +13,7 @@ import { categoryIcon, colors, space } from '@/theme/tokens';
 export default function FrameworksScreen() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
-  const [category, setCategory] = useState<Category | null>(null);
+  const [category, setCategory] = useState<FrameworkArea | null>(null);
   const [search, setSearch] = useState('');
   const needle = search.trim().toLowerCase();
 
@@ -43,8 +41,14 @@ export default function FrameworksScreen() {
 
         <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.chips}>
           <Chip label="All" icon="apps" active={!category} onPress={() => setCategory(null)} />
-          {CATEGORIES.map((c) => (
-            <Chip key={c} label={c} icon={categoryIcon[c] as never} active={category === c} onPress={() => setCategory(category === c ? null : c)} />
+          {FRAMEWORK_AREAS.map((c) => (
+            <Chip
+              key={c}
+              label={c}
+              icon={(c === 'Behavioural' ? 'record-voice-over' : c === 'Execution' ? 'checklist' : categoryIcon[c]) as never}
+              active={category === c}
+              onPress={() => setCategory(category === c ? null : c)}
+            />
           ))}
         </ScrollView>
 
