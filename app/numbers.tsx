@@ -196,11 +196,11 @@ function FactCard({ fact, fallbackEmoji, hideRegion }: { fact: Fact; fallbackEmo
 
 const styles = StyleSheet.create({
   screen: { flex: 1, backgroundColor: colors.bg },
-  segment: { flexDirection: 'row', marginHorizontal: space.lg, marginTop: space.sm, backgroundColor: colors.surfaceAlt, borderRadius: radius.pill, padding: 4 },
+  segment: { flexDirection: 'row', marginHorizontal: space.lg, marginTop: space.sm, backgroundColor: colors.surface, borderRadius: radius.pill, padding: 4, ...shadow.card },
   segItem: { flex: 1, alignItems: 'center', paddingVertical: 9, borderRadius: radius.pill },
-  segItemOn: { backgroundColor: colors.surface, ...shadow.card },
-  segText: { color: colors.textMuted, fontSize: 14, fontWeight: '700' },
-  segTextOn: { color: colors.text },
+  segItemOn: { backgroundColor: colors.accent, ...shadow.accent },
+  segText: { color: colors.textMuted, fontSize: 14, fontWeight: '800' },
+  segTextOn: { color: colors.onAccent },
   groupCovers: { paddingHorizontal: space.lg, color: colors.textMuted, fontSize: 13, marginTop: -4 },
   meaning: { color: colors.text, fontSize: 17, lineHeight: 24, fontWeight: '600' },
   example: { color: colors.accent, fontSize: 13, fontWeight: '700' },

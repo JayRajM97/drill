@@ -173,19 +173,6 @@ export default function HomeScreen() {
           </View>
         </ScrollView>
 
-        {/* Frameworks */}
-        <View style={[styles.sectionHead, { marginTop: space.xl }]}>
-          <Text style={styles.sectionTitle}>Frameworks</Text>
-          <Pressable onPress={() => router.push('/frameworks')} hitSlop={8} style={styles.moreBtn}>
-            <MaterialIcons name="arrow-forward" size={18} color={colors.text} />
-          </Pressable>
-        </View>
-        <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ marginVertical: -space.lg }} contentContainerStyle={{ paddingHorizontal: space.lg, paddingVertical: space.lg, gap: space.md }}>
-          {[...FRAMEWORKS].sort((a, b) => b.drills.length - a.drills.length).slice(0, 6).map((f) => (
-            <FrameworkCard key={f.key} framework={f} wide onPress={() => router.push(`/frameworks/${f.key}`)} />
-          ))}
-        </ScrollView>
-
         {/* Categories */}
         <View style={[styles.sectionHead, { marginTop: space.xl }]}>
           <Text style={styles.sectionTitle}>Categories</Text>
@@ -204,6 +191,19 @@ export default function HomeScreen() {
             </View>
           ))}
         </View>
+
+        {/* Frameworks */}
+        <View style={[styles.sectionHead, { marginTop: space.xl }]}>
+          <Text style={styles.sectionTitle}>Frameworks</Text>
+          <Pressable onPress={() => router.push('/frameworks')} hitSlop={8} style={styles.moreBtn}>
+            <MaterialIcons name="arrow-forward" size={18} color={colors.text} />
+          </Pressable>
+        </View>
+        <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ marginVertical: -space.lg }} contentContainerStyle={{ paddingHorizontal: space.lg, paddingVertical: space.lg, gap: space.md }}>
+          {[...FRAMEWORKS].sort((a, b) => b.drills.length - a.drills.length).slice(0, 6).map((f) => (
+            <FrameworkCard key={f.key} framework={f} wide onPress={() => router.push(`/frameworks/${f.key}`)} />
+          ))}
+        </ScrollView>
       </ScrollView>
 
       <BottomNavBar active="home" />
