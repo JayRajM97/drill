@@ -7,6 +7,8 @@ import type { Category, Question } from '@/types/question';
 import { useProgress } from '@/state/useProgress';
 import { QuestionCard } from '@/components/QuestionCard';
 import { Masonry } from '@/components/Masonry';
+import { FrameworkCard } from '@/components/FrameworkCard';
+import { frameworksFor } from '@/data/frameworks';
 import { BottomNavBar, NAV_CLEARANCE } from '@/components/BottomNavBar';
 import { CategoryIcon, Chip, IconButton } from '@/components/ui';
 import { categoryDescription, colors, emojiForDomain, space } from '@/theme/tokens';
@@ -33,6 +35,7 @@ export default function CategoryScreen() {
     return [...set].sort();
   }, [all]);
 
+  const frameworks = useMemo(() => frameworksFor(category), [category]);
   const filtered = useMemo(
     () => all.filter((q) => !domain || q.domain_tags.includes(domain)),
     [all, domain],
@@ -57,6 +60,20 @@ export default function CategoryScreen() {
             </Text>
           </View>
         </View>
+
+        {frameworks.length ? (
+          <View style={styles.fwSection}>
+            <View style={styles.fwHead}>
+              <Text style={styles.fwTitle}>Frameworks for {category}</Text>
+              <Text style={styles.fwMeta}>{frameworks.length}</Text>
+            </View>
+            <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ marginVertical: -space.md }} contentContainerStyle={{ paddingHorizontal: space.lg, paddingVertical: space.md, gap: space.md }}>
+              {frameworks.map((f) => (
+                <FrameworkCard key={f.key} framework={f} wide onPress={() => router.push(`/frameworks/${f.key}`)} />
+              ))}
+            </ScrollView>
+          </View>
+        ) : null}
 
         {domains.length > 1 ? (
           <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.chips}>
@@ -89,6 +106,10 @@ const styles = StyleSheet.create({
   head: { flexDirection: 'row', alignItems: 'center', gap: space.lg, paddingHorizontal: space.lg, marginBottom: space.lg },
   title: { color: colors.text, fontSize: 28, fontWeight: '800', letterSpacing: -0.6 },
   sub: { color: colors.textMuted, fontSize: 14, marginTop: 4 },
+  fwSection: { marginBottom: space.lg },
+  fwHead: { flexDirection: 'row', alignItems: 'baseline', justifyContent: 'space-between', paddingHorizontal: space.lg, marginBottom: space.sm },
+  fwTitle: { color: colors.text, fontSize: 17, fontWeight: '700', letterSpacing: -0.2 },
+  fwMeta: { color: colors.textFaint, fontSize: 13, fontWeight: '700' },
   chips: { gap: space.sm, paddingHorizontal: space.lg, paddingVertical: 6, marginBottom: space.sm },
   empty: { color: colors.textMuted, fontSize: 15, padding: space.lg },
 });

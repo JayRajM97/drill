@@ -2,7 +2,7 @@ import React from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
 import type { Question } from '@/types/question';
-import { colors, space } from '@/theme/tokens';
+import { categoryIcon, categoryPastel, colors, radius, space } from '@/theme/tokens';
 import { Card, CategoryIcon, DifficultyBadge, DifficultyDot } from './ui';
 
 interface Props {
@@ -52,7 +52,14 @@ export function QuestionCard({ question, onPress, compact, bookmarked, onToggleB
   return (
     <Card onPress={onPress} style={styles.card}>
       <View style={styles.top}>
-        {category ? <CategoryIcon category={category} size={36} /> : <View />}
+        {category ? (
+          <View style={[styles.catChip, { backgroundColor: categoryPastel[category].bg }]}>
+            <MaterialIcons name={categoryIcon[category] as never} size={14} color={categoryPastel[category].fg} />
+            <Text style={[styles.catText, { color: categoryPastel[category].fg }]}>{category}</Text>
+          </View>
+        ) : (
+          <View />
+        )}
         {onToggleBookmark ? (
           <Pressable onPress={onToggleBookmark} hitSlop={10}>
             <MaterialIcons
@@ -75,7 +82,9 @@ export function QuestionCard({ question, onPress, compact, bookmarked, onToggleB
 
 const styles = StyleSheet.create({
   card: { padding: space.lg, gap: space.md },
-  top: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start' },
+  top: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', gap: space.sm },
+  catChip: { flexDirection: 'row', alignItems: 'center', gap: 5, borderRadius: radius.pill, paddingHorizontal: 10, paddingVertical: 6, flexShrink: 1 },
+  catText: { fontSize: 12, fontWeight: '800', flexShrink: 1 },
   title: { flex: 1, color: colors.text, fontSize: 15, lineHeight: 21, fontWeight: '600', letterSpacing: -0.1 },
   row: { flexDirection: 'row', alignItems: 'center', gap: space.md, padding: space.lg },
   rowTitle: { color: colors.text, fontSize: 15, lineHeight: 21, fontWeight: '600' },

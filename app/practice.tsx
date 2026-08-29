@@ -72,6 +72,7 @@ export default function PracticeScreen() {
           {CATEGORIES.map((c) => (
             <Chip key={c} label={c} icon={categoryIcon[c] as never} active={category === c} onPress={() => setCategory(category === c ? null : c)} />
           ))}
+          <Chip label="Frameworks" icon="account-tree" onPress={() => router.push('/frameworks')} />
         </ScrollView>
 
         <Masonry

@@ -1,6 +1,12 @@
 # Drill — backlog
 
-## Next up: Frameworks section (planned 2026-08-30)
+## Shipped 2026-08-30: Frameworks section
+
+Built as planned below (`src/data/frameworks.ts`, `/frameworks`, `/frameworks/[key]`,
+rows on Home and category pages, link from the drill's Framework card). Still open:
+the research pass on public frameworks per category, and 2-frameworks-per-question.
+
+### Original plan
 
 **Why.** Every drill already names a framework ("Positioning stack", "Goal → Behaviour →
 Metric tree", "Product Design Framework") but the frameworks only exist inside answers.

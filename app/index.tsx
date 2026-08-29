@@ -15,6 +15,8 @@ import type { Question } from '@/types/question';
 import { useDaily } from '@/state/useDaily';
 import { useProgress } from '@/state/useProgress';
 import { CategoryTile } from '@/components/CategoryTile';
+import { FrameworkCard } from '@/components/FrameworkCard';
+import { FRAMEWORKS } from '@/data/frameworks';
 import { ALL_FACTS, emojiFor, type Fact } from '@/data/numbers';
 import { todayKey } from '@/state/useDaily';
 import { BottomNavBar, NAV_CLEARANCE } from '@/components/BottomNavBar';
@@ -169,6 +171,19 @@ export default function HomeScreen() {
               </View>
             ))}
           </View>
+        </ScrollView>
+
+        {/* Frameworks */}
+        <View style={[styles.sectionHead, { marginTop: space.xl }]}>
+          <Text style={styles.sectionTitle}>Frameworks</Text>
+          <Pressable onPress={() => router.push('/frameworks')} hitSlop={8} style={styles.moreBtn}>
+            <MaterialIcons name="arrow-forward" size={18} color={colors.text} />
+          </Pressable>
+        </View>
+        <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ marginVertical: -space.lg }} contentContainerStyle={{ paddingHorizontal: space.lg, paddingVertical: space.lg, gap: space.md }}>
+          {[...FRAMEWORKS].sort((a, b) => b.drills.length - a.drills.length).slice(0, 6).map((f) => (
+            <FrameworkCard key={f.key} framework={f} wide onPress={() => router.push(`/frameworks/${f.key}`)} />
+          ))}
         </ScrollView>
 
         {/* Categories */}

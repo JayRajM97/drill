@@ -8,7 +8,7 @@ import {
   View,
   useWindowDimensions,
 } from 'react-native';
-import { useLocalSearchParams, useRouter } from 'expo-router';
+import { Link, useLocalSearchParams, useRouter } from 'expo-router';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import Animated, {
   Easing,
@@ -28,6 +28,7 @@ import { questions } from '@/data';
 import type { Question } from '@/types/question';
 import { useProgress } from '@/state/useProgress';
 import { buildDeck, SECTION_LABEL, type DeckCard, type Pill, type Section } from '@/drill/deck';
+import { frameworkForQuestion } from '@/data/frameworks';
 import { TimerRing } from '@/components/TimerRing';
 import { IndexSheet } from '@/components/IndexSheet';
 import { DifficultyBadge, Eyebrow, IconButton, PillButton, Tag } from '@/components/ui';
@@ -428,12 +429,21 @@ function CardView({ card, question, runKey, fresh }: { card: DeckCard; question:
         </View>
       );
 
-    case 'list':
+    case 'list': {
+      const fw = card.section === 'Framework' ? frameworkForQuestion(question.id) : undefined;
       return (
         <View style={[styles.cardBase, styles.cardPad, styles.topAlign]}>
           <Eyebrow>{pageLabel(card)}</Eyebrow>
           <Text style={styles.title}>{card.title}</Text>
           <NewMark on={newSection} />
+          {fw ? (
+            <Link href={`/frameworks/${fw.key}`} asChild>
+              <Pressable style={styles.fwLink}>
+                <Text style={styles.fwLinkText}>{fw.emoji} Learn this framework</Text>
+                <MaterialIcons name="arrow-forward" size={16} color={colors.accent} />
+              </Pressable>
+            </Link>
+          ) : null}
           <ScrollView style={styles.grow} contentContainerStyle={[styles.centerBody, { gap: space.md }]} showsVerticalScrollIndicator={false}>
             {card.items.map((item, i) => (
               <View key={i} style={styles.item}>
@@ -450,6 +460,7 @@ function CardView({ card, question, runKey, fresh }: { card: DeckCard; question:
           </ScrollView>
         </View>
       );
+    }
 
     case 'pills':
       return <PillsCard card={card} front={front} newSection={newSection} />;
@@ -792,6 +803,8 @@ const styles = StyleSheet.create({
   cardBase: { flex: 1, backgroundColor: colors.surface, borderRadius: radius.card, overflow: 'hidden', ...shadow.cardStrong },
   cardPad: { padding: 26, gap: space.md, justifyContent: 'center' },
   topAlign: { justifyContent: 'flex-start' },
+  fwLink: { flexDirection: 'row', alignItems: 'center', gap: 6, alignSelf: 'flex-start', backgroundColor: colors.accentSoft, borderRadius: radius.pill, paddingHorizontal: 12, paddingVertical: 7 },
+  fwLinkText: { color: colors.accent, fontSize: 13, fontWeight: '800' },
   centerBody: { flexGrow: 1, justifyContent: 'center', paddingBottom: space.sm },
   titlePart: { color: colors.textFaint, fontSize: 16, fontWeight: '700' },
   punch: { backgroundColor: colors.accent, borderRadius: radius.lg, padding: space.lg, gap: space.sm, ...shadow.accent },
