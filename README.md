@@ -17,7 +17,7 @@ Built with **Expo (React Native) + TypeScript + Expo Router**. Live at
 | --- | --- |
 | **Case studies** | 38 PM questions across Product Design, Strategy, Analytical, Guesstimate, AI and RCA, each as a card deck with pinned Today picks, a jump-to index, four-direction swipe, bookmarks and streaks. |
 | **Library** | Browse and filter every question by category, domain and difficulty in a masonry grid. |
-| **Numbers** | 220+ interview anchor figures (India, US, World, mobile, payments, food and quick commerce, social, SaaS, travel, gaming…) as stat cards, with a 4-option quiz and an endless flashcard shuffle. |
+| **Numbers** | Two decks: **Key numbers** — 220+ interview anchor figures (India, US, World, mobile, payments, food and quick commerce, social, SaaS, travel, gaming…) as stat cards; and **Product metrics** — 178 metrics across e-commerce, quick commerce, mobility, geo, social, app store, feature adoption and growth funnel, each with a one-line meaning and example. Both have a 4-option quiz and an endless flashcard shuffle. |
 | **You** | Streak, completed drills and saved questions. |
 
 | **Frameworks** | The toolbox behind the answers — 28 frameworks (STAR, PARLA, PACE, TRADE, DRIVE, JTBD, GOALS, DIVE, HADI, positioning stack, goal → behaviour → metric tree, RADAR, STAMP, value–price fit, top-down sizing, "what changed?" RCA, trust ladder, …) each with steps, when to use it, the trap, and the drills that apply it. Surfaced on Home, in the Library, and above each category's questions. |

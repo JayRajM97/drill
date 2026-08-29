@@ -24,11 +24,15 @@ export interface Fact {
   /** Filled in at build time: the group and topic this fact lives in. */
   group?: string;
   topic?: string;
+  /** Product metrics: the answer is the meaning (note), the value is an example. */
+  kind?: 'metric';
 }
 
 export interface NumberGroup {
   title: string;
   facts: Fact[];
+  /** What this sub-category covers (product metrics). */
+  covers?: string;
 }
 
 export interface NumberTopic {
@@ -697,6 +701,7 @@ const REGION_PREFIX: Record<Region, string> = { IN: 'In India,', US: 'In the US,
 /** Frame a fact as a question: "In the US, how many households are there?" */
 export function questionFor(fact: Fact): string {
   if (fact.q) return fact.q;
+  if (fact.kind === 'metric') return `In ${fact.topic ?? 'a product'}, what does “${fact.label}” measure?`;
   if (Q_OVERRIDES[fact.id]) return Q_OVERRIDES[fact.id];
   const label = fact.label.replace(/\s*\([^)]*\)\s*$/, '').trim();
   // Keep brand names and acronyms capitalised; only a generic first word drops its capital.
@@ -743,12 +748,33 @@ export const ALL_FACTS: Fact[] = NUMBER_TOPICS.flatMap((t) =>
   ),
 );
 
+import { METRIC_TOPICS } from './metrics';
+
+/** Product metrics, flattened, with group/topic attached and kind = 'metric'. */
+export const ALL_METRICS: Fact[] = METRIC_TOPICS.flatMap((t) =>
+  t.groups.flatMap((g) =>
+    g.facts.map((f) => {
+      f.group = g.title;
+      f.topic = t.title;
+      f.kind = 'metric';
+      return f;
+    }),
+  ),
+);
+
+export type NumberSet = 'numbers' | 'metrics';
+export const SETS: Record<NumberSet, { title: string; topics: NumberTopic[]; facts: Fact[] }> = {
+  numbers: { title: 'Key numbers', topics: NUMBER_TOPICS, facts: ALL_FACTS },
+  metrics: { title: 'Product metrics', topics: METRIC_TOPICS, facts: ALL_METRICS },
+};
+
 /** Group titles that are just a region/bucket — not worth showing as context. */
 const GENERIC_GROUP = /^(people|digital|money|macro|markets|scale|patterns|platforms|multipliers|trips|us|india|world|global|us & europe|us market|commerce & mobility|app behaviour|funnel benchmarks|global mau|us mau|processors & wallets|marketplace defaults|back-of-envelope|saas benchmarks|us vehicles|time per day.*|age breakdown|apps & rails|video \(us\)|audio \(us\)|general e-commerce|search & web)$/i;
 
 /** Context chip for a flashcard: "🇺🇸 US · Uber (global)". */
 export function contextFor(fact: Fact): string {
   const bits: string[] = [];
+  if (fact.kind === 'metric') return [fact.topic, fact.group].filter(Boolean).join(' · ');
   if (fact.region) bits.push(REGION_LABEL[fact.region]);
   if (fact.group && !GENERIC_GROUP.test(fact.group)) bits.push(fact.group);
   else if (fact.topic && !fact.region) bits.push(fact.topic);

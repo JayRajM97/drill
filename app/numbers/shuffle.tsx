@@ -1,31 +1,31 @@
 import React, { useCallback, useLayoutEffect, useMemo, useState } from 'react';
 import { Pressable, StyleSheet, Text, View, useWindowDimensions } from 'react-native';
-import { useRouter } from 'expo-router';
+import { useLocalSearchParams, useRouter } from 'expo-router';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import Animated, { Easing, interpolate, runOnJS, useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { MaterialIcons } from '@expo/vector-icons';
-import { ALL_FACTS, emojiFor, NUMBER_TOPICS, contextFor, questionFor, type Fact } from '@/data/numbers';
+import { SETS, emojiFor, contextFor, questionFor, type Fact, type NumberSet } from '@/data/numbers';
 import { Eyebrow, IconButton, PillButton } from '@/components/ui';
 import { FlipCard } from '@/components/FlipCard';
 import { colors, radius, shadow, space } from '@/theme/tokens';
 
 const MOVE = { duration: 320, easing: Easing.inOut(Easing.cubic) };
 
-function topicOf(fact: Fact) {
-  return NUMBER_TOPICS.find((t) => t.groups.some((g) => g.facts.includes(fact)));
+function topicOf(fact: Fact, set: NumberSet) {
+  return SETS[set].topics.find((t) => t.groups.some((g) => g.facts.includes(fact)));
 }
 
 /** Endless random order over the whole DB: a fresh shuffle each time the deck runs out. */
-function useRandomDeck() {
-  const [order, setOrder] = useState<Fact[]>(() => shuffle(ALL_FACTS));
+function useRandomDeck(pool: Fact[]) {
+  const [order, setOrder] = useState<Fact[]>(() => shuffle(pool));
   const [i, setI] = useState(0);
   const next = useCallback(() => {
     if (i + 2 >= order.length) {
-      setOrder((o) => [...o.slice(i), ...shuffle(ALL_FACTS)]);
+      setOrder((o) => [...o.slice(i), ...shuffle(pool)]);
       setI(0);
     } else setI(i + 1);
-  }, [i, order.length]);
+  }, [i, order.length, pool]);
   const prev = useCallback(() => setI((n) => Math.max(0, n - 1)), []);
   return { current: order[i], ahead: order.slice(i + 1, i + 3), i, next, prev };
 }
@@ -43,8 +43,10 @@ export default function NumbersShuffle() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
   const { width: W } = useWindowDimensions();
+  const { set: setParam } = useLocalSearchParams<{ set?: string }>();
+  const set: NumberSet = setParam === 'metrics' ? 'metrics' : 'numbers';
   const goBack = () => (router.canGoBack() ? router.back() : router.replace('/numbers'));
-  const { current, ahead, i, next, prev } = useRandomDeck();
+  const { current, ahead, i, next, prev } = useRandomDeck(SETS[set].facts);
   const [revealed, setRevealed] = useState(false);
   const [seen, setSeen] = useState(0);
   const [busy, setBusy] = useState(false);
@@ -104,15 +106,15 @@ export default function NumbersShuffle() {
     return { transform: [{ scale: interpolate(p, [0, 1], [0.88, 0.94]) }, { translateY: interpolate(p, [0, 1], [lift(0.88, 28), lift(0.94, 14)]) }] };
   });
 
-  const topic = useMemo(() => topicOf(current), [current]);
+  const topic = useMemo(() => topicOf(current, set), [current, set]);
 
   return (
     <View style={[styles.screen, { paddingTop: insets.top + space.sm }]}>
       <View style={styles.header}>
         <IconButton icon="close" onPress={goBack} />
         <View style={{ alignItems: 'center' }}>
-          <Text style={styles.headerTitle}>Shuffle</Text>
-          <Text style={styles.headerCount}>{seen} seen · {ALL_FACTS.length} in the deck</Text>
+          <Text style={styles.headerTitle}>Shuffle · {SETS[set].title}</Text>
+          <Text style={styles.headerCount}>{seen} seen · {SETS[set].facts.length} in the deck</Text>
         </View>
         <View style={{ width: 44 }} />
       </View>
@@ -190,16 +192,21 @@ function FactFace({
                   </View>
                 ))}
               </View>
+            ) : fact.kind === 'metric' ? (
+              <>
+                <Text style={[styles.meaning, styles.onBlue]}>{fact.note}</Text>
+                <Text style={[styles.note, { color: colors.onAccentMuted }]}>e.g. {fact.value}</Text>
+              </>
             ) : (
               <Text style={[styles.value, styles.onBlue]}>{fact.value}</Text>
             )}
-            <Text style={[styles.answerLabel, { color: colors.onAccentMuted }]}>{fact.label}</Text>
-            {fact.note ? <Text style={[styles.note, { color: colors.onAccent }]}>→ {fact.note}</Text> : null}
+            {fact.kind !== 'metric' ? <Text style={[styles.answerLabel, { color: colors.onAccentMuted }]}>{fact.label}</Text> : null}
+            {fact.note && fact.kind !== 'metric' ? <Text style={[styles.note, { color: colors.onAccent }]}>→ {fact.note}</Text> : null}
           </View>
         ) : (
           <View style={styles.hidden}>
             <MaterialIcons name="visibility-off" size={18} color={colors.textFaint} />
-            <Text style={styles.hiddenText}>Say your number, then tap to reveal</Text>
+            <Text style={styles.hiddenText}>{fact.kind === 'metric' ? 'Say what it measures, then tap to reveal' : 'Say your number, then tap to reveal'}</Text>
           </View>
         )}
       </View>
@@ -228,6 +235,7 @@ const styles = StyleSheet.create({
   regionText: { color: colors.accent, fontSize: 13, fontWeight: '800' },
   question: { color: colors.text, fontSize: 26, lineHeight: 33, fontWeight: '800', letterSpacing: -0.5, textAlign: 'center' },
   answer: { alignItems: 'center', gap: space.sm, width: '100%' },
+  meaning: { fontSize: 26, lineHeight: 33, fontWeight: '800', letterSpacing: -0.4, textAlign: 'center' },
   answerLabel: { color: colors.textMuted, fontSize: 14, fontWeight: '700', textAlign: 'center' },
   value: { color: colors.accent, fontSize: 44, lineHeight: 50, fontWeight: '800', letterSpacing: -1.2, textAlign: 'center' },
   hidden: { flexDirection: 'row', alignItems: 'center', gap: 8, backgroundColor: colors.surfaceAlt, borderRadius: radius.md, padding: space.lg, alignSelf: 'stretch' },

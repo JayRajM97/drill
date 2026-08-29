@@ -3,7 +3,7 @@ import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { MaterialIcons } from '@expo/vector-icons';
-import { ALL_FACTS, emojiFor, NUMBER_TOPICS, contextFor, questionFor, type Fact } from '@/data/numbers';
+import { SETS, emojiFor, contextFor, questionFor, type Fact, type NumberSet } from '@/data/numbers';
 import { IconButton, PillButton, Eyebrow } from '@/components/ui';
 import { colors, radius, shadow, space } from '@/theme/tokens';
 
@@ -33,35 +33,50 @@ function unit(v: string): string {
   return 'x';
 }
 
-function buildQuiz(topicKey: string): Q[] {
-  const topic = NUMBER_TOPICS.find((t) => t.key === topicKey);
-  const pool = (topic ? topic.groups.flatMap((g) => g.facts) : ALL_FACTS).filter((f) => !f.parts);
-  const all = ALL_FACTS.filter((f) => !f.parts);
+/** The answer text for a fact: the value for numbers, the meaning for metrics. */
+function answerOf(f: Fact): string {
+  return f.kind === 'metric' ? (f.note ?? f.value) : f.value;
+}
+
+function buildQuiz(set: NumberSet, topicKey: string): Q[] {
+  const { topics, facts } = SETS[set];
+  const topic = topics.find((t) => t.key === topicKey);
+  const pool = (topic ? topic.groups.flatMap((g) => g.facts) : facts).filter((f) => !f.parts);
+  const all = facts.filter((f) => !f.parts);
   return shuffle(pool)
     .slice(0, QUESTIONS)
     .map((fact) => {
-      const u = unit(fact.value);
-      const sameUnit = all.filter((f) => f.id !== fact.id && f.value !== fact.value && unit(f.value) === u);
-      const fallback = all.filter((f) => f.id !== fact.id && f.value !== fact.value);
-      const distractors = shuffle(sameUnit.length >= 3 ? sameUnit : fallback)
-        .map((f) => f.value)
+      const ans = answerOf(fact);
+      let candidates: Fact[];
+      if (fact.kind === 'metric') {
+        // Distractors from the same product type read as plausible meanings.
+        const same = all.filter((f) => f.id !== fact.id && f.topic === fact.topic && answerOf(f) !== ans);
+        candidates = same.length >= 3 ? same : all.filter((f) => f.id !== fact.id && answerOf(f) !== ans);
+      } else {
+        const u = unit(fact.value);
+        const sameUnit = all.filter((f) => f.id !== fact.id && f.value !== fact.value && unit(f.value) === u);
+        candidates = sameUnit.length >= 3 ? sameUnit : all.filter((f) => f.id !== fact.id && f.value !== fact.value);
+      }
+      const distractors = shuffle(candidates)
+        .map(answerOf)
         .filter((v, i, arr) => arr.indexOf(v) === i)
         .slice(0, 3);
-      const t = NUMBER_TOPICS.find((tt) => tt.groups.some((g) => g.facts.includes(fact)));
-      return { fact, topicEmoji: t?.emoji ?? '🔢', options: shuffle([fact.value, ...distractors]) };
+      const t = topics.find((tt) => tt.groups.some((g) => g.facts.includes(fact)));
+      return { fact, topicEmoji: t?.emoji ?? '🔢', options: shuffle([ans, ...distractors]) };
     });
 }
 
 export default function NumbersQuiz() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
-  const { topic } = useLocalSearchParams<{ topic?: string }>();
+  const { topic, set: setParam } = useLocalSearchParams<{ topic?: string; set?: string }>();
+  const set: NumberSet = setParam === 'metrics' ? 'metrics' : 'numbers';
   const topicKey = topic && topic !== 'all' ? topic : 'all';
-  const topicTitle = NUMBER_TOPICS.find((t) => t.key === topicKey)?.title ?? 'All numbers';
+  const topicTitle = SETS[set].topics.find((t) => t.key === topicKey)?.title ?? `All ${SETS[set].title.toLowerCase()}`;
   const goBack = () => (router.canGoBack() ? router.back() : router.replace('/numbers'));
 
   const [seed, setSeed] = useState(0);
-  const quiz = useMemo(() => buildQuiz(topicKey), [topicKey, seed]);
+  const quiz = useMemo(() => buildQuiz(set, topicKey), [set, topicKey, seed]);
   const [i, setI] = useState(0);
   const [picked, setPicked] = useState<string | null>(null);
   const [score, setScore] = useState(0);
@@ -72,7 +87,7 @@ export default function NumbersQuiz() {
   const choose = (v: string) => {
     if (picked) return;
     setPicked(v);
-    if (v === q.fact.value) setScore((s) => s + 1);
+    if (v === answerOf(q.fact)) setScore((s) => s + 1);
   };
   const next = () => {
     setPicked(null);
@@ -134,11 +149,11 @@ export default function NumbersQuiz() {
                   </View>
                 ) : null}
                 <Text style={styles.question}>{questionFor(q.fact)}</Text>
-                <Text style={styles.hint}>Pick the number.</Text>
+                <Text style={styles.hint}>{q.fact.kind === 'metric' ? 'Pick the meaning.' : 'Pick the number.'}</Text>
               </View>
               <View style={{ gap: space.sm }}>
                 {q.options.map((v) => {
-                  const isRight = v === q.fact.value;
+                  const isRight = v === answerOf(q.fact);
                   const state = !picked ? 'idle' : isRight ? 'right' : v === picked ? 'wrong' : 'dim';
                   return (
                     <Pressable
@@ -153,7 +168,7 @@ export default function NumbersQuiz() {
                   );
                 })}
               </View>
-              {picked && q.fact.note ? <Text style={styles.note}>→ {q.fact.note}</Text> : null}
+              {picked && q.fact.kind === 'metric' ? <Text style={styles.note}>e.g. {q.fact.value}</Text> : picked && q.fact.note ? <Text style={styles.note}>→ {q.fact.note}</Text> : null}
             </>
           )}
         </View>
@@ -213,7 +228,7 @@ const styles = StyleSheet.create({
   },
   optRight: { backgroundColor: '#E8F7EE', borderColor: colors.success },
   optWrong: { backgroundColor: '#FDECEC', borderColor: colors.danger },
-  optionText: { color: colors.text, fontSize: 17, fontWeight: '700' },
+  optionText: { color: colors.text, fontSize: 16, fontWeight: '700', flexShrink: 1, lineHeight: 22 },
   note: { color: colors.textMuted, fontSize: 13, lineHeight: 18 },
   big: { color: colors.text, fontSize: 44, fontWeight: '800', letterSpacing: -1 },
   body: { color: colors.textMuted, fontSize: 16, lineHeight: 24, textAlign: 'center', maxWidth: 260 },

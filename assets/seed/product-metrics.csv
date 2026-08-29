@@ -1,0 +1,179 @@
+Metric,Category,Sub-Category,One-line meaning,What this sub-category covers,Example
+DAU,E-commerce,User Traffic,Daily active users visiting app,Top-of-funnel user inflow and browsing behavior,120k users opened app today
+MAU,E-commerce,User Traffic,Monthly active users,Top-of-funnel user inflow and browsing behavior,1.2M users active this month
+New users,E-commerce,User Traffic,First-time visitors or buyers,Top-of-funnel user inflow and browsing behavior,25k new users this week
+Returning users,E-commerce,User Traffic,Existing users coming back,Top-of-funnel user inflow and browsing behavior,60% traffic is returning
+Session duration,E-commerce,User Traffic,Avg time per session,Top-of-funnel user inflow and browsing behavior,6.5 mins per session
+Bounce rate,E-commerce,User Traffic,% users leaving after 1 page,Top-of-funnel user inflow and browsing behavior,40% users exit on homepage
+Pages/session,E-commerce,User Traffic,Depth of browsing,Top-of-funnel user inflow and browsing behavior,Avg 5 pages viewed
+Search usage rate,E-commerce,Discovery,% sessions using search,How well users find relevant products,45% sessions use search
+Search-to-PDP rate,E-commerce,Discovery,% searches leading to product page,How well users find relevant products,55% search sessions open PDP
+CTR on listings,E-commerce,Discovery,% impressions turning into clicks,How well users find relevant products,9% CTR from listings
+Filter usage,E-commerce,Discovery,% users refining catalog,How well users find relevant products,30% users apply filters
+Product view rate,E-commerce,Conversion Funnel,% users viewing product pages,Movement from browsing to purchase,70% users view ≥1 product
+Add-to-cart rate,E-commerce,Conversion Funnel,% users adding item,Movement from browsing to purchase,30% add at least 1 item
+Cart-to-checkout rate,E-commerce,Conversion Funnel,% carts that enter checkout,Movement from browsing to purchase,65% carts start checkout
+Checkout start rate,E-commerce,Conversion Funnel,% users initiating checkout,Movement from browsing to purchase,20% start checkout
+Payment success rate,E-commerce,Conversion Funnel,% checkout attempts that succeed,Movement from browsing to purchase,88% payments succeed
+Conversion rate,E-commerce,Conversion Funnel,% completing purchase,Movement from browsing to purchase,8% users purchase
+Funnel drop-off,E-commerce,Conversion Funnel,Loss at each step,Movement from browsing to purchase,50% drop at payment
+GMV,E-commerce,Business Health,Total value of goods sold,Commercial performance of the marketplace,₹5Cr GMV/day
+Revenue,E-commerce,Business Health,Platform earnings,Commercial performance of the marketplace,₹50L revenue/day
+Take rate,E-commerce,Business Health,% cut from GMV,Commercial performance of the marketplace,10% take rate
+AOV,E-commerce,Business Health,Avg order value,Commercial performance of the marketplace,"₹1,200/order"
+Orders/user,E-commerce,Business Health,Purchase frequency,Commercial performance of the marketplace,2 orders/user/month
+Gross margin,E-commerce,Business Health,Margin after direct costs,Commercial performance of the marketplace,28% gross margin
+Repeat purchase rate,E-commerce,Retention & Loyalty,% returning buyers,Whether users come back and build habit,35% users reorder
+Purchase frequency,E-commerce,Retention & Loyalty,Avg orders per buyer over time,Whether users come back and build habit,2.4 orders/month
+Cohort retention,E-commerce,Retention & Loyalty,Users retained over time,Whether users come back and build habit,25% at Day 30
+LTV,E-commerce,Retention & Loyalty,Lifetime value per user,Whether users come back and build habit,"₹4,800/user"
+Catalog completeness,E-commerce,Catalog & Inventory,% listings with full info,Assortment quality and stock health,85% listings fully complete
+Listing quality score,E-commerce,Catalog & Inventory,Quality of title/image/attributes,Assortment quality and stock health,Avg score 78/100
+Inventory availability,E-commerce,Catalog & Inventory,% items in stock,Assortment quality and stock health,92% SKUs available
+OOS rate,E-commerce,Catalog & Inventory,Out of stock %,Assortment quality and stock health,8% items unavailable
+Stock freshness,E-commerce,Catalog & Inventory,How current inventory data is,Assortment quality and stock health,95% sync within 1 hour
+Order fulfillment rate,E-commerce,Fulfillment & Delivery,% orders successfully fulfilled,Post-purchase execution quality,96% orders fulfilled
+SLA adherence,E-commerce,Fulfillment & Delivery,On-time delivery %,Post-purchase execution quality,90% within SLA
+Late delivery rate,E-commerce,Fulfillment & Delivery,% delivered after promised time,Post-purchase execution quality,12% delayed orders
+Average delivery TAT,E-commerce,Fulfillment & Delivery,Avg time from order to delivery,Post-purchase execution quality,2.3 days
+Return rate,E-commerce,Guardrails / CX,% returned orders,"Protecting trust, quality, and cost",18% returns
+Refund rate,E-commerce,Guardrails / CX,% refunded orders,"Protecting trust, quality, and cost",12% refunds
+NPS / CSAT,E-commerce,Guardrails / CX,Customer satisfaction,"Protecting trust, quality, and cost",CSAT 4.2/5
+Complaint rate,E-commerce,Guardrails / CX,% orders generating complaints,"Protecting trust, quality, and cost",3% complaint rate
+DAU,Quick Commerce,User Demand,Daily active users,Frequency and demand pattern of orders,80k DAU
+Orders/user/week,Quick Commerce,User Demand,Frequency of orders,Frequency and demand pattern of orders,3 orders/user/week
+Peak hour demand,Quick Commerce,User Demand,Order concentration by time slot,Frequency and demand pattern of orders,35% orders from 7-10 PM
+Reorder rate,Quick Commerce,User Demand,How often users repeat essentials,Frequency and demand pattern of orders,42% reorder within 14 days
+Delivery time,Quick Commerce,Speed & Reliability,Time from order to delivery,Core promise of fast delivery,12 mins avg
+Store-to-door time,Quick Commerce,Speed & Reliability,Fulfillment speed,Core promise of fast delivery,8 mins avg
+Picker-to-pack time,Quick Commerce,Speed & Reliability,Time to prepare order,Core promise of fast delivery,3 mins avg
+On-time delivery rate,Quick Commerce,Speed & Reliability,% delivered within promise,Core promise of fast delivery,91% on time
+Search-to-cart rate,Quick Commerce,Conversion Funnel,% searches adding an item,Shopping journey from intent to order,22%
+Cart-to-order rate,Quick Commerce,Conversion Funnel,Checkout conversion,Shopping journey from intent to order,25% conversion
+Payment success rate,Quick Commerce,Conversion Funnel,Successful payments,Shopping journey from intent to order,93%
+AOV,Quick Commerce,Basket Economics,Basket value,Commercial value per order,₹450/order
+Basket size,Quick Commerce,Basket Economics,Items/order,Commercial value per order,6 items/order
+Gross margin/order,Quick Commerce,Basket Economics,Margin after direct costs,Commercial value per order,₹70/order
+Contribution margin,Quick Commerce,Basket Economics,Profit after fulfillment cost,Commercial value per order,₹20/order
+Fill rate,Quick Commerce,Dark Store Ops,% items fulfilled,Efficiency inside micro-warehouses,95% fill rate
+Picker efficiency,Quick Commerce,Dark Store Ops,Orders picked/hour,Efficiency inside micro-warehouses,25 orders/hr
+Inventory accuracy,Quick Commerce,Dark Store Ops,Match between system and actual stock,Efficiency inside micro-warehouses,97% accurate
+Stock-out rate,Quick Commerce,Dark Store Ops,Missing items at store level,Efficiency inside micro-warehouses,6% stock-outs
+Rider utilization,Quick Commerce,Delivery Fleet,Active delivery time %,Rider productivity and service quality,70% utilization
+Orders/rider/hour,Quick Commerce,Delivery Fleet,Productivity per rider,Rider productivity and service quality,2.8 orders/hour
+Idle time,Quick Commerce,Delivery Fleet,Unused rider time,Rider productivity and service quality,18 mins/hour idle
+Rider acceptance rate,Quick Commerce,Delivery Fleet,% jobs accepted,Rider productivity and service quality,82%
+Cancellation rate,Quick Commerce,Guardrails / CX,% canceled orders,Errors that hurt trust and margins,10% cancellations
+Wrong item rate,Quick Commerce,Guardrails / CX,Incorrect items %,Errors that hurt trust and margins,3% errors
+Substitution rate,Quick Commerce,Guardrails / CX,% items replaced,Errors that hurt trust and margins,7% substituted
+Refund per order,Quick Commerce,Guardrails / CX,Refund burden on business,Errors that hurt trust and margins,₹12/order refunded
+Ride requests,Mobility,Rider Demand,Demand volume,Customer demand for rides,200k/day
+Search sessions,Mobility,Rider Demand,Ride intent sessions opened,Customer demand for rides,260k search sessions/day
+Booking conversion,Mobility,Rider Demand,% searches turning into requests,Customer demand for rides,77%
+Completed rides,Mobility,Rider Demand,Successful rides,Customer demand for rides,150k/day
+Online driver hours,Mobility,Driver Supply,Supply available on platform,Availability and quality of drivers,80k driver-hours/day
+Active drivers,Mobility,Driver Supply,Drivers completing at least one trip,Availability and quality of drivers,24k active drivers/day
+Acceptance rate,Mobility,Driver Supply,% accepted rides,Availability and quality of drivers,75% acceptance
+Earnings/hour,Mobility,Driver Supply,Driver income,Availability and quality of drivers,₹500/hr
+Demand-supply ratio,Mobility,Marketplace Balance,Balance of riders vs drivers,Health of demand and supply matching,1.2 ratio
+Matching time,Mobility,Marketplace Balance,Time to assign driver,Health of demand and supply matching,20 sec
+ETA accuracy,Mobility,Marketplace Balance,Accuracy of promised pickup time,Health of demand and supply matching,85% within 2 mins
+Surge frequency,Mobility,Marketplace Balance,% requests facing surge,Health of demand and supply matching,18% rides on surge
+Revenue/ride,Mobility,Trip Economics,Earnings per trip,Revenue and unit economics per trip,₹80/ride
+Take rate,Mobility,Trip Economics,Platform share from fare,Revenue and unit economics per trip,18% take rate
+Incentive burn,Mobility,Trip Economics,Driver/rider incentives spent,Revenue and unit economics per trip,₹9/ride
+Contribution margin,Mobility,Trip Economics,Margin per completed ride,Revenue and unit economics per trip,₹14/ride
+Cancellation rate,Mobility,Failure Metrics,% canceled rides,Leakages in the flow,18%
+Driver cancellation,Mobility,Failure Metrics,Cancellations by driver,Leakages in the flow,11%
+Rider cancellation,Mobility,Failure Metrics,Cancellations by rider,Leakages in the flow,7%
+Failed match rate,Mobility,Failure Metrics,Requests not matched,Leakages in the flow,9% unmatched
+Wait time,Mobility,Guardrails / Experience,Rider wait duration,Protecting rider and driver experience,4 mins
+Driver churn,Mobility,Guardrails / Experience,% drivers leaving platform,Protecting rider and driver experience,6% monthly churn
+Support ticket rate,Mobility,Guardrails / Experience,Trips creating support burden,Protecting rider and driver experience,2.5% tickets
+Safety incidents,Mobility,Guardrails / Experience,Safety issue rate,Protecting rider and driver experience,0.03% trips flagged
+DAU by country,Geo / Country,User Base,Usage per region,Market-level adoption and user scale,India: 500k DAU
+MAU by country,Geo / Country,User Base,Monthly users by region,Market-level adoption and user scale,US: 1.8M MAU
+New users by country,Geo / Country,User Base,Acquisition by geography,Market-level adoption and user scale,Indonesia: 50k new users/month
+Penetration rate,Geo / Country,User Base,Share of target market using app,Market-level adoption and user scale,12% of urban users
+Time spent,Geo / Country,Engagement & Retention,Avg usage duration by country,Depth and stickiness by market,Japan: 31 mins/day
+Sessions/user,Geo / Country,Engagement & Retention,Visit frequency by region,Depth and stickiness by market,Brazil: 4.5 sessions/day
+Retention drop,Geo / Country,Engagement & Retention,Cohort fall in region,Depth and stickiness by market,Brazil D30 ↓ 10%
+Churn rate,Geo / Country,Engagement & Retention,Users leaving in that market,Depth and stickiness by market,UK churn up 4 pts
+ARPU by country,Geo / Country,Monetization & Payments,Revenue per user in a region,Revenue quality by market,UAE ARPU ₹220
+Conversion to paid,Geo / Country,Monetization & Payments,% users paying in that market,Revenue quality by market,Germany 6% paid
+Payment success,Geo / Country,Monetization & Payments,Successful tx %,Revenue quality by market,85% success in Tier-2
+Refund rate,Geo / Country,Monetization & Payments,Refund burden by country,Revenue quality by market,9% refunds in market X
+Latency,Geo / Country,Infra & Localization,App/network delay,Local friction that affects growth,2s avg latency
+Crash rate by device,Geo / Country,Infra & Localization,Stability by device mix,Local friction that affects growth,4% crashes on low-end Android
+Language adoption,Geo / Country,Infra & Localization,% users on local language,Local friction that affects growth,62% on Spanish UI
+Local content relevance,Geo / Country,Infra & Localization,Engagement with localized content,Local friction that affects growth,1.4x higher CTR on local playlists
+DAU,Social Media,User Base,Daily active users,Scale and active audience size,2M DAU
+MAU,Social Media,User Base,Monthly active users,Scale and active audience size,12M MAU
+New signups,Social Media,User Base,New users entering product,Scale and active audience size,80k/week
+Time spent,Social Media,Engagement,Core engagement metric,Depth and intensity of consumption,45 mins/user/day
+Sessions/day,Social Media,Engagement,Usage frequency,Depth and intensity of consumption,6 sessions/day
+Feed refresh rate,Social Media,Engagement,How often users request more content,Depth and intensity of consumption,14 feed refreshes/day
+Scroll depth,Social Media,Engagement,Avg content consumed per session,Depth and intensity of consumption,120 posts/session
+Content creation rate,Social Media,Creation Supply,Content generated,Health of creator-side supply,10k posts/day
+Active creators,Social Media,Creation Supply,Creators posting in a period,Health of creator-side supply,120k active creators/month
+Creator retention,Social Media,Creation Supply,Active creators retained,Health of creator-side supply,60% monthly
+Post frequency,Social Media,Creation Supply,Avg posts per creator,Health of creator-side supply,3.2 posts/week
+Likes/comments/shares,Social Media,Interaction Quality,Engagement actions,Signals of meaningful engagement,5M interactions/day
+Save rate,Social Media,Interaction Quality,% content saved,Signals of meaningful engagement,7% save rate
+Share rate,Social Media,Interaction Quality,% content shared,Signals of meaningful engagement,4% share rate
+Comment depth,Social Media,Interaction Quality,Quality of discussion,Signals of meaningful engagement,Avg 3.6 comments/post
+D1 retention,Social Media,Retention,Returning next day,Habit and returning behavior,48% D1
+D7 retention,Social Media,Retention,Returning users,Habit and returning behavior,40% D7
+D30 retention,Social Media,Retention,Long-term retention,Habit and returning behavior,24% D30
+Reports,Social Media,Guardrails / Trust,Harmful content flags,Platform safety and content health,2% posts flagged
+Moderation accuracy,Social Media,Guardrails / Trust,Precision of enforcement,Platform safety and content health,93% accurate moderation
+Spam rate,Social Media,Guardrails / Trust,Spammy content proportion,Platform safety and content health,1.2% posts spam
+Block / mute rate,Social Media,Guardrails / Trust,User dissatisfaction signal,Platform safety and content health,5% users blocked accounts
+Impressions,App Store,Discovery,App listing seen by users,Storefront visibility and acquisition funnel,1M impressions/week
+CTR to listing,App Store,Discovery,% store viewers opening detail page,Storefront visibility and acquisition funnel,12% CTR
+Listing CVR,App Store,Discovery,Impression→install,Storefront visibility and acquisition funnel,5% CVR
+Installs,App Store,Activation,App downloads,Install to first value conversion,50k installs/day
+Signup rate,App Store,Activation,Install→signup,Install to first value conversion,60% signup
+Onboarding completion,App Store,Activation,% finishing onboarding,Install to first value conversion,72% completion
+First key action,App Store,Activation,% reaching aha moment,Install to first value conversion,41% create first playlist/order/ride
+D1 retention,App Store,Retention,Next-day return,Whether installs turn into habit,35%
+D7 retention,App Store,Retention,7-day return,Whether installs turn into habit,18%
+D30 retention,App Store,Retention,30-day return,Whether installs turn into habit,9%
+Rating,App Store,Quality,User rating,Product quality signals visible to users,4.3⭐
+Review sentiment,App Store,Quality,Positive vs negative reviews,Product quality signals visible to users,68% positive
+Crash rate,App Store,Quality,Stability issues,Product quality signals visible to users,1.8% crash rate
+Uninstall rate,App Store,Quality,App churn,Product quality signals visible to users,20% uninstall
+Feature impression rate,Feature Adoption,Awareness,% exposed users seeing feature,Whether users even notice the feature,65% saw new widget
+CTR / entry rate,Feature Adoption,Awareness,% users clicking into feature,Whether users even notice the feature,18% clicked
+% users using,Feature Adoption,Activation,Feature penetration,First successful use of feature,25% users used feature
+First-time use,Feature Adoption,Activation,Initial activation,First successful use of feature,40% try feature
+Time to first use,Feature Adoption,Activation,Delay before first usage,First successful use of feature,2.1 days to first use
+Usage frequency,Feature Adoption,Engagement Depth,Repeat usage,Whether usage becomes repeated behavior,3x/week usage
+Depth,Feature Adoption,Engagement Depth,Feature usage depth,Whether usage becomes repeated behavior,5 actions/session
+Power-user rate,Feature Adoption,Engagement Depth,% users using deeply,Whether usage becomes repeated behavior,12% weekly power users
+Retention lift,Feature Adoption,Impact,Impact on retention,Whether feature improves the product,+10% retention
+Conversion lift,Feature Adoption,Impact,Uplift in purchase / booking / play,Whether feature improves the product,+4 pts conversion
+Revenue impact,Feature Adoption,Impact,Additional revenue contribution,Whether feature improves the product,₹18L/month uplift
+Drop in core flow,Feature Adoption,Guardrails,Cannibalization,Cannibalization or friction to core flow,Checkout ↓ 5%
+Error rate,Feature Adoption,Guardrails,Failures while using feature,Cannibalization or friction to core flow,6% feature error rate
+Support ticket rate,Feature Adoption,Guardrails,Extra support burden,Cannibalization or friction to core flow,1.5% users raise tickets
+Traffic,Growth Funnel,Acquisition,Users entering funnel,Getting users into the funnel,1M visitors/month
+CAC,Growth Funnel,Acquisition,Cost to acquire user,Getting users into the funnel,₹200 CAC
+Channel mix,Growth Funnel,Acquisition,Split by paid/organic/referral,Getting users into the funnel,40/35/25 mix
+Install / signup CVR,Growth Funnel,Acquisition,Entry funnel efficiency,Getting users into the funnel,8% landing-to-signup
+Signup rate,Growth Funnel,Activation,Users completing signup,Reaching the first value moment,50%
+Onboarding completion,Growth Funnel,Activation,Users finishing setup,Reaching the first value moment,68%
+First success event,Growth Funnel,Activation,Users completing key first action,Reaching the first value moment,44% make first purchase/ride/post
+DAU/MAU,Growth Funnel,Engagement,Stickiness ratio,Ongoing product usage and stickiness,0.3 ratio
+Session frequency,Growth Funnel,Engagement,How often users return,Ongoing product usage and stickiness,4 visits/week
+Time spent,Growth Funnel,Engagement,Depth of usage,Ongoing product usage and stickiness,22 mins/day
+Cohort retention,Growth Funnel,Retention,Users retained,Long-term habit formation,30% D30
+Churn rate,Growth Funnel,Retention,Users dropping out,Long-term habit formation,6% monthly churn
+Resurrection rate,Growth Funnel,Retention,Inactive users coming back,Long-term habit formation,9% resurrected
+Conversion to paid,Growth Funnel,Monetization,% paying users,Turning usage into money,5%
+ARPU,Growth Funnel,Monetization,Revenue per user,Turning usage into money,₹120/user
+ARPPU,Growth Funnel,Monetization,Revenue per paying user,Turning usage into money,₹850/paying user
+Revenue,Growth Funnel,Revenue & Profitability,Total topline,Business sustainability and efficiency,₹2Cr/month
+Gross margin,Growth Funnel,Revenue & Profitability,Margin after direct costs,Business sustainability and efficiency,42% gross margin
+Contribution margin,Growth Funnel,Revenue & Profitability,Profit per order/user,Business sustainability and efficiency,20% margin
+LTV:CAC,Growth Funnel,Revenue & Profitability,Efficiency of growth,Business sustainability and efficiency,3.4x ratio

@@ -3,7 +3,7 @@ import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { MaterialIcons } from '@expo/vector-icons';
-import { emojiFor, NUMBER_TOPICS, REGION_LABEL, type Fact, type NumberTopic } from '@/data/numbers';
+import { emojiFor, REGION_LABEL, SETS, type Fact, type NumberSet, type NumberTopic } from '@/data/numbers';
 import { BottomNavBar, NAV_CLEARANCE } from '@/components/BottomNavBar';
 import { SearchHeader } from '@/components/SearchHeader';
 import { Chip } from '@/components/ui';
@@ -13,13 +13,15 @@ import { colors, radius, shadow, space } from '@/theme/tokens';
 export default function NumbersScreen() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
-  const [topicKey, setTopicKey] = useState<string>(NUMBER_TOPICS[0].key);
+  const [set, setSet] = useState<NumberSet>('numbers');
+  const TOPICS = SETS[set].topics;
+  const [topicKey, setTopicKey] = useState<string>(TOPICS[0].key);
   const [search, setSearch] = useState('');
   const needle = search.trim().toLowerCase();
 
   const topics = useMemo<NumberTopic[]>(() => {
-    if (!needle) return NUMBER_TOPICS.filter((t) => t.key === topicKey);
-    return NUMBER_TOPICS.map((t) => ({
+    if (!needle) return TOPICS.filter((t) => t.key === topicKey);
+    return TOPICS.map((t) => ({
       ...t,
       groups: t.groups
         .map((g) => ({
@@ -30,12 +32,17 @@ export default function NumbersScreen() {
         }))
         .filter((g) => g.facts.length),
     })).filter((t) => t.groups.length);
-  }, [needle, topicKey]);
+  }, [needle, topicKey, TOPICS]);
 
-  const total = NUMBER_TOPICS.reduce((n, t) => n + t.groups.reduce((m, g) => m + g.facts.length, 0), 0);
+  const total = SETS[set].facts.length;
   // Two rows of topic chips, scrolling together horizontally.
-  const half = Math.ceil(NUMBER_TOPICS.length / 2);
-  const rows = [NUMBER_TOPICS.slice(0, half), NUMBER_TOPICS.slice(half)];
+  const half = Math.ceil(TOPICS.length / 2);
+  const rows = [TOPICS.slice(0, half), TOPICS.slice(half)];
+  const switchSet = (next: NumberSet) => {
+    setSet(next);
+    setTopicKey(SETS[next].topics[0].key);
+    setSearch('');
+  };
 
   return (
     <View style={styles.screen}>
@@ -46,11 +53,20 @@ export default function NumbersScreen() {
       >
         <SearchHeader
           title="Numbers"
-          subtitle={`${total} anchors to quote from memory`}
+          subtitle={set === 'numbers' ? `${total} anchors to quote from memory` : `${total} metrics across 8 product types`}
           value={search}
           onChange={setSearch}
           placeholder="Search a number"
         />
+
+        {/* Key numbers | Product metrics */}
+        <View style={styles.segment}>
+          {(['numbers', 'metrics'] as NumberSet[]).map((k) => (
+            <Pressable key={k} onPress={() => switchSet(k)} style={[styles.segItem, set === k && styles.segItemOn]}>
+              <Text style={[styles.segText, set === k && styles.segTextOn]}>{SETS[k].title}</Text>
+            </Pressable>
+          ))}
+        </View>
 
         {!needle ? (
           <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.chipRows}>
@@ -83,6 +99,7 @@ export default function NumbersScreen() {
             {t.groups.map((g) => (
               <View key={g.title} style={styles.group}>
                 <Text style={styles.groupTitle}>{g.title}</Text>
+                {g.covers ? <Text style={styles.groupCovers}>{g.covers}</Text> : null}
                 <Masonry
                   items={g.facts}
                   keyOf={(x) => x.id}
@@ -110,12 +127,12 @@ export default function NumbersScreen() {
 
       {/* Practice entry points: small, docked bottom-right above the nav. */}
       <View style={[styles.ctaRow, { bottom: Math.max(insets.bottom, space.md) + 76 }]} pointerEvents="box-none">
-        <Pressable onPress={() => router.push('/numbers/shuffle')} style={({ pressed }) => [styles.cta, pressed && { opacity: 0.85 }]}>
+        <Pressable onPress={() => router.push(`/numbers/shuffle?set=${set}`)} style={({ pressed }) => [styles.cta, pressed && { opacity: 0.85 }]}>
           <MaterialIcons name="shuffle" size={16} color={colors.onAccent} />
           <Text style={styles.ctaText}>Shuffle</Text>
         </Pressable>
         <Pressable
-          onPress={() => router.push(`/numbers/quiz?topic=${encodeURIComponent(needle ? 'all' : topicKey)}`)}
+          onPress={() => router.push(`/numbers/quiz?set=${set}&topic=${encodeURIComponent(needle ? 'all' : topicKey)}`)}
           style={({ pressed }) => [styles.cta, pressed && { opacity: 0.85 }]}
         >
           <MaterialIcons name="play-arrow" size={18} color={colors.onAccent} />
@@ -155,7 +172,12 @@ function FactCard({ fact, fallbackEmoji, hideRegion }: { fact: Fact; fallbackEmo
         </View>
         {fact.region && !hideRegion ? <Text style={styles.flag}>{REGION_LABEL[fact.region].split(' ')[0]}</Text> : null}
       </View>
-      {fact.parts ? (
+      {fact.kind === 'metric' ? (
+        <>
+          <Text style={styles.meaning}>{fact.note}</Text>
+          <Text style={styles.example}>e.g. {fact.value}</Text>
+        </>
+      ) : fact.parts ? (
         <View style={styles.parts}>
           {fact.parts.map((p) => (
             <View key={p.label} style={styles.part}>
@@ -167,13 +189,21 @@ function FactCard({ fact, fallbackEmoji, hideRegion }: { fact: Fact; fallbackEmo
       ) : (
         <Text style={[styles.value, fact.value.length > 9 && styles.valueWide]} adjustsFontSizeToFit numberOfLines={2}>{fact.value}</Text>
       )}
-      {fact.note ? <Text style={styles.note}>{fact.note}</Text> : null}
+      {fact.note && fact.kind !== 'metric' ? <Text style={styles.note}>{fact.note}</Text> : null}
     </View>
   );
 }
 
 const styles = StyleSheet.create({
   screen: { flex: 1, backgroundColor: colors.bg },
+  segment: { flexDirection: 'row', marginHorizontal: space.lg, marginTop: space.sm, backgroundColor: colors.surfaceAlt, borderRadius: radius.pill, padding: 4 },
+  segItem: { flex: 1, alignItems: 'center', paddingVertical: 9, borderRadius: radius.pill },
+  segItemOn: { backgroundColor: colors.surface, ...shadow.card },
+  segText: { color: colors.textMuted, fontSize: 14, fontWeight: '700' },
+  segTextOn: { color: colors.text },
+  groupCovers: { paddingHorizontal: space.lg, color: colors.textMuted, fontSize: 13, marginTop: -4 },
+  meaning: { color: colors.text, fontSize: 17, lineHeight: 24, fontWeight: '600' },
+  example: { color: colors.accent, fontSize: 13, fontWeight: '700' },
   chipRows: { paddingHorizontal: space.lg, paddingVertical: space.md },
   chipRow: { flexDirection: 'row', gap: space.sm },
   topic: { gap: space.lg, marginBottom: space.xl },
