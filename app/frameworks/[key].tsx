@@ -1,9 +1,8 @@
-import React, { useCallback, useEffect, useState } from 'react';
-import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { MaterialIcons } from '@expo/vector-icons';
-import Animated, { Easing, cancelAnimation, runOnJS, useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
 import { AREA_PASTEL, FRAMEWORK_BY_KEY } from '@/data/frameworks';
 import { questions } from '@/data';
 import type { Question } from '@/types/question';
@@ -11,14 +10,7 @@ import { QuestionCard } from '@/components/QuestionCard';
 import { Eyebrow, IconButton } from '@/components/ui';
 import { categoryPastel, colors, radius, shadow, space } from '@/theme/tokens';
 
-const DWELL_MS = 5000;
-
-/**
- * One framework, in the drill's card language: the selected step's detail sits
- * large in the card, the steps are numbered pills at the bottom, and the
- * selected pill fills over five seconds before handing to the next (tap any
- * pill to take over). Below: when to use it, the trap, and the drills that use it.
- */
+/** One framework: context (when / trap / signals) first, then one card per step, then the drills that use it. */
 export default function FrameworkScreen() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
@@ -26,32 +18,12 @@ export default function FrameworkScreen() {
   const fw = FRAMEWORK_BY_KEY[key ?? ''];
   const goBack = () => (router.canGoBack() ? router.back() : router.replace('/frameworks'));
 
-  const [step, setStep] = useState(0);
-  const [paused, setPaused] = useState(false);
   const [drills, setDrills] = useState<Question[]>([]);
-  const fill = useSharedValue(0);
 
   useEffect(() => {
     if (!fw) return;
     questions.list().then((all) => setDrills(fw.drills.map((id) => all.find((q) => q.id === id)).filter((q): q is Question => !!q)));
   }, [fw]);
-
-  const advance = useCallback(() => {
-    if (!fw) return;
-    setStep((s) => (s + 1 < fw.steps.length ? s + 1 : s));
-  }, [fw]);
-
-  useEffect(() => {
-    cancelAnimation(fill);
-    fill.value = 0;
-    if (!fw || paused || step >= fw.steps.length - 1) return;
-    fill.value = withTiming(1, { duration: DWELL_MS, easing: Easing.linear }, (finished) => {
-      if (finished) runOnJS(advance)();
-    });
-    return () => cancelAnimation(fill);
-  }, [step, paused, fw, fill, advance]);
-
-  const fillStyle = useAnimatedStyle(() => ({ width: `${fill.value * 100}%` }));
 
   if (!fw) {
     return (
@@ -63,7 +35,6 @@ export default function FrameworkScreen() {
 
   const cat = fw.categories[0];
   const pastel = cat === 'Behavioural' || cat === 'Execution' ? AREA_PASTEL[cat] : categoryPastel[cat];
-  const current = fw.steps[step];
 
   return (
     <View style={styles.screen}>
@@ -82,33 +53,7 @@ export default function FrameworkScreen() {
           {fw.alsoKnownAs ? <Text style={styles.aka}>Also known as: {fw.alsoKnownAs}</Text> : null}
         </View>
 
-        {/* The steps card */}
-        <View style={styles.card}>
-          <Eyebrow>{`Step ${step + 1} of ${fw.steps.length}`}</Eyebrow>
-          <Text style={styles.stepTitle}>{current.label}</Text>
-          <Text style={styles.stepDetail}>{current.detail}</Text>
-          <View style={styles.pills}>
-            {fw.steps.map((s, i) => {
-              const on = i === step;
-              return (
-                <Pressable
-                  key={s.label}
-                  onPress={() => {
-                    setPaused(true);
-                    setStep(i);
-                  }}
-                  style={[styles.pill, on && styles.pillOn]}
-                >
-                  {on && !paused ? <Animated.View style={[styles.pillFill, fillStyle]} /> : null}
-                  <Text style={[styles.pillText, on && styles.pillTextOn]} numberOfLines={1}>
-                    {i + 1}. {s.label}
-                  </Text>
-                </Pressable>
-              );
-            })}
-          </View>
-        </View>
-
+        {/* Context first: when to use it, the trap, senior signals */}
         <View style={styles.section}>
           <View style={styles.block}>
             <View style={styles.blockHead}>
@@ -135,6 +80,22 @@ export default function FrameworkScreen() {
               ))}
             </View>
           ) : null}
+        </View>
+
+        {/* One card per step */}
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>The steps</Text>
+          {fw.steps.map((st, i) => (
+            <View key={st.label} style={styles.stepCard}>
+              <View style={styles.stepNum}>
+                <Text style={styles.stepNumText}>{i + 1}</Text>
+              </View>
+              <View style={{ flex: 1, gap: 4 }}>
+                <Text style={styles.stepTitle}>{st.label}</Text>
+                <Text style={styles.stepDetail}>{st.detail}</Text>
+              </View>
+            </View>
+          ))}
         </View>
 
         {drills.length ? (
@@ -164,15 +125,11 @@ const styles = StyleSheet.create({
   title: { color: colors.text, fontSize: 28, lineHeight: 34, fontWeight: '800', letterSpacing: -0.6 },
   oneLiner: { color: colors.textMuted, fontSize: 16, lineHeight: 23 },
   aka: { color: colors.textFaint, fontSize: 13, marginTop: 2 },
-  card: { marginHorizontal: space.lg, backgroundColor: colors.surface, borderRadius: radius.card, padding: 26, gap: space.md, minHeight: 360, justifyContent: 'center', ...shadow.cardStrong },
-  stepTitle: { color: colors.text, fontSize: 24, lineHeight: 30, fontWeight: '800', letterSpacing: -0.4 },
-  stepDetail: { color: colors.text, fontSize: 17, lineHeight: 26, flexGrow: 1 },
-  pills: { flexDirection: 'row', flexWrap: 'wrap', gap: space.sm, marginTop: space.md },
-  pill: { backgroundColor: colors.surfaceAlt, borderRadius: radius.pill, paddingHorizontal: 14, paddingVertical: 10, maxWidth: '100%', overflow: 'hidden' },
-  pillOn: { backgroundColor: colors.accent },
-  pillFill: { position: 'absolute', left: 0, top: 0, bottom: 0, backgroundColor: 'rgba(255,255,255,0.28)' },
-  pillText: { color: colors.text, fontSize: 14, fontWeight: '700' },
-  pillTextOn: { color: colors.onAccent },
+  stepCard: { flexDirection: 'row', gap: space.md, backgroundColor: colors.surface, borderRadius: radius.lg, padding: space.lg, ...shadow.card },
+  stepNum: { width: 32, height: 32, borderRadius: 16, backgroundColor: colors.accent, alignItems: 'center', justifyContent: 'center', marginTop: 2 },
+  stepNumText: { color: colors.onAccent, fontSize: 14, fontWeight: '800' },
+  stepTitle: { color: colors.text, fontSize: 18, lineHeight: 24, fontWeight: '800', letterSpacing: -0.3 },
+  stepDetail: { color: colors.text, fontSize: 15, lineHeight: 22 },
   section: { paddingHorizontal: space.lg, marginTop: space.xl, gap: space.md },
   sectionTitle: { color: colors.text, fontSize: 20, fontWeight: '700', letterSpacing: -0.2 },
   block: { backgroundColor: '#E8F7EE', borderRadius: radius.lg, padding: space.lg, gap: 6 },
