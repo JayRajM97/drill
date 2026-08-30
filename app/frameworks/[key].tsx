@@ -61,6 +61,17 @@ export default function FrameworkScreen() {
               <Text style={[styles.blockLabel, { color: colors.success }]}>When to use it</Text>
             </View>
             <Text style={styles.blockText}>{fw.whenToUse}</Text>
+            {fw.situations?.length ? (
+              <View style={styles.situations}>
+                <Text style={styles.situationsLabel}>For example</Text>
+                {fw.situations.map((x, i) => (
+                  <View key={i} style={styles.situation}>
+                    <MaterialIcons name={x.startsWith('"') ? 'format-quote' : 'work-outline'} size={16} color={colors.success} />
+                    <Text style={styles.situationText}>{x}</Text>
+                  </View>
+                ))}
+              </View>
+            ) : null}
           </View>
           <View style={[styles.block, { backgroundColor: '#FDECEC' }]}>
             <View style={styles.blockHead}>
@@ -136,4 +147,8 @@ const styles = StyleSheet.create({
   blockHead: { flexDirection: 'row', alignItems: 'center', gap: 6 },
   blockLabel: { fontSize: 12, fontWeight: '800', letterSpacing: 0.8, textTransform: 'uppercase' },
   blockText: { color: colors.text, fontSize: 15, lineHeight: 22 },
+  situations: { marginTop: space.sm, gap: 6, borderTopWidth: 1, borderTopColor: 'rgba(22,163,74,0.18)', paddingTop: space.sm },
+  situationsLabel: { color: colors.success, fontSize: 11, fontWeight: '800', letterSpacing: 0.8, textTransform: 'uppercase' },
+  situation: { flexDirection: 'row', gap: 8, alignItems: 'flex-start' },
+  situationText: { flex: 1, color: colors.text, fontSize: 14, lineHeight: 20, fontStyle: 'italic' },
 });

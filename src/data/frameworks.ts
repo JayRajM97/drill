@@ -29,6 +29,8 @@ export interface Framework {
   oneLiner: string;
   /** When to reach for it — the question shapes it fits. */
   whenToUse: string;
+  /** Concrete situations / interview prompts where this is the right tool. */
+  situations?: string[];
   steps: FrameworkStep[];
   /** How people misuse it. */
   trap: string;
@@ -50,6 +52,11 @@ export const FRAMEWORKS: Framework[] = [
     alsoKnownAs: 'CIRCLES, design-thinking loop',
     oneLiner: 'The default shape for any "design X" or "improve Y" question.',
     whenToUse: 'Design a feature, redesign a flow, build X for segment Y, reduce a drop-off. Anything where the answer is a product change.',
+    situations: [
+      "\"Design a feature for Meesho to convert first-time buyers in Tier 3 cities.\"",
+      "\"Zepto's cart abandonment is high at checkout — what would you build?\"",
+      "You are asked to improve onboarding for a segment you have never met.",
+    ],
     steps: [
       { label: 'Clarify', detail: 'Pin the scope in one breath: platform, user, geography, what "success" means. Then move on — do not stall here.' },
       { label: 'Users', detail: 'Name 3–4 segments and pick ONE to build for. Say who you are not building for and why.' },
@@ -75,6 +82,11 @@ export const FRAMEWORKS: Framework[] = [
     categories: ['Product Design'],
     oneLiner: 'For "critique this app / flow" questions: audit, do not redesign.',
     whenToUse: 'App critique, onboarding review, "what would you change about X". The interviewer wants structured judgement, not a new product.',
+    situations: [
+      "\"Critique LinkedIn's job-application flow.\"",
+      "\"Walk me through Swiggy's checkout and tell me what you would change.\"",
+      "A stakeholder asks why users drop after step 3 of a flow that already exists.",
+    ],
     steps: [
       { label: 'Set context', detail: 'Who is the user, what is their goal in this flow, what does the business want from it.' },
       { label: 'Walk the flow', detail: 'Step through it screen by screen, out loud. Name what each screen is trying to do.' },
@@ -93,6 +105,10 @@ export const FRAMEWORKS: Framework[] = [
     categories: ['Product Design'],
     oneLiner: 'For "what is your favourite product and why" — show PM thinking, not fandom.',
     whenToUse: 'Favourite product, a product you admire, a product you would improve.',
+    situations: [
+      "\"What is your favourite product and why?\"",
+      "\"Tell me about a product you admire and one thing you would change.\"",
+    ],
     steps: [
       { label: 'Pick', detail: 'Choose something you genuinely use and can talk about at depth. Not the interviewer\'s product.' },
       { label: '3 problems', detail: 'The three user problems it solves better than anything else, each in one line.' },
@@ -111,6 +127,11 @@ export const FRAMEWORKS: Framework[] = [
     alsoKnownAs: 'Human-in-the-loop trust ladder',
     oneLiner: 'Decide when an AI should act on its own, ask, or stay out of the way.',
     whenToUse: 'Autonomy vs approval, AI agents, review flows, "when should the model act without asking".',
+    situations: [
+      "\"Design the human-in-the-loop system for an AI employee — when should it act vs ask?\"",
+      "An AI agent can send emails on a user's behalf; the CEO asks how you keep it safe.",
+      "\"Design a trust layer for enterprise AI output that a sceptical reviewer will accept.\"",
+    ],
     steps: [
       { label: 'Segment users', detail: 'Delegators vs cautious operators vs first-week users. Trust is per-person, not global.' },
       { label: 'Score actions', detail: 'Each action gets a risk (reversible? blast radius?) and the model gets a confidence.' },
@@ -129,6 +150,10 @@ export const FRAMEWORKS: Framework[] = [
     categories: ['AI', 'Product Design'],
     oneLiner: 'Turn user corrections into safe model improvements.',
     whenToUse: 'Feedback mechanisms for AI output, "how do you learn from corrections", quality loops.',
+    situations: [
+      "\"Users keep correcting the AI's drafts — how do you learn from that without breaking it?\"",
+      "\"Design the feedback mechanism for an AI assistant's outputs.\"",
+    ],
     steps: [
       { label: 'Capture', detail: 'Collect feedback in the natural flow — edits, approvals, flags — never a survey.' },
       { label: 'Categorise', detail: 'Auto-label the diff: factual, format, tone, omission, hallucination.' },
@@ -147,6 +172,11 @@ export const FRAMEWORKS: Framework[] = [
     categories: ['Product Design', 'Analytical'],
     oneLiner: 'Systems that fight fraud, spam, fake reviews and other adversaries.',
     whenToUse: 'Review abuse, fake accounts, fraud, harassment, anything with an adversary who adapts.',
+    situations: [
+      "\"Design a system to track and reduce review abuse on Amazon.\"",
+      "\"Fake accounts are inflating engagement — how do you fight it?\"",
+      "A marketplace sees sellers buying five-star reviews.",
+    ],
     steps: [
       { label: 'Define abuse', detail: 'Precisely: what counts, what is merely low quality, and why it hurts trust.' },
       { label: 'Segment actors', detail: 'Group bad actors by motive and signal — each segment gets its own detection.' },
@@ -167,6 +197,11 @@ export const FRAMEWORKS: Framework[] = [
     alsoKnownAs: 'April Dunford, "Obviously Awesome"',
     oneLiner: 'Category → target → alternatives → gap → statement → proof → metrics.',
     whenToUse: '"How would you position X vs Y", go-to-market messaging, "why would anyone switch".',
+    situations: [
+      "\"How would you position Notion against Confluence and Google Docs?\"",
+      "\"Why would anyone switch from spreadsheets to your tool?\"",
+      "You are writing the homepage headline for a launch.",
+    ],
     steps: [
       { label: 'Category', detail: 'Name the category you are playing in — or creating. The wrong category shrinks your market and your price.' },
       { label: 'Target', detail: 'The one customer this is for, and explicitly who it is NOT for.' },
@@ -186,6 +221,11 @@ export const FRAMEWORKS: Framework[] = [
     categories: ['Product Strategy'],
     oneLiner: 'Who pays, for what value, how much, in what model, packaged how.',
     whenToUse: 'Pricing, packaging, monetisation, subscriptions, take rates.',
+    situations: [
+      "\"How would you price and package Uber Mobility?\"",
+      "\"Should Swiggy charge a subscription, a per-order fee, or both?\"",
+      "A B2B tool has one price for a 5-person team and a 5,000-person enterprise.",
+    ],
     steps: [
       { label: 'Payer', detail: 'Segment who pays — user, driver, restaurant, advertiser. Each is a different pricing problem.' },
       { label: 'Value', detail: 'What they actually get: time, convenience, income, reach. Quantify it where you can.' },
@@ -204,6 +244,11 @@ export const FRAMEWORKS: Framework[] = [
     categories: ['Product Strategy'],
     oneLiner: 'For "how would you grow / 10x / monetise X" — one defended bet, not a list.',
     whenToUse: 'Grow the user base, 10x the business, new revenue lines, "what would you do as CEO".',
+    situations: [
+      "\"How would you grow UberEats' user base?\"",
+      "\"How would you 10x Duolingo?\"",
+      "\"Design a WhatsApp monetisation strategy — no ads, no extensions of current offerings.\"",
+    ],
     steps: [
       { label: 'Define the goal', detail: 'What does 10x mean and over what horizon — users, revenue, or margin?' },
       { label: 'Diagnose', detail: 'Acquisition, engagement, monetisation: which is strong, which is the ceiling?' },
@@ -222,6 +267,10 @@ export const FRAMEWORKS: Framework[] = [
     categories: ['Product Strategy', 'Execution'],
     oneLiner: 'Sequence a strategy over time; each phase gets its own metric.',
     whenToUse: 'Market entry, 1-year strategy, roadmaps, "how would you launch in country X".',
+    situations: [
+      "\"Create a 1-year strategy for Swiggy's international expansion.\"",
+      "\"You have 12 months and one team — what do you ship, in what order?\"",
+    ],
     steps: [
       { label: 'North Star', detail: 'What does winning look like at month 12? One number.' },
       { label: 'Current state', detail: 'Assets and liabilities going in — what you can lean on and what you lack.' },
@@ -246,6 +295,10 @@ export const FRAMEWORKS: Framework[] = [
     categories: ['Product Strategy'],
     oneLiner: 'Respond to a competitor move without panicking: Reality, Analyse, Decide, Act, Results.',
     whenToUse: '"Competitor X just launched / cut prices / copied us — what do you do?"',
+    situations: [
+      "\"A competitor launches a cheaper Spotify — what do you do?\"",
+      "\"Instagram just copied your core feature. Respond.\"",
+    ],
     steps: [
       { label: 'Reality check', detail: 'Is this actually a threat? How big, to which segment, over what horizon?' },
       { label: 'Analyse the gap', detail: 'Where are we structurally vulnerable vs strong? Data, distribution, brand, cost.' },
@@ -263,6 +316,11 @@ export const FRAMEWORKS: Framework[] = [
     categories: ['Product Strategy', 'AI'],
     oneLiner: 'Should we enter this market? Strategic fit, TAM & timing, Advantage, Mode, Proof.',
     whenToUse: '"Should Apple build an LLM", new market entry, build-vs-buy-vs-partner.',
+    situations: [
+      "\"Should Apple build its own LLM?\"",
+      "\"Should Zomato enter grocery?\"",
+      "A board member asks whether to buy a startup or build the capability.",
+    ],
     steps: [
       { label: 'Strategic fit', detail: 'Does this align with where the company is going, or is it a distraction?' },
       { label: 'TAM & timing', detail: 'Big enough? Early or late? What changed that makes now the moment?' },
@@ -280,6 +338,10 @@ export const FRAMEWORKS: Framework[] = [
     categories: ['Product Strategy'],
     oneLiner: 'Justify continued investment in a product line and how you would measure it.',
     whenToUse: '"Should we keep investing in Reels", platform bets, two-sided products.',
+    situations: [
+      "\"Should Meta keep investing in Reels? How would you measure it?\"",
+      "\"Justify next year's budget for the creator programme.\"",
+    ],
     steps: [
       { label: 'Mission fit', detail: 'Anchor to the company mission — one sentence.' },
       { label: 'Why invest', detail: 'Competition, engagement, revenue, creators, synergy — the case in five beats.' },
@@ -300,6 +362,11 @@ export const FRAMEWORKS: Framework[] = [
     alsoKnownAs: 'North Star + input metrics, AARRR',
     oneLiner: 'Derive success metrics for a feature from the behaviour it is meant to change.',
     whenToUse: '"How would you measure the success of X", launch metrics, dashboards.',
+    situations: [
+      "\"How would you measure the success of a 'Buy again' shortcut on Zomato's home screen?\"",
+      "\"We launched video shopping on Meesho — how do we know it worked?\"",
+      "A feature shipped last week and the dashboard only shows clicks.",
+    ],
     steps: [
       { label: 'Goal', detail: 'Why does the feature exist? One sentence, in the business\'s words.' },
       { label: 'Behaviour', detail: 'Map the user path: see → tap → complete → return. The metric lives on this path.' },
@@ -318,6 +385,11 @@ export const FRAMEWORKS: Framework[] = [
     categories: ['Analytical', 'AI'],
     oneLiner: 'Pick a North Star that measures value delivered, not activity generated.',
     whenToUse: '"Define the North Star for X", especially AI products where output ≠ outcome.',
+    situations: [
+      "\"Define the North Star metric for an AI employee product like Ema.\"",
+      "\"What should an AI legal-document reviewer for SMBs optimise for?\"",
+      "Leadership wants one number for the quarterly review.",
+    ],
     steps: [
       { label: 'Core value', detail: 'What transformation does the product deliver — time, risk, revenue?' },
       { label: 'Journey', detail: 'Map to the aha moment: the step where the user feels the value.' },
@@ -337,6 +409,11 @@ export const FRAMEWORKS: Framework[] = [
     alsoKnownAs: '5 Whys, segment-and-isolate',
     oneLiner: 'Diagnose a metric drop without guessing.',
     whenToUse: 'Any "X dropped by Y% — why?" question.',
+    situations: [
+      "\"Customer-support resolution dropped from 70% to 55% over two weeks — diagnose it.\"",
+      "\"AOV fell 18% week over week. Why?\"",
+      "\"Candidate quality dropped after a model update.\"",
+    ],
     steps: [
       { label: 'Clarify the metric', detail: 'Exact definition, time window, and is it real (measurement / logging change)?' },
       { label: 'Scope', detail: 'Internal vs external: did we ship anything? Did the world change (competitor, season, outage)?' },
@@ -356,6 +433,11 @@ export const FRAMEWORKS: Framework[] = [
     categories: ['Guesstimate'],
     oneLiner: 'Size a market by narrowing a population through penetration and frequency.',
     whenToUse: 'How many X per day / month in city Y. Rides, orders, searches, users.',
+    situations: [
+      "\"How many ride-hailing trips happen in Bangalore on a Monday?\"",
+      "\"Estimate Blinkit's grocery orders in Delhi on a Sunday.\"",
+      "\"How many Uber rides in Mumbai during weekday mornings?\"",
+    ],
     steps: [
       { label: 'Clarify', detail: 'Exact definition and unit: what counts, what does not, over what period.' },
       { label: 'Population', detail: 'Start from a number you know (city population, households, internet users).' },
@@ -374,6 +456,10 @@ export const FRAMEWORKS: Framework[] = [
     categories: ['Guesstimate'],
     oneLiner: 'Estimate the same number two ways and reconcile.',
     whenToUse: 'Counting things in a place (restaurants, ATMs, shops) — anything with both a demand view and a supply / area view.',
+    situations: [
+      "\"How many restaurants are there in Bengaluru?\"",
+      "\"How many ATMs are there in Mumbai?\"",
+    ],
     steps: [
       { label: 'Define', detail: 'What counts. Sit-down restaurants and cafés, not hotels or cloud kitchens.' },
       { label: 'Method 1', detail: 'Demand: population ÷ people served per unit.' },
@@ -393,6 +479,11 @@ export const FRAMEWORKS: Framework[] = [
     categories: ['Execution'],
     oneLiner: 'Problem → Alternatives → Choice → Execute: the shape for any prioritisation call.',
     whenToUse: '"How would you prioritise?", "What would you do first?", "How would you allocate the team?"',
+    situations: [
+      "\"You have three features and one sprint — which ships first?\"",
+      "\"How would you allocate two engineers between tech debt and a new market?\"",
+      "A sales lead wants a custom feature for one big client this quarter.",
+    ],
     steps: [
       { label: 'Problem', detail: 'Clarify the goal, the metric, the timeline and the constraints. Tie it to an OKR and name the guardrails.' },
       { label: 'Alternatives', detail: 'Lay out two or three real options. Structured thinking beats instinct here.' },
@@ -417,6 +508,11 @@ export const FRAMEWORKS: Framework[] = [
     categories: ['Execution', 'Product Strategy'],
     oneLiner: 'Target → Risks → Alternatives → Decision → Explain: making a trade-off and landing it.',
     whenToUse: 'Revenue vs engagement, tech debt vs new feature, speed vs quality, ads vs user experience.',
+    situations: [
+      "\"Revenue is up but engagement is down after adding ads — what do you do?\"",
+      "\"Ship fast with known bugs, or slip the date?\"",
+      "Engineering wants a quarter for tech debt; sales wants the roadmap.",
+    ],
     steps: [
       { label: 'Target', detail: 'What metric are we actually optimising? Name it before you weigh anything.' },
       { label: 'Risks', detail: 'What could break — UX, revenue, tech, trust? Be concrete.' },
@@ -435,6 +531,11 @@ export const FRAMEWORKS: Framework[] = [
     categories: ['Behavioural'],
     oneLiner: 'Situation → Task → Action → Result: the default for "tell me about a time…".',
     whenToUse: 'Any behavioural question: conflict, failure, influence without authority, a launch you led.',
+    situations: [
+      "\"Tell me about a time you disagreed with your engineering lead.\"",
+      "\"Describe a launch you led end to end.\"",
+      "\"Tell me about a time you influenced without authority.\"",
+    ],
     steps: [
       { label: 'Situation', detail: 'Set the context — who, what, when, where — in two sentences. Do not drown in backstory.' },
       { label: 'Task', detail: 'What was YOUR responsibility? Make the ownership unmistakable.' },
@@ -451,6 +552,10 @@ export const FRAMEWORKS: Framework[] = [
     categories: ['Behavioural'],
     oneLiner: 'Problem → Action → Result → Learning → Application: STAR with reflection, for senior PMs.',
     whenToUse: 'Failure stories, "what would you do differently", any question where growth is the point.',
+    situations: [
+      "\"Tell me about a failure and what you learned.\"",
+      "\"What would you do differently on your last product?\"",
+    ],
     steps: [
       { label: 'Problem', detail: 'The context and the challenge you faced.' },
       { label: 'Action', detail: 'What you did — decisions, not activity.' },
@@ -469,6 +574,11 @@ export const FRAMEWORKS: Framework[] = [
     categories: ['Product Design'],
     oneLiner: 'Describe → Real pain → Ideate → Validate → Evolve: user-centred design with a validation step.',
     whenToUse: 'Design questions where the interviewer cares about how you would test the idea, not just what it is.',
+    situations: [
+      "\"Design a parking feature for Google Maps — and how would you validate it?\"",
+      "\"Design Netflix for kids.\"",
+      "A stakeholder wants to know how you would test the idea before building.",
+    ],
     steps: [
       { label: 'Describe', detail: 'Who is the user and what is their goal? Be specific — never "everyone".' },
       { label: 'Real pain', detail: 'What is broken or inefficient for them now? Surface the emotional or contextual friction.' },
@@ -487,6 +597,11 @@ export const FRAMEWORKS: Framework[] = [
     alsoKnownAs: 'JTBD (Christensen / Ulwick)',
     oneLiner: 'Job → Obstacles → Success: outcome-first design for zero-to-one and GenAI products.',
     whenToUse: 'Unconventional products, marketplaces, behaviour-change tools, anything where "user" and "feature" are not yet defined.',
+    situations: [
+      "\"Design an AI assistant for enterprise reviewers who do not trust AI.\"",
+      "\"Design a marketplace for a job people currently do with WhatsApp groups.\"",
+      "You are building something with no existing UI pattern to copy.",
+    ],
     steps: [
       { label: 'Job', detail: 'What job is the user hiring the product to do? Phrase it as progress they want to make, not a task.' },
       { label: 'Obstacles', detail: 'What makes that job painful today — the workarounds they tolerate?' },
@@ -503,6 +618,10 @@ export const FRAMEWORKS: Framework[] = [
     categories: ['Product Design'],
     oneLiner: 'Users → Use cases → UX: a fast three-lens filter for improving an existing flow.',
     whenToUse: 'Improving an existing product, mobile-first flows, when you have five minutes not thirty.',
+    situations: [
+      "\"You have five minutes: improve the LinkedIn onboarding flow for new graduates.\"",
+      "\"What would you change about Zepto's home screen?\"",
+    ],
     steps: [
       { label: 'Users', detail: 'Who exactly is this for? One segment.' },
       { label: 'Use cases', detail: 'What moments or tasks will they use it for? Pick the top two.' },
@@ -519,6 +638,10 @@ export const FRAMEWORKS: Framework[] = [
     categories: ['Analytical'],
     oneLiner: 'Goal → Object → Actions → Levers → Scorecard: define success for a product or feature.',
     whenToUse: 'Metrics and success-definition questions at senior level, when the interviewer wants a scorecard not a metric.',
+    situations: [
+      "\"Define success for the new Ema AI employee product — give me a scorecard.\"",
+      "\"What metrics would you put on the dashboard for a video-shopping launch?\"",
+    ],
     steps: [
       { label: 'Goal', detail: 'Clarify the business AND user goal — growth, retention, revenue, trust — and state the trade-off upfront.' },
       { label: 'Object', detail: 'Define what success looks like as observable user behaviour.' },
@@ -537,6 +660,10 @@ export const FRAMEWORKS: Framework[] = [
     categories: ['RCA', 'Analytical'],
     oneLiner: 'Define → Isolate → Verify → Execute: root-cause a metric drop or spike.',
     whenToUse: 'Any "X dropped / spiked — why?" question, especially when you have to show leadership after the diagnosis.',
+    situations: [
+      "\"AOV dropped 18% week over week — find the cause and own the fix.\"",
+      "\"Sign-ups spiked 40% overnight. Real or a bug?\"",
+    ],
     steps: [
       { label: 'Define', detail: 'Confirm the metric definition, time window, segment and impact. Two or three sharp clarifiers, not an interrogation.' },
       { label: 'Isolate', detail: 'Break down by funnel step, segment, platform, geo. Start with the big cuts that explain most of the variance.' },
@@ -556,6 +683,11 @@ export const FRAMEWORKS: Framework[] = [
     categories: ['Analytical', 'Execution'],
     oneLiner: 'Hypothesis → Assumptions → Design → Interpret: run an A/B test properly.',
     whenToUse: 'Experimentation questions, "how would you test this", launch decisions.',
+    situations: [
+      "\"How would you test whether the 'Buy again' shortcut actually lifts orders?\"",
+      "\"Design an A/B test for a new checkout button.\"",
+      "Leadership wants to ship a change after three days of positive data.",
+    ],
     steps: [
       { label: 'Hypothesis', detail: '"If we do X for Y users, then Z improves because…" — tie it to a metric and a mechanism.' },
       { label: 'Assumptions', detail: 'What must be true? Risks, confounders, novelty effects, selection bias.' },
