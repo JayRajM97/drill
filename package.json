@@ -37,7 +37,8 @@
     "typecheck": "tsc --noEmit",
     "build:android": "eas build -p android --profile preview",
     "build:ios": "eas build -p ios --profile preview",
-    "update:publish": "eas update --branch preview --message"
+    "update:publish": "eas update --branch preview --message",
+    "ios:device": "expo run:ios --device --configuration Release"
   },
   "private": true
 }
