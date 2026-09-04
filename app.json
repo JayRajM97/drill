@@ -11,7 +11,8 @@
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "in.aitainment.drill",
-      "buildNumber": "1"
+      "buildNumber": "1",
+      "appleTeamId": "HSVB2Q4W33"
     },
     "android": {
       "adaptiveIcon": {
