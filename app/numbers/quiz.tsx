@@ -1,7 +1,9 @@
-import React, { useMemo, useState } from 'react';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import React, { useLayoutEffect, useMemo, useState } from 'react';
+import { Pressable, StyleSheet, Text, View, useWindowDimensions } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { Gesture, GestureDetector } from 'react-native-gesture-handler';
+import Animated, { Easing, runOnJS, useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
 import { MaterialIcons } from '@expo/vector-icons';
 import { SETS, emojiFor, contextFor, questionFor, type Fact, type NumberSet } from '@/data/numbers';
 import { IconButton, PillButton, Eyebrow } from '@/components/ui';
@@ -83,16 +85,43 @@ export default function NumbersQuiz() {
 
   const q = quiz[i];
   const done = i >= quiz.length;
+  const { width: W } = useWindowDimensions();
+  const x = useSharedValue(0);
+
+  // Swipe left to advance, exactly like the drill and shuffle decks.
+  const advance = () => setI((n) => n + 1);
+  const swipeNext = () => {
+    if (done) return;
+    setPicked(null);
+    x.value = withTiming(-W * 1.05, { duration: 260, easing: Easing.in(Easing.cubic) }, (finished) => {
+      if (finished) runOnJS(advance)();
+    });
+  };
+  useLayoutEffect(() => {
+    x.value = 0;
+  }, [i, x]);
+  const pan = Gesture.Pan()
+    .activeOffsetX([-14, 14])
+    .failOffsetY([-12, 12])
+    .onChange((e) => {
+      'worklet';
+      x.value = Math.min(0, e.translationX);
+    })
+    .onEnd((e) => {
+      'worklet';
+      if (e.translationX < -70 || e.velocityX < -600) runOnJS(swipeNext)();
+      else x.value = withTiming(0, { duration: 200 });
+    });
+  const cardStyle = useAnimatedStyle(() => ({
+    transform: [{ translateX: x.value }, { rotate: `${(x.value / W) * 3}deg` }],
+  }));
 
   const choose = (v: string) => {
     if (picked) return;
     setPicked(v);
     if (v === answerOf(q.fact)) setScore((s) => s + 1);
   };
-  const next = () => {
-    setPicked(null);
-    setI((n) => n + 1);
-  };
+  const next = () => swipeNext();
   const restart = () => {
     setSeed((s) => s + 1);
     setI(0);
@@ -123,7 +152,8 @@ export default function NumbersQuiz() {
       <View style={styles.deck}>
         {/* stack peek */}
         {!done && i + 1 < quiz.length ? <View style={[styles.card, styles.ghost]} /> : null}
-        <View style={[styles.card, styles.cardPad]}>
+        <GestureDetector gesture={pan}>
+          <Animated.View style={[styles.card, styles.cardPad, cardStyle]}>
           {done ? (
             <View style={styles.center}>
               <View style={styles.doneIcon}>
@@ -171,7 +201,8 @@ export default function NumbersQuiz() {
               {picked && q.fact.kind === 'metric' ? <Text style={styles.note}>e.g. {q.fact.value}</Text> : picked && q.fact.note ? <Text style={styles.note}>→ {q.fact.note}</Text> : null}
             </>
           )}
-        </View>
+          </Animated.View>
+        </GestureDetector>
       </View>
 
       <View style={[styles.footer, { paddingBottom: Math.max(insets.bottom, space.lg) }]}>

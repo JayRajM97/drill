@@ -45,6 +45,7 @@ func difficultyColor(_ d: String) -> Color {
 struct QuestionEntry: TimelineEntry {
     let date: Date
     let question: WidgetQuestion
+    let number: WidgetNumber
 }
 
 func question(at date: Date) -> WidgetQuestion {
@@ -55,13 +56,21 @@ func question(at date: Date) -> WidgetQuestion {
     return ALL_QUESTIONS[index]
 }
 
+func number(at date: Date) -> WidgetNumber {
+    let cal = Calendar.current
+    let day = cal.ordinality(of: .day, in: .era, for: date) ?? 0
+    let slot = cal.component(.hour, from: date) / 4
+    let index = (day &* 13 &+ slot &* 5) % ALL_NUMBERS.count
+    return ALL_NUMBERS[index]
+}
+
 struct QuestionProvider: TimelineProvider {
     func placeholder(in context: Context) -> QuestionEntry {
-        QuestionEntry(date: .now, question: ALL_QUESTIONS[0])
+        QuestionEntry(date: .now, question: ALL_QUESTIONS[0], number: ALL_NUMBERS[0])
     }
 
     func getSnapshot(in context: Context, completion: @escaping (QuestionEntry) -> Void) {
-        completion(QuestionEntry(date: .now, question: question(at: .now)))
+        completion(QuestionEntry(date: .now, question: question(at: .now), number: number(at: .now)))
     }
 
     func getTimeline(in context: Context, completion: @escaping (Timeline<QuestionEntry>) -> Void) {
@@ -75,7 +84,7 @@ struct QuestionProvider: TimelineProvider {
         // 48 hours of entries; the system re-asks when they run out.
         let entries = (0..<12).map { i -> QuestionEntry in
             let date = i == 0 ? now : cal.date(byAdding: .hour, value: i * 4, to: slotStart)!
-            return QuestionEntry(date: date, question: question(at: date))
+            return QuestionEntry(date: date, question: question(at: date), number: number(at: date))
         }
         completion(Timeline(entries: entries, policy: .atEnd))
     }
@@ -139,25 +148,43 @@ struct QuestionWidgetView: View {
 
     var body: some View {
         let q = entry.question
+        let n = entry.number
         Group {
             switch family {
             case .systemSmall:
-                VStack(alignment: .leading, spacing: 6) {
-                    CategoryChip(category: q.category, compact: true)
+                // A key number, app-blue with white type.
+                VStack(alignment: .leading, spacing: 4) {
+                    Text("DRILL")
+                        .font(.system(size: 10, weight: .heavy))
+                        .kerning(1.1)
+                        .foregroundStyle(Color.white.opacity(0.55))
                     Spacer(minLength: 2)
-                    Text(q.title)
-                        .font(.system(size: 13, weight: .bold))
-                        .foregroundStyle(Color.dText)
-                        .lineLimit(5)
-                        .minimumScaleFactor(0.85)
+                    Text(n.value)
+                        .font(.system(size: 30, weight: .heavy))
+                        .foregroundStyle(Color.white)
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.55)
+                    Text(n.label)
+                        .font(.system(size: 12, weight: .semibold))
+                        .foregroundStyle(Color.white.opacity(0.75))
+                        .lineLimit(3)
                     Spacer(minLength: 2)
-                    DifficultyRow(difficulty: q.difficulty)
+                    HStack(spacing: 4) {
+                        Text("Do you know it?")
+                            .font(.system(size: 10, weight: .bold))
+                            .foregroundStyle(Color.white.opacity(0.6))
+                        Spacer()
+                        Image(systemName: "arrow.right")
+                            .font(.system(size: 10, weight: .bold))
+                            .foregroundStyle(Color.white.opacity(0.8))
+                    }
                 }
                 .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)
-                .containerBackground(Color.white, for: .widget)
+                .containerBackground(Color.dAccent, for: .widget)
+                .widgetURL(URL(string: "drill:///numbers"))
 
             case .systemLarge:
-                // The blue "today card" from the home screen.
+                // The full question card — the blue hero from the home screen.
                 VStack(alignment: .leading, spacing: 10) {
                     HStack {
                         CategoryChip(category: q.category, onAccent: true)
@@ -187,28 +214,35 @@ struct QuestionWidgetView: View {
                 }
                 .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)
                 .containerBackground(Color.dAccent, for: .widget)
+                .widgetURL(URL(string: "drill:///question/\(q.id)"))
 
-            default: // systemMedium
-                HStack(alignment: .center, spacing: 10) {
-                    VStack(alignment: .leading, spacing: 6) {
-                        CategoryChip(category: q.category)
+            default: // systemMedium — a key number, wide
+                HStack(alignment: .center, spacing: 12) {
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text("DRILL · KEY NUMBER")
+                            .font(.system(size: 10, weight: .heavy))
+                            .kerning(1.1)
+                            .foregroundStyle(Color.white.opacity(0.55))
                         Spacer(minLength: 2)
-                        Text(q.title)
-                            .font(.system(size: 15, weight: .bold))
-                            .foregroundStyle(Color.dText)
-                            .lineLimit(3)
-                            .minimumScaleFactor(0.9)
+                        Text(n.value)
+                            .font(.system(size: 34, weight: .heavy))
+                            .foregroundStyle(Color.white)
+                            .lineLimit(1)
+                            .minimumScaleFactor(0.5)
+                        Text(n.label)
+                            .font(.system(size: 13, weight: .semibold))
+                            .foregroundStyle(Color.white.opacity(0.78))
+                            .lineLimit(2)
                         Spacer(minLength: 2)
-                        DifficultyRow(difficulty: q.difficulty)
                     }
                     Spacer()
-                    ArrowBadge(size: 32)
+                    ArrowBadge(size: 32, inverted: true)
                 }
                 .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)
-                .containerBackground(Color.white, for: .widget)
+                .containerBackground(Color.dAccent, for: .widget)
+                .widgetURL(URL(string: "drill:///numbers"))
             }
         }
-        .widgetURL(URL(string: "drill:///question/\(q.id)"))
     }
 }
 
@@ -222,7 +256,7 @@ struct DrillQuestionWidget: Widget {
             QuestionWidgetView(entry: entry)
         }
         .configurationDisplayName("Today's drill")
-        .description("A fresh PM interview question every few hours. Tap to drill it.")
+        .description("A fresh question on the big card, a key number on the small ones — every few hours.")
         .supportedFamilies([.systemSmall, .systemMedium, .systemLarge])
     }
 }
