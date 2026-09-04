@@ -17,6 +17,8 @@ import { useProgress } from '@/state/useProgress';
 import { CategoryTile } from '@/components/CategoryTile';
 import { FrameworkCard } from '@/components/FrameworkCard';
 import { FRAMEWORKS } from '@/data/frameworks';
+import { ConceptCard } from '@/components/ConceptCard';
+import { CONCEPTS } from '@/data/concepts';
 import { ALL_FACTS, emojiFor, type Fact } from '@/data/numbers';
 import { todayKey } from '@/state/useDaily';
 import { BottomNavBar, NAV_CLEARANCE } from '@/components/BottomNavBar';
@@ -202,6 +204,19 @@ export default function HomeScreen() {
         <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ marginVertical: -space.lg }} contentContainerStyle={{ paddingHorizontal: space.lg, paddingVertical: space.lg, gap: space.md }}>
           {[...FRAMEWORKS].sort((a, b) => b.drills.length - a.drills.length).slice(0, 6).map((f) => (
             <FrameworkCard key={f.key} framework={f} wide onPress={() => router.push(`/frameworks/${f.key}`)} />
+          ))}
+        </ScrollView>
+
+        {/* Learn */}
+        <View style={[styles.sectionHead, { marginTop: space.xl }]}>
+          <Text style={styles.sectionTitle}>Learn AI, the PM way</Text>
+          <Pressable onPress={() => router.push('/learn')} hitSlop={8} style={styles.moreBtn}>
+            <MaterialIcons name="arrow-forward" size={18} color={colors.text} />
+          </Pressable>
+        </View>
+        <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ marginVertical: -space.lg }} contentContainerStyle={{ paddingHorizontal: space.lg, paddingVertical: space.lg, gap: space.md }}>
+          {CONCEPTS.slice(0, 6).map((c) => (
+            <ConceptCard key={c.key} concept={c} wide onPress={() => router.push(`/learn/${c.key}`)} />
           ))}
         </ScrollView>
       </ScrollView>
