@@ -40,7 +40,8 @@
           "resizeMode": "contain",
           "backgroundColor": "#F3F4F6"
         }
-      ]
+      ],
+      "@bacons/apple-targets"
     ],
     "description": "Flashcard-style practice for product management interviews: real case studies broken into cards, plus the numbers every PM should know.",
     "primaryColor": "#1F5EFF"

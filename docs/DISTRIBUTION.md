@@ -31,6 +31,13 @@ account needed. `android.package` = `in.aitainment.drill`.
   distribute via **TestFlight** (`eas submit -p ios`). This is also what the
   home-screen widget needs (widgets don't run in Expo Go).
 
+## Home-screen widget
+The iOS widget ("Today's drill") is a native extension in `targets/widget/`.
+It only exists in real builds — **not** in Expo Go. To see it: build the app
+(`npx expo run:ios` or an EAS build), install, then long-press the home
+screen → Edit → Add Widget → Drill. Android widget is planned
+(docs/BACKLOG.md).
+
 ## Play Store / App Store later
 `eas build --profile production` + `eas submit` for both stores.
 `ios.bundleIdentifier` / `android.package` are set to `in.aitainment.drill`
