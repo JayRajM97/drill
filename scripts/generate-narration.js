@@ -17,16 +17,12 @@ const API_KEY = process.env.ELEVENLABS_API_KEY;
 const VOICE_ID = process.env.ELEVENLABS_VOICE_ID || '21m00Tcm4TlvDq8ikWAM'; // "Rachel" — warm, natural
 const MODEL_ID = process.env.ELEVENLABS_MODEL_ID || 'eleven_multilingual_v2';
 
-if (!API_KEY) {
-  console.error('Set ELEVENLABS_API_KEY and re-run.');
-  process.exit(1);
-}
-
 const root = path.join(__dirname, '..');
 const outDir = path.join(root, 'assets', 'narration');
 fs.mkdirSync(outDir, { recursive: true });
 
 async function tts(text) {
+  if (!API_KEY) throw new Error('Chunk missing and no ELEVENLABS_API_KEY set — cannot synthesise.');
   const res = await fetch(`https://api.elevenlabs.io/v1/text-to-speech/${VOICE_ID}?output_format=mp3_44100_128`, {
     method: 'POST',
     headers: { 'xi-api-key': API_KEY, 'content-type': 'application/json' },
@@ -64,7 +60,7 @@ function durationOf(file) {
         console.log(`  ${i + 1}. ${ch.label} (cached)`);
       }
       const dur = durationOf(chunk);
-      chapters.push({ label: ch.label, at: Math.round(offset * 10) / 10 });
+      chapters.push({ label: ch.label, at: Math.round(offset * 10) / 10, ...(ch.target ? { target: ch.target } : {}) });
       offset += dur;
       chunkPaths.push(chunk);
     }
@@ -83,6 +79,8 @@ export interface NarrationChapter {
   label: string;
   /** Start of this chapter in seconds. */
   at: number;
+  /** Which deck card this chapter narrates (resolved at runtime). */
+  target?: { section: string; title?: string };
 }
 
 export interface Narration {

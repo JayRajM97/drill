@@ -31,8 +31,8 @@ import { buildDeck, SECTION_LABEL, type DeckCard, type Pill, type Section } from
 import { frameworkForQuestion } from '@/data/frameworks';
 import { TimerRing } from '@/components/TimerRing';
 import { IndexSheet } from '@/components/IndexSheet';
-import { AudioBar } from '@/components/AudioBar';
-import { NARRATION } from '@/data/narration';
+import { AudioBar, type AudioBarHandle } from '@/components/AudioBar';
+import { NARRATION, type NarrationChapter } from '@/data/narration';
 import { DifficultyBadge, Eyebrow, IconButton, PillButton, Tag } from '@/components/ui';
 import { colors, radius, shadow, space } from '@/theme/tokens';
 
@@ -74,6 +74,28 @@ export default function QuestionScreen() {
   }, [id]);
 
   const deck = useMemo(() => (question ? buildDeck(question) : []), [question]);
+  const narration = question ? NARRATION[question.id] : undefined;
+  const audioRef = useRef<AudioBarHandle>(null);
+  const audioDriven = useRef(false);
+  const indexRef = useRef(index);
+  indexRef.current = index;
+
+  // Resolve each narration chapter to the deck card it narrates.
+  const chapterCards = useMemo(() => {
+    if (!narration) return [] as (number | undefined)[];
+    const resolve = (target?: NarrationChapter['target']) => {
+      if (!target) return undefined;
+      const cand = deck.map((c, i) => ({ c, i })).filter(({ c }) => c.kind !== 'prompt' && c.section === target.section);
+      if (target.title) {
+        const t = target.title.toLowerCase();
+        const hit = cand.find(({ c }) => c.title.toLowerCase() === t) ?? cand.find(({ c }) => c.title.toLowerCase().includes(t));
+        if (hit) return hit.i;
+      }
+      return cand[0]?.i;
+    };
+    return narration.chapters.map((ch) => resolve(ch.target));
+  }, [deck, narration]);
+
   const card = deck[index];
   const total = deck.length;
   const cardW = Math.min((W - space.lg * 2) * 0.9, 380);
@@ -208,6 +230,36 @@ export default function QuestionScreen() {
     if (!busy) (i > index ? goNext('x', FAST) : goPrev(FAST));
   };
 
+  // The voice moved to a new chapter — bring the deck along.
+  const onChapterChange = useCallback(
+    (ci: number, playing: boolean) => {
+      if (!playing) return;
+      const target = chapterCards[ci];
+      if (target == null || target === indexRef.current) return;
+      audioDriven.current = true;
+      jumpTarget.current = target;
+      if (!busy) (target > indexRef.current ? goNext('x', FAST) : goPrev(FAST));
+    },
+    [chapterCards, busy, goNext, goPrev],
+  );
+
+  // Deck -> audio: when the LISTENER navigates, replay that card's chapter.
+  useEffect(() => {
+    if (!narration) return;
+    if (jumpTarget.current != null && jumpTarget.current !== index) return; // mid-cascade
+    if (audioDriven.current) {
+      audioDriven.current = false;
+      return;
+    }
+    if (!audioRef.current?.isActive()) return;
+    let best: number | undefined;
+    chapterCards.forEach((ci, k) => {
+      if (ci != null && ci <= index) best = k;
+    });
+    if (best != null) audioRef.current.seekTo(narration.chapters[best].at);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [index]);
+
   if (!question || !card) {
     return (
       <View style={[styles.screen, styles.center]}>
@@ -274,7 +326,7 @@ export default function QuestionScreen() {
       </GestureDetector>
 
       {/* Narration: one warm voice walking the whole answer */}
-      {NARRATION[question.id] ? <AudioBar narration={NARRATION[question.id]} /> : null}
+      {narration ? <AudioBar ref={audioRef} narration={narration} onChapterChange={onChapterChange} /> : null}
 
       {/* Footer controls: back · next · index */}
       <View style={[styles.footer, { paddingBottom: Math.max(insets.bottom, space.lg) }]}>
