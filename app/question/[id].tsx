@@ -31,6 +31,8 @@ import { buildDeck, SECTION_LABEL, type DeckCard, type Pill, type Section } from
 import { frameworkForQuestion } from '@/data/frameworks';
 import { TimerRing } from '@/components/TimerRing';
 import { IndexSheet } from '@/components/IndexSheet';
+import { AudioBar } from '@/components/AudioBar';
+import { NARRATION } from '@/data/narration';
 import { DifficultyBadge, Eyebrow, IconButton, PillButton, Tag } from '@/components/ui';
 import { colors, radius, shadow, space } from '@/theme/tokens';
 
@@ -270,6 +272,9 @@ export default function QuestionScreen() {
           })}
         </View>
       </GestureDetector>
+
+      {/* Narration: one warm voice walking the whole answer */}
+      {NARRATION[question.id] ? <AudioBar narration={NARRATION[question.id]} /> : null}
 
       {/* Footer controls: back · next · index */}
       <View style={[styles.footer, { paddingBottom: Math.max(insets.bottom, space.lg) }]}>
