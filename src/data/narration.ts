@@ -18,17 +18,17 @@ export interface Narration {
 
 export const NARRATION: Record<string, Narration> = {
   'position-notion-vs-confluence-google-docs': {
-    source: require('../../assets/narration/position-notion-vs-confluence-google-docs.mp3'),
+    source: require('../../assets/narration/position-notion-vs-confluence-google-docs.m4a'),
     duration: 250,
     chapters: [{"label":"The question","at":0,"target":{"section":"Question"}},{"label":"The framework","at":20.6,"target":{"section":"Framework"}},{"label":"Clarify first","at":56.8,"target":{"section":"Clarify"}},{"label":"Who it is for — and not","at":84.6,"target":{"section":"Users"}},{"label":"The category decision","at":120,"target":{"section":"Answer","title":"Category"}},{"label":"The structural gap","at":151.7,"target":{"section":"Answer","title":"Alternatives"}},{"label":"The statement","at":183.8,"target":{"section":"Answer","title":"Positioning Statement"}},{"label":"Proof and metrics","at":212.4,"target":{"section":"Answer","title":"Proof"}}],
   },
   'q-zomato-buy-again-metrics': {
-    source: require('../../assets/narration/q-zomato-buy-again-metrics.mp3'),
+    source: require('../../assets/narration/q-zomato-buy-again-metrics.m4a'),
     duration: 217,
     chapters: [{"label":"The question","at":0,"target":{"section":"Question"}},{"label":"The framework","at":21.5,"target":{"section":"Framework"}},{"label":"Clarify first","at":55.6,"target":{"section":"Clarify"}},{"label":"The North Star","at":79.4,"target":{"section":"Answer","title":"Orders per active user"}},{"label":"Supporting metrics","at":113.2,"target":{"section":"Answer","title":"Metric tree"}},{"label":"Counter-metrics","at":144.3,"target":{"section":"Answer","title":"Metric tree"}},{"label":"The decision rule","at":175.8,"target":{"section":"Answer","title":"Measurement design"}}],
   },
   'design-netflix-for-kids': {
-    source: require('../../assets/narration/design-netflix-for-kids.mp3'),
+    source: require('../../assets/narration/design-netflix-for-kids.m4a'),
     duration: 224,
     chapters: [{"label":"The question","at":0,"target":{"section":"Question"}},{"label":"The framework","at":18.5,"target":{"section":"Framework"}},{"label":"Clarify first","at":42.1,"target":{"section":"Clarify"}},{"label":"Two users, one product","at":74.7,"target":{"section":"Users"}},{"label":"Prioritise","at":109.6,"target":{"section":"Answer","title":"Prioritization"}},{"label":"The bet","at":139.7,"target":{"section":"Answer","title":"The Bet"}},{"label":"Metrics and the trade-off","at":177.5,"target":{"section":"Answer","title":"Metrics"}}],
   },

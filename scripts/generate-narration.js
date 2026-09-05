@@ -43,13 +43,51 @@ function durationOf(file) {
   return parseFloat(m[1]);
 }
 
+// Raw-concatenated MP3s carry the first chunk's header, so CoreAudio thinks
+// the whole track is ~20s long (clamped seeks, phantom "finished"). Instead:
+// decode every chunk to PCM, splice the samples, encode ONCE to m4a/AAC —
+// one authoritative header, sample-accurate chapter offsets.
+const RATE = 44100;
+const CHANNELS = 2;
+const BYTES_PER_FRAME = CHANNELS * 2; // 16-bit
+
+function decodeToPcm(mp3Path) {
+  const wav = `${mp3Path}.wav`;
+  execFileSync('afconvert', ['-f', 'WAVE', '-d', `LEI16@${RATE}`, '-c', String(CHANNELS), mp3Path, wav]);
+  const buf = fs.readFileSync(wav);
+  const idx = buf.indexOf(Buffer.from('data'));
+  if (idx < 0) throw new Error(`no data chunk in ${wav}`);
+  const size = buf.readUInt32LE(idx + 4);
+  const pcm = buf.subarray(idx + 8, idx + 8 + size);
+  fs.unlinkSync(wav);
+  return pcm;
+}
+
+function writeWav(pcm, outPath) {
+  const header = Buffer.alloc(44);
+  header.write('RIFF', 0);
+  header.writeUInt32LE(36 + pcm.length, 4);
+  header.write('WAVE', 8);
+  header.write('fmt ', 12);
+  header.writeUInt32LE(16, 16);
+  header.writeUInt16LE(1, 20); // PCM
+  header.writeUInt16LE(CHANNELS, 22);
+  header.writeUInt32LE(RATE, 24);
+  header.writeUInt32LE(RATE * BYTES_PER_FRAME, 28);
+  header.writeUInt16LE(BYTES_PER_FRAME, 32);
+  header.writeUInt16LE(16, 34);
+  header.write('data', 36);
+  header.writeUInt32LE(pcm.length, 40);
+  fs.writeFileSync(outPath, Buffer.concat([header, pcm]));
+}
+
 (async () => {
   const registry = [];
   for (const [id, q] of Object.entries(SCRIPTS)) {
     console.log(`\n▸ ${id} (${q.chapters.length} chapters)`);
-    const chunkPaths = [];
     const chapters = [];
     let offset = 0;
+    const pcms = [];
     for (const [i, ch] of q.chapters.entries()) {
       const chunk = path.join(outDir, `.${id}.${i}.mp3`);
       if (!fs.existsSync(chunk)) {
@@ -59,15 +97,21 @@ function durationOf(file) {
       } else {
         console.log(`  ${i + 1}. ${ch.label} (cached)`);
       }
-      const dur = durationOf(chunk);
+      const pcm = decodeToPcm(chunk);
+      const dur = pcm.length / BYTES_PER_FRAME / RATE;
       chapters.push({ label: ch.label, at: Math.round(offset * 10) / 10, ...(ch.target ? { target: ch.target } : {}) });
       offset += dur;
-      chunkPaths.push(chunk);
+      pcms.push(pcm);
     }
-    // Same-encoder CBR mp3 frames concatenate cleanly.
-    const finalPath = path.join(outDir, `${id}.mp3`);
-    fs.writeFileSync(finalPath, Buffer.concat(chunkPaths.map((p) => fs.readFileSync(p))));
-    console.log(`  → ${path.relative(root, finalPath)} (${Math.round(offset)}s)`);
+    const combinedWav = path.join(outDir, `.${id}.wav`);
+    writeWav(Buffer.concat(pcms), combinedWav);
+    const finalPath = path.join(outDir, `${id}.m4a`);
+    if (fs.existsSync(finalPath)) fs.unlinkSync(finalPath);
+    execFileSync('afconvert', ['-f', 'm4af', '-d', 'aac', '-b', '128000', combinedWav, finalPath]);
+    fs.unlinkSync(combinedWav);
+    const check = durationOf(finalPath);
+    console.log(`  → ${path.relative(root, finalPath)} (${Math.round(offset)}s expected, container says ${Math.round(check)}s)`);
+    if (Math.abs(check - offset) > 2) throw new Error(`duration mismatch for ${id}: ${check} vs ${offset}`);
     registry.push({ id, chapters, duration: Math.round(offset) });
   }
 
@@ -93,7 +137,7 @@ export const NARRATION: Record<string, Narration> = {
 ${registry
   .map(
     (r) => `  '${r.id}': {
-    source: require('../../assets/narration/${r.id}.mp3'),
+    source: require('../../assets/narration/${r.id}.m4a'),
     duration: ${r.duration},
     chapters: ${JSON.stringify(r.chapters)},
   },`,

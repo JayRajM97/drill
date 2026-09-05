@@ -55,7 +55,8 @@ export const AudioBar = forwardRef<AudioBarHandle, {
   }, [player]);
 
   const chapters = narration.chapters;
-  const duration = status.duration || narration.duration;
+  // The registry duration is measured from PCM — trust it over container estimates.
+  const duration = narration.duration || status.duration;
   const t = status.currentTime ?? 0;
   const ci = chapters.reduce((acc, c, i) => (t >= c.at ? i : acc), 0);
   const ciRef = useRef(ci);
