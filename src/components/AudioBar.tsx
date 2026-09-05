@@ -13,17 +13,18 @@ function fmt(s: number): string {
 }
 
 export interface AudioBarHandle {
-  /** Seek to a position (seconds); playback state is preserved. */
-  seekTo: (seconds: number) => void;
+  /** Jump to a chapter's start; playback state is preserved, no echo announce. */
+  seekToChapter: (chapterIndex: number) => void;
   /** Has the listener started this narration (playing, or paused mid-way)? */
   isActive: () => boolean;
-  isPlaying: () => boolean;
 }
 
 /**
- * Narration player: play/pause, ±5s, a draggable scrubber and the chapter
- * currently being explained. Fires onChapterChange as the voice crosses into
- * a new chapter so the deck can follow along.
+ * Chapter-scoped narration player. The scrubber covers ONLY the current
+ * chapter (it resets card by card); the dot row underneath shows the whole
+ * walkthrough — filled dots are done, the wide one is now, tap any to jump.
+ * onChapterChange fires when the voice crosses into a new chapter so the
+ * deck can turn its cards.
  */
 export const AudioBar = forwardRef<AudioBarHandle, {
   narration: Narration;
@@ -32,61 +33,88 @@ export const AudioBar = forwardRef<AudioBarHandle, {
   const player = useAudioPlayer(narration.source);
   const status = useAudioPlayerStatus(player);
   const [trackW, setTrackW] = useState(1);
-  const [scrub, setScrub] = useState<number | null>(null); // 0..1 while dragging
-  const lastChapter = useRef(-1);
+  const [scrub, setScrub] = useState<number | null>(null); // 0..1 within the chapter, while dragging
+  const lastAnnounced = useRef(0);
+  // iOS seeks are async: the player briefly reports the OLD position after
+  // seekTo, which would re-announce the old chapter and yank the deck back.
+  // Suppress announcements around every imperative seek.
+  const suppressUntil = useRef(0);
 
   useEffect(() => {
-    // Play even when the iPhone's ring/silent switch is on silent.
     setAudioModeAsync({ playsInSilentMode: true }).catch(() => {});
   }, []);
+  // Never let a narration outlive its screen.
+  useEffect(() => {
+    return () => {
+      try {
+        player.pause();
+      } catch {}
+    };
+  }, [player]);
 
+  const chapters = narration.chapters;
   const duration = status.duration || narration.duration;
   const t = status.currentTime ?? 0;
-  const progress = scrub ?? (duration > 0 ? Math.min(1, t / duration) : 0);
-  const chapterIndex = narration.chapters.reduce((acc, c, i) => (t >= c.at ? i : acc), 0);
-  const chapter = narration.chapters[chapterIndex];
+  const ci = chapters.reduce((acc, c, i) => (t >= c.at ? i : acc), 0);
+  const chStart = chapters[ci].at;
+  const chEnd = ci + 1 < chapters.length ? chapters[ci + 1].at : duration;
+  const chDur = Math.max(0.1, chEnd - chStart);
+  const chT = Math.max(0, Math.min(chDur, t - chStart));
+  const progress = scrub ?? chT / chDur;
   const finished = duration > 0 && t >= duration - 0.3;
 
-  // Announce chapter changes while playing (not while the user is scrubbing).
+  // Announce chapter changes while playing (not mid-scrub, not mid-seek).
   useEffect(() => {
     if (scrub != null) return;
-    if (chapterIndex !== lastChapter.current) {
-      lastChapter.current = chapterIndex;
-      onChapterChange?.(chapterIndex, !!status.playing);
+    if (ci !== lastAnnounced.current) {
+      lastAnnounced.current = ci;
+      if (Date.now() < suppressUntil.current) return; // settling after a seek
+      onChapterChange?.(ci, !!status.playing);
     }
-  }, [chapterIndex, status.playing, scrub, onChapterChange]);
+  }, [ci, status.playing, scrub, onChapterChange]);
+
+  const goChapter = (i: number, announce: boolean) => {
+    const clamped = Math.max(0, Math.min(chapters.length - 1, i));
+    lastAnnounced.current = clamped;
+    suppressUntil.current = Date.now() + 900;
+    player.seekTo(chapters[clamped].at + 0.01);
+    if (announce) onChapterChange?.(clamped, true); // dot taps turn the card immediately
+  };
 
   useImperativeHandle(ref, () => ({
-    seekTo: (seconds: number) => {
-      lastChapter.current = narration.chapters.reduce((acc, c, i) => (seconds >= c.at ? i : acc), 0);
-      player.seekTo(Math.max(0, Math.min(duration, seconds)));
-    },
+    seekToChapter: (i: number) => goChapter(i, false),
     isActive: () => !!status.playing || t > 0.5,
-    isPlaying: () => !!status.playing,
   }));
 
   const toggle = () => {
     if (status.playing) player.pause();
     else {
-      if (finished) player.seekTo(0);
+      if (finished) goChapter(0, true);
       player.play();
     }
   };
-  const skip = (d: number) => player.seekTo(Math.max(0, Math.min(duration, t + d)));
+  // ±5s inside the whole track — crossing a boundary announces and turns the card.
+  const skip = (d: number) => {
+    const dest = Math.max(0, Math.min(duration - 0.2, t + d));
+    const destCi = chapters.reduce((acc, c, i) => (dest >= c.at ? i : acc), 0);
+    suppressUntil.current = Date.now() + 900;
+    if (destCi !== lastAnnounced.current) {
+      lastAnnounced.current = destCi;
+      onChapterChange?.(destCi, !!status.playing);
+    }
+    player.seekTo(dest);
+  };
 
-  // Scrubber: tap or drag anywhere on the track.
+  // Scrubber: tap or drag, scoped to the current chapter.
   const onTrackLayout = (e: LayoutChangeEvent) => setTrackW(Math.max(1, e.nativeEvent.layout.width));
   const commitScrub = (ratio: number) => {
     const clamped = Math.max(0, Math.min(1, ratio));
     setScrub(null);
-    lastChapter.current = -2; // re-announce the chapter we land in
-    player.seekTo(clamped * duration);
+    suppressUntil.current = Date.now() + 900;
+    player.seekTo(chStart + clamped * chDur);
   };
   const pan = Gesture.Pan()
     .activeOffsetX([-4, 4])
-    .onBegin((e) => {
-      'worklet';
-    })
     .onUpdate((e) => {
       setScrub(Math.max(0, Math.min(1, e.x / trackW)));
     })
@@ -100,7 +128,7 @@ export const AudioBar = forwardRef<AudioBarHandle, {
     })
     .runOnJS(true);
 
-  const scrubT = scrub != null ? scrub * duration : t;
+  const shownT = scrub != null ? scrub * chDur : chT;
 
   return (
     <View style={styles.bar}>
@@ -116,10 +144,10 @@ export const AudioBar = forwardRef<AudioBarHandle, {
       <View style={styles.middle}>
         <View style={styles.metaRow}>
           <Text style={styles.chapter} numberOfLines={1}>
-            {status.playing || t > 0 ? chapter?.label : 'Listen to the walkthrough'}
+            {status.playing || t > 0 ? chapters[ci]?.label : 'Listen to the walkthrough'}
           </Text>
           <Text style={styles.time}>
-            {fmt(scrubT)} / {fmt(duration)}
+            {fmt(shownT)} / {fmt(chDur)}
           </Text>
         </View>
         <GestureDetector gesture={Gesture.Exclusive(pan, tap)}>
@@ -130,6 +158,17 @@ export const AudioBar = forwardRef<AudioBarHandle, {
             <View style={[styles.thumb, { left: `${progress * 100}%` }]} />
           </View>
         </GestureDetector>
+        {/* The whole walkthrough: one dot per chapter, tap to jump. */}
+        <View style={styles.dots}>
+          {chapters.map((c, i) => (
+            <Pressable
+              key={c.at}
+              onPress={() => goChapter(i, true)}
+              hitSlop={{ top: 8, bottom: 8, left: 2, right: 2 }}
+              style={[styles.dot, i < ci && styles.dotDone, i === ci && styles.dotNow]}
+            />
+          ))}
+        </View>
       </View>
     </View>
   );
@@ -143,7 +182,7 @@ const styles = StyleSheet.create({
     marginHorizontal: space.lg,
     marginBottom: space.sm,
     backgroundColor: colors.surface,
-    borderRadius: radius.pill,
+    borderRadius: radius.lg,
     paddingVertical: 8,
     paddingHorizontal: space.md,
     ...shadow.card,
@@ -154,7 +193,7 @@ const styles = StyleSheet.create({
   metaRow: { flexDirection: 'row', alignItems: 'baseline', justifyContent: 'space-between', gap: space.sm },
   chapter: { flex: 1, color: colors.text, fontSize: 12, fontWeight: '700' },
   time: { color: colors.textFaint, fontSize: 11, fontWeight: '600', fontVariant: ['tabular-nums'] },
-  trackHit: { height: 22, justifyContent: 'center', marginRight: 6 },
+  trackHit: { height: 18, justifyContent: 'center', marginRight: 6 },
   track: { height: 4, borderRadius: 2, backgroundColor: colors.surfaceAlt, overflow: 'hidden' },
   fill: { height: '100%', backgroundColor: colors.accent, borderRadius: 2 },
   thumb: {
@@ -168,4 +207,8 @@ const styles = StyleSheet.create({
     borderColor: colors.surface,
     ...shadow.card,
   },
+  dots: { flexDirection: 'row', alignItems: 'center', gap: 4, marginTop: 2 },
+  dot: { flex: 1, height: 4, borderRadius: 2, backgroundColor: colors.surfaceAlt },
+  dotDone: { backgroundColor: colors.accent, opacity: 0.35 },
+  dotNow: { backgroundColor: colors.accent },
 });

@@ -79,6 +79,8 @@ export default function QuestionScreen() {
   const audioDriven = useRef(false);
   const indexRef = useRef(index);
   indexRef.current = index;
+  const busyRef = useRef(busy);
+  busyRef.current = busy;
 
   // Resolve each narration chapter to the deck card it narrates.
   const chapterCards = useMemo(() => {
@@ -231,17 +233,24 @@ export default function QuestionScreen() {
   };
 
   // The voice moved to a new chapter — bring the deck along.
-  const onChapterChange = useCallback(
-    (ci: number, playing: boolean) => {
-      if (!playing) return;
-      const target = chapterCards[ci];
-      if (target == null || target === indexRef.current) return;
-      audioDriven.current = true;
-      jumpTarget.current = target;
-      if (!busy) (target > indexRef.current ? goNext('x', FAST) : goPrev(FAST));
-    },
-    [chapterCards, busy, goNext, goPrev],
-  );
+  const chapterCardsRef = useRef(chapterCards);
+  chapterCardsRef.current = chapterCards;
+  const goNextRef = useRef(goNext);
+  goNextRef.current = goNext;
+  const goPrevRef = useRef(goPrev);
+  goPrevRef.current = goPrev;
+  const onChapterChange = useCallback((ci: number, playing: boolean) => {
+    if (!playing) return;
+    const target = chapterCardsRef.current[ci];
+    if (target == null || target === indexRef.current) return;
+    audioDriven.current = true;
+    jumpTarget.current = target;
+    if (!busyRef.current) {
+      if (target > indexRef.current) goNextRef.current('x', FAST);
+      else goPrevRef.current(FAST);
+    }
+    // If busy, the jump-continuation effect picks jumpTarget up on settle.
+  }, []);
 
   // Deck -> audio: when the LISTENER navigates, replay that card's chapter.
   useEffect(() => {
@@ -256,7 +265,7 @@ export default function QuestionScreen() {
     chapterCards.forEach((ci, k) => {
       if (ci != null && ci <= index) best = k;
     });
-    if (best != null) audioRef.current.seekTo(narration.chapters[best].at);
+    if (best != null) audioRef.current.seekToChapter(best);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [index]);
 
