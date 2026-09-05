@@ -19,6 +19,8 @@ import { FrameworkCard } from '@/components/FrameworkCard';
 import { FRAMEWORKS } from '@/data/frameworks';
 import { ConceptCard } from '@/components/ConceptCard';
 import { CONCEPTS } from '@/data/concepts';
+import { PLAYBOOKS } from '@/data/analytics';
+import { PlaybookCard } from '@/components/PlaybookCard';
 import { ALL_FACTS, emojiFor, type Fact } from '@/data/numbers';
 import { todayKey } from '@/state/useDaily';
 import { BottomNavBar, NAV_CLEARANCE } from '@/components/BottomNavBar';
@@ -217,6 +219,19 @@ export default function HomeScreen() {
         <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ marginVertical: -space.lg }} contentContainerStyle={{ paddingHorizontal: space.lg, paddingVertical: space.lg, gap: space.md }}>
           {CONCEPTS.slice(0, 6).map((c) => (
             <ConceptCard key={c.key} concept={c} wide onPress={() => router.push(`/learn/${c.key}`)} />
+          ))}
+        </ScrollView>
+
+        {/* Data & analytics */}
+        <View style={[styles.sectionHead, { marginTop: space.xl }]}>
+          <Text style={styles.sectionTitle}>Data, decoded</Text>
+          <Pressable onPress={() => router.push('/data')} hitSlop={8} style={styles.moreBtn}>
+            <MaterialIcons name="arrow-forward" size={18} color={colors.text} />
+          </Pressable>
+        </View>
+        <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ marginVertical: -space.lg }} contentContainerStyle={{ paddingHorizontal: space.lg, paddingVertical: space.lg, gap: space.md }}>
+          {PLAYBOOKS.slice(0, 6).map((p) => (
+            <PlaybookCard key={p.key} playbook={p} wide onPress={() => router.push(`/data/${p.key}`)} />
           ))}
         </ScrollView>
       </ScrollView>
