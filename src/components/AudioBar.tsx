@@ -17,6 +17,8 @@ export interface AudioBarHandle {
   seekToChapter: (chapterIndex: number) => void;
   /** Has the listener started this narration (playing, or paused mid-way)? */
   isActive: () => boolean;
+  /** The chapter currently being narrated. */
+  currentChapter: () => number;
 }
 
 /**
@@ -56,6 +58,8 @@ export const AudioBar = forwardRef<AudioBarHandle, {
   const duration = status.duration || narration.duration;
   const t = status.currentTime ?? 0;
   const ci = chapters.reduce((acc, c, i) => (t >= c.at ? i : acc), 0);
+  const ciRef = useRef(ci);
+  ciRef.current = ci;
   const chStart = chapters[ci].at;
   const chEnd = ci + 1 < chapters.length ? chapters[ci + 1].at : duration;
   const chDur = Math.max(0.1, chEnd - chStart);
@@ -84,6 +88,7 @@ export const AudioBar = forwardRef<AudioBarHandle, {
   useImperativeHandle(ref, () => ({
     seekToChapter: (i: number) => goChapter(i, false),
     isActive: () => !!status.playing || t > 0.5,
+    currentChapter: () => ciRef.current,
   }));
 
   const toggle = () => {

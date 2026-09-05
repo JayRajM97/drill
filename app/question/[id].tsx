@@ -265,7 +265,9 @@ export default function QuestionScreen() {
     chapterCards.forEach((ci, k) => {
       if (ci != null && ci <= index) best = k;
     });
-    if (best != null) audioRef.current.seekToChapter(best);
+    // Only move the audio when the card belongs to a DIFFERENT chapter —
+    // swiping within the current chapter must not restart the voice.
+    if (best != null && best !== audioRef.current.currentChapter()) audioRef.current.seekToChapter(best);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [index]);
 
