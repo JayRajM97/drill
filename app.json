@@ -43,7 +43,14 @@
         }
       ],
       "@bacons/apple-targets",
-      "expo-audio"
+      "expo-audio",
+      [
+        "expo-notifications",
+        {
+          "icon": "./assets/android-icon-monochrome.png",
+          "color": "#1F5EFF"
+        }
+      ]
     ],
     "description": "Flashcard-style practice for product management interviews: real case studies broken into cards, plus the numbers every PM should know.",
     "primaryColor": "#1F5EFF"

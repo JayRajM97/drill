@@ -5,9 +5,12 @@ import { Platform, StyleSheet, View } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { ProgressProvider } from '@/state/useProgress';
+import { useDailyNudges } from '@/notifications/useDailyNudges';
 import { colors } from '@/theme/tokens';
 
 export default function RootLayout() {
+  useDailyNudges();
+
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
       <SafeAreaProvider>

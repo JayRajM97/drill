@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Platform, ScrollView, StyleSheet, Switch, Text, View } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { MaterialIcons } from '@expo/vector-icons';
@@ -9,16 +9,27 @@ import { useProgress } from '@/state/useProgress';
 import { BottomNavBar, NAV_CLEARANCE } from '@/components/BottomNavBar';
 import { QuestionCard } from '@/components/QuestionCard';
 import { Card, Eyebrow } from '@/components/ui';
+import { SLOTS, areNudgesEnabled, pendingNudges, setNudgesEnabled } from '@/notifications/daily';
 import { colors, radius, shadow, space } from '@/theme/tokens';
+
+/** 13:30 -> "1:30 PM" */
+function fmtTime(hour: number, minute: number): string {
+  const h = hour % 12 === 0 ? 12 : hour % 12;
+  return `${h}:${minute.toString().padStart(2, '0')} ${hour < 12 ? 'AM' : 'PM'}`;
+}
 
 export default function ProfileScreen() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
   const { progress, toggleBookmark } = useProgress();
   const [all, setAll] = useState<Question[]>([]);
+  const [nudges, setNudges] = useState(true);
+  const [queued, setQueued] = useState<number | null>(null);
 
   useEffect(() => {
     questions.list().then(setAll);
+    areNudgesEnabled().then(setNudges);
+    pendingNudges().then((p) => setQueued(p.length)).catch(() => {});
   }, []);
 
   const saved = all.filter((q) => progress.bookmarkIds.includes(q.id));
@@ -64,6 +75,38 @@ export default function ProfileScreen() {
             <Text style={styles.statLabel}>Saved</Text>
           </Card>
         </View>
+
+        {Platform.OS !== 'web' ? (
+          <Card style={styles.nudge}>
+            <View style={styles.nudgeHead}>
+              <View style={{ flex: 1, gap: 2 }}>
+                <Text style={styles.nudgeTitle}>Daily reminders</Text>
+                <Text style={styles.nudgeSub}>
+                  Six a day: 2 case studies, 2 numbers, 2 frameworks.
+                  {nudges && queued ? ` ${queued} queued.` : ''}
+                </Text>
+              </View>
+              <Switch
+                value={nudges}
+                onValueChange={(on) => {
+                  setNudges(on);
+                  setNudgesEnabled(on)
+                    .then(() => pendingNudges())
+                    .then((p) => setQueued(p.length))
+                    .catch(() => {});
+                }}
+                trackColor={{ true: colors.accent, false: colors.border }}
+              />
+            </View>
+            <View style={styles.nudgeTimes}>
+              {SLOTS.map((s) => (
+                <View key={`${s.hour}:${s.minute}`} style={[styles.timePill, !nudges && { opacity: 0.4 }]}>
+                  <Text style={styles.timeText}>{fmtTime(s.hour, s.minute)}</Text>
+                </View>
+              ))}
+            </View>
+          </Card>
+        ) : null}
 
         <View style={styles.sectionHead}>
           <Text style={styles.sectionTitle}>Saved</Text>
@@ -123,6 +166,13 @@ const styles = StyleSheet.create({
   },
   sectionTitle: { color: colors.text, fontSize: 20, fontWeight: '700', letterSpacing: -0.2 },
   sectionMeta: { color: colors.textFaint, fontSize: 13, fontWeight: '600' },
+  nudge: { gap: space.md, marginTop: space.lg },
+  nudgeHead: { flexDirection: 'row', alignItems: 'center', gap: space.md },
+  nudgeTitle: { color: colors.text, fontSize: 17, fontWeight: '800', letterSpacing: -0.2 },
+  nudgeSub: { color: colors.textMuted, fontSize: 13, lineHeight: 18 },
+  nudgeTimes: { flexDirection: 'row', flexWrap: 'wrap', gap: 6 },
+  timePill: { backgroundColor: colors.accentSoft, borderRadius: radius.pill, paddingHorizontal: 10, paddingVertical: 5 },
+  timeText: { color: colors.accent, fontSize: 12, fontWeight: '800' },
   empty: { alignItems: 'center', gap: space.sm, paddingVertical: space.xl },
   emptyTitle: { color: colors.text, fontSize: 17, fontWeight: '700', marginTop: space.xs },
   emptyText: { color: colors.textMuted, fontSize: 14, textAlign: 'center', maxWidth: 240 },

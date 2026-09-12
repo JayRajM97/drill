@@ -16,9 +16,18 @@ function topicOf(fact: Fact, set: NumberSet) {
   return SETS[set].topics.find((t) => t.groups.some((g) => g.facts.includes(fact)));
 }
 
+/** A daily nudge names one fact — deal that card first, then carry on shuffling. */
+function openingOrder(pool: Fact[], firstId?: string): Fact[] {
+  const deck = shuffle(pool);
+  if (!firstId) return deck;
+  const at = deck.findIndex((f) => f.id === firstId);
+  if (at <= 0) return deck;
+  return [deck[at], ...deck.slice(0, at), ...deck.slice(at + 1)];
+}
+
 /** Endless random order over the whole DB: a fresh shuffle each time the deck runs out. */
-function useRandomDeck(pool: Fact[]) {
-  const [order, setOrder] = useState<Fact[]>(() => shuffle(pool));
+function useRandomDeck(pool: Fact[], firstId?: string) {
+  const [order, setOrder] = useState<Fact[]>(() => openingOrder(pool, firstId));
   const [i, setI] = useState(0);
   const next = useCallback(() => {
     if (i + 2 >= order.length) {
@@ -43,10 +52,10 @@ export default function NumbersShuffle() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
   const { width: W } = useWindowDimensions();
-  const { set: setParam } = useLocalSearchParams<{ set?: string }>();
+  const { set: setParam, factId } = useLocalSearchParams<{ set?: string; factId?: string }>();
   const set: NumberSet = setParam === 'metrics' ? 'metrics' : 'numbers';
   const goBack = () => (router.canGoBack() ? router.back() : router.replace('/numbers'));
-  const { current, ahead, i, next, prev } = useRandomDeck(SETS[set].facts);
+  const { current, ahead, i, next, prev } = useRandomDeck(SETS[set].facts, factId);
   const [revealed, setRevealed] = useState(false);
   const [seen, setSeen] = useState(0);
   const [busy, setBusy] = useState(false);
