@@ -77,6 +77,12 @@ export interface Progress {
   lastCompletedDate: string | null;
   bookmarkIds: string[];
   completedIds: string[];
+  /**
+   * Every ISO date the user completed something. The streak is derived from
+   * this, which is what makes two devices mergeable: union the days, then
+   * recount. Older installs won't have it — it gets backfilled on load.
+   */
+  activeDates?: string[];
 }
 
 export const EMPTY_PROGRESS: Progress = {
@@ -84,4 +90,5 @@ export const EMPTY_PROGRESS: Progress = {
   lastCompletedDate: null,
   bookmarkIds: [],
   completedIds: [],
+  activeDates: [],
 };

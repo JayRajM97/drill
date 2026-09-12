@@ -1,16 +1,15 @@
 rules_version = '2';
+
+// Drill stores one progress document per user at users/{uid}: streak,
+// active days, completed drills and bookmarks. Nobody can read or write
+// anyone else's — signed in, and only your own uid.
 service cloud.firestore {
   match /databases/{database}/documents {
-    // Published questions are world-readable; only the backend (Admin SDK,
-    // which bypasses rules) may write. Unpublished docs are never exposed.
-    match /questions/{id} {
-      allow read: if resource.data.is_published == true;
-      allow write: if false;
+    match /users/{uid} {
+      allow read, write: if request.auth != null && request.auth.uid == uid;
     }
-    // The daily index is public-readable, backend-write-only.
-    match /daily/{date} {
-      allow read: if true;
-      allow write: if false;
+    match /{document=**} {
+      allow read, write: if false;
     }
   }
 }

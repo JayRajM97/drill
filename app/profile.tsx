@@ -6,6 +6,7 @@ import { MaterialIcons } from '@expo/vector-icons';
 import { questions } from '@/data';
 import type { Question } from '@/types/question';
 import { useProgress } from '@/state/useProgress';
+import { AccountCard } from '@/components/AccountCard';
 import { BottomNavBar, NAV_CLEARANCE } from '@/components/BottomNavBar';
 import { QuestionCard } from '@/components/QuestionCard';
 import { Card, Eyebrow } from '@/components/ui';
@@ -75,6 +76,8 @@ export default function ProfileScreen() {
             <Text style={styles.statLabel}>Saved</Text>
           </Card>
         </View>
+
+        <AccountCard />
 
         {Platform.OS !== 'web' ? (
           <Card style={styles.nudge}>

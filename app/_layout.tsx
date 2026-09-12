@@ -4,6 +4,7 @@ import { StatusBar } from 'expo-status-bar';
 import { Platform, StyleSheet, View } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
+import { AuthProvider } from '@/auth/AuthProvider';
 import { ProgressProvider } from '@/state/useProgress';
 import { useDailyNudges } from '@/notifications/useDailyNudges';
 import { colors } from '@/theme/tokens';
@@ -14,21 +15,23 @@ export default function RootLayout() {
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
       <SafeAreaProvider>
-        <ProgressProvider>
-          <StatusBar style="dark" />
-          {/* On desktop web, keep the app a phone-width column in the middle. */}
-          <View style={styles.frame}>
-            <View style={styles.column}>
-              <Stack
-                screenOptions={{
-                  headerShown: false,
-                  contentStyle: { backgroundColor: colors.bg },
-                  animation: 'slide_from_right',
-                }}
-              />
+        <AuthProvider>
+          <ProgressProvider>
+            <StatusBar style="dark" />
+            {/* On desktop web, keep the app a phone-width column in the middle. */}
+            <View style={styles.frame}>
+              <View style={styles.column}>
+                <Stack
+                  screenOptions={{
+                    headerShown: false,
+                    contentStyle: { backgroundColor: colors.bg },
+                    animation: 'slide_from_right',
+                  }}
+                />
+              </View>
             </View>
-          </View>
-        </ProgressProvider>
+          </ProgressProvider>
+        </AuthProvider>
       </SafeAreaProvider>
     </GestureHandlerRootView>
   );
