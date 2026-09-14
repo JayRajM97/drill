@@ -1,28 +1,16 @@
-import Anthropic from '@anthropic-ai/sdk';
-import { zodOutputFormat } from '@anthropic-ai/sdk/helpers/zod';
-import { GeneratedQuestion, toAnswerSections } from '../functions/src/schema';
+import { toAnswerSections } from '../functions/src/schema';
 import { SYSTEM_PROMPT, buildTopicPrompt } from '../functions/src/prompt';
+import { activeModel, activeProvider, apiKeyFor, generate } from './_providers';
 
 /**
  * Turns a topic the user typed into a full Drill question.
  *
- * The Anthropic key lives here and never reaches the app: anything bundled
- * into the client ships inside the JavaScript, where anyone could read it.
+ * Provider is chosen with DRILL_PROVIDER (anthropic | openai | gemini); the
+ * key for whichever one is active lives here and never reaches the app —
+ * anything bundled into the client ships inside the JavaScript, where anyone
+ * could read it.
  */
 
-const MODEL = process.env.DRILL_MODEL ?? 'claude-sonnet-5';
-
-/**
- * Thinking is configured differently across model families: the 4.6-and-later
- * models take adaptive thinking, while Haiku 4.5 still takes a fixed budget
- * and rejects `adaptive` outright. Without this, swapping DRILL_MODEL to Haiku
- * to save money would just 400.
- */
-function thinkingFor(model: string) {
-  return model.includes('haiku')
-    ? { type: 'enabled' as const, budget_tokens: 2000 }
-    : { type: 'adaptive' as const };
-}
 const MAX_TOPIC = 300;
 
 // Best-effort throttle. Serverless instances are reused, so this catches the
@@ -78,7 +66,9 @@ export default async function handler(req: any, res: any) {
     return;
   }
 
-  const apiKey = process.env.ANTHROPIC_API_KEY;
+  const provider = activeProvider();
+  const model = activeModel(provider);
+  const apiKey = apiKeyFor(provider);
   if (!apiKey) {
     // No key configured yet — hand back a clearly-labelled placeholder so the
     // whole flow (generate, save, open, practise) is testable end to end.
@@ -87,17 +77,11 @@ export default async function handler(req: any, res: any) {
   }
 
   try {
-    const client = new Anthropic({ apiKey });
-    const response = await client.messages.parse({
-      model: MODEL,
-      max_tokens: 8000,
-      thinking: thinkingFor(MODEL),
-      output_config: { format: zodOutputFormat(GeneratedQuestion) },
+    const parsed = await generate(provider, apiKey, {
       system: SYSTEM_PROMPT,
-      messages: [{ role: 'user', content: buildTopicPrompt(topic) }],
+      user: buildTopicPrompt(topic),
+      model,
     });
-
-    const parsed = response.parsed_output;
     if (!parsed) {
       res.status(502).json({ error: 'The model did not return a usable drill. Try rephrasing.' });
       return;
@@ -119,6 +103,7 @@ export default async function handler(req: any, res: any) {
         strong_vs_generic: parsed.strong_vs_generic,
         is_published: true,
       },
+      generatedBy: `${provider}:${model}`,
     });
   } catch (err) {
     const message = err instanceof Error ? err.message : 'Unknown error';
