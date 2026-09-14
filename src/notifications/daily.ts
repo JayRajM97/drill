@@ -51,7 +51,11 @@ function pick<T>(pool: T[], turn: number): T | undefined {
 interface Nudge {
   title: string;
   body: string;
-  href: string;
+  /** Route to open. Sent as pathname + params, never as a pre-built URL
+   *  string: a query string survives the round trip through the notification
+   *  payload far less reliably than structured params do. */
+  pathname: string;
+  params?: Record<string, string>;
 }
 
 /**
@@ -65,13 +69,19 @@ function nudgeFor(slot: Slot, turn: number, all: Question[]): Nudge | undefined 
     return {
       title: `Case study · ${q.categories[0] ?? 'Practice'}`,
       body: q.title,
-      href: `/question/${q.id}`,
+      pathname: '/question/[id]',
+      params: { id: q.id },
     };
   }
   if (slot.kind === 'framework') {
     const f = pick(FRAMEWORKS, turn);
     if (!f) return undefined;
-    return { title: `Framework · ${f.name}`, body: f.oneLiner, href: `/frameworks/${f.key}` };
+    return {
+      title: `Framework · ${f.name}`,
+      body: f.oneLiner,
+      pathname: '/frameworks/[key]',
+      params: { key: f.key },
+    };
   }
   const set: NumberSet = slot.set ?? 'numbers';
   const fact = pick(SETS[set].facts, turn);
@@ -79,7 +89,8 @@ function nudgeFor(slot: Slot, turn: number, all: Question[]): Nudge | undefined 
   return {
     title: set === 'metrics' ? 'Metric check' : 'Number check',
     body: questionFor(fact),
-    href: `/numbers/shuffle?set=${set}&factId=${encodeURIComponent(fact.id)}`,
+    pathname: '/numbers/shuffle',
+    params: { set, factId: fact.id },
   };
 }
 
@@ -145,7 +156,7 @@ export async function rescheduleNudges(): Promise<number> {
         content: {
           title: nudge.title,
           body: nudge.body,
-          data: { href: nudge.href },
+          data: { pathname: nudge.pathname, params: nudge.params ?? {} },
           sound: true,
         },
         trigger: {
@@ -158,6 +169,34 @@ export async function rescheduleNudges(): Promise<number> {
     }
   }
   return queued;
+}
+
+/**
+ * Fires one metric nudge a few seconds from now. The scheduled slots are hours
+ * apart, so this is the only practical way to check that tapping a nudge opens
+ * the right card — including from a cold start, which is where deep links break.
+ */
+export async function sendTestNudge(): Promise<boolean> {
+  if (Platform.OS === 'web') return false;
+  if (!(await ensurePermission())) return false;
+  const pool = SETS.metrics.facts;
+  const fact = pool[Math.floor(Math.random() * pool.length)];
+  if (!fact) return false;
+  await Notifications.scheduleNotificationAsync({
+    content: {
+      title: 'Metric check (test)',
+      body: questionFor(fact),
+      data: { pathname: '/numbers/shuffle', params: { set: 'metrics', factId: fact.id } },
+      sound: true,
+    },
+    trigger: {
+      type: Notifications.SchedulableTriggerInputTypes.TIME_INTERVAL,
+      seconds: 5,
+      repeats: false,
+      ...(Platform.OS === 'android' ? { channelId: 'drill-daily' } : {}),
+    },
+  });
+  return true;
 }
 
 /** Debug helper: what is actually sitting in the queue right now. */

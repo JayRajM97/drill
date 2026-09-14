@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Platform, ScrollView, StyleSheet, Switch, Text, View } from 'react-native';
+import { Platform, Pressable, ScrollView, StyleSheet, Switch, Text, View } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { MaterialIcons } from '@expo/vector-icons';
@@ -10,7 +10,7 @@ import { AccountCard } from '@/components/AccountCard';
 import { BottomNavBar, NAV_CLEARANCE } from '@/components/BottomNavBar';
 import { QuestionCard } from '@/components/QuestionCard';
 import { Card, Eyebrow } from '@/components/ui';
-import { SLOTS, areNudgesEnabled, pendingNudges, setNudgesEnabled } from '@/notifications/daily';
+import { SLOTS, areNudgesEnabled, pendingNudges, sendTestNudge, setNudgesEnabled } from '@/notifications/daily';
 import { colors, radius, shadow, space } from '@/theme/tokens';
 
 /** 13:30 -> "1:30 PM" */
@@ -26,6 +26,7 @@ export default function ProfileScreen() {
   const [all, setAll] = useState<Question[]>([]);
   const [nudges, setNudges] = useState(true);
   const [queued, setQueued] = useState<number | null>(null);
+  const [tested, setTested] = useState(false);
 
   useEffect(() => {
     questions.list().then(setAll);
@@ -108,6 +109,19 @@ export default function ProfileScreen() {
                 </View>
               ))}
             </View>
+            <Pressable
+              onPress={() => {
+                setTested(true);
+                sendTestNudge().catch(() => {});
+                setTimeout(() => setTested(false), 8000);
+              }}
+              hitSlop={6}
+              style={styles.testBtn}
+            >
+              <Text style={styles.testText}>
+                {tested ? 'Arriving in 5 seconds…' : 'Send a test nudge'}
+              </Text>
+            </Pressable>
           </Card>
         ) : null}
 
@@ -174,6 +188,8 @@ const styles = StyleSheet.create({
   nudgeTitle: { color: colors.text, fontSize: 17, fontWeight: '800', letterSpacing: -0.2 },
   nudgeSub: { color: colors.textMuted, fontSize: 13, lineHeight: 18 },
   nudgeTimes: { flexDirection: 'row', flexWrap: 'wrap', gap: 6 },
+  testBtn: { alignSelf: 'flex-start', paddingVertical: 4 },
+  testText: { color: colors.accent, fontSize: 13, fontWeight: '700' },
   timePill: { backgroundColor: colors.accentSoft, borderRadius: radius.pill, paddingHorizontal: 10, paddingVertical: 5 },
   timeText: { color: colors.accent, fontSize: 12, fontWeight: '800' },
   empty: { alignItems: 'center', gap: space.sm, paddingVertical: space.xl },
