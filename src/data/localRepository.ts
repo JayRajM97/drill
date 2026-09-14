@@ -1,6 +1,7 @@
 import type { Category, Question } from '@/types/question';
 import { CATEGORIES } from '@/types/question';
 import { curatedQuestions } from './curated';
+import { loadCustom } from './customStore';
 import { notionQuestions } from './notionQuestions';
 import type {
   CategorySummary,
@@ -41,15 +42,20 @@ const TODAY_PINNED = [
   'design-netflix-for-kids',
 ];
 
+/** Everything the app can show: the user's own drills first, then the bundled set. */
+async function allQuestions(): Promise<Question[]> {
+  return [...(await loadCustom()), ...QUESTIONS];
+}
+
 export const localRepository: QuestionRepository = {
   async list(filters = {}) {
-    let results = QUESTIONS.filter((q) => matches(q, filters));
+    let results = (await allQuestions()).filter((q) => matches(q, filters));
     if (filters.limit != null) results = results.slice(0, filters.limit);
     return results;
   },
 
   async getById(id) {
-    return QUESTIONS.find((q) => q.id === id) ?? null;
+    return (await allQuestions()).find((q) => q.id === id) ?? null;
   },
 
   async getDaily(seedStr) {
@@ -74,15 +80,16 @@ export const localRepository: QuestionRepository = {
   },
 
   async getCategories() {
+    const all = await allQuestions();
     return CATEGORIES.map<CategorySummary>((category) => ({
       category,
-      count: QUESTIONS.filter((q) => q.categories.includes(category)).length,
+      count: all.filter((q) => q.categories.includes(category)).length,
     }));
   },
 
   async getDomains() {
     const set = new Set<string>();
-    QUESTIONS.forEach((q) => q.domain_tags.forEach((d) => set.add(d)));
+    (await allQuestions()).forEach((q) => q.domain_tags.forEach((d) => set.add(d)));
     return Array.from(set).sort();
   },
 };

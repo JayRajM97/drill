@@ -110,9 +110,19 @@ export default function HomeScreen() {
             <Text style={styles.greet}>{greeting()}</Text>
             <Text style={styles.hero}>Ready to drill?</Text>
           </View>
-          <View style={styles.streak}>
-            <MaterialIcons name="local-fire-department" size={18} color={colors.warning} />
-            <Text style={styles.streakText}>{progress.streak}</Text>
+          <View style={styles.topActions}>
+            <View style={styles.streak}>
+              <MaterialIcons name="local-fire-department" size={18} color={colors.warning} />
+              <Text style={styles.streakText}>{progress.streak}</Text>
+            </View>
+            <Pressable
+              onPress={() => router.push('/create')}
+              hitSlop={8}
+              accessibilityLabel="Make your own drill"
+              style={({ pressed }) => [styles.addBtn, pressed && { opacity: 0.9 }]}
+            >
+              <MaterialIcons name="add" size={24} color={colors.onAccent} />
+            </Pressable>
           </View>
         </View>
 
@@ -301,6 +311,16 @@ const styles = StyleSheet.create({
   },
   greet: { color: colors.textMuted, fontSize: 15, fontWeight: '500', marginBottom: 4 },
   hero: { color: colors.text, fontSize: 34, fontWeight: '800', letterSpacing: -0.8 },
+  topActions: { flexDirection: 'row', alignItems: 'center', gap: space.sm },
+  addBtn: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: colors.accent,
+    alignItems: 'center',
+    justifyContent: 'center',
+    ...shadow.accent,
+  },
   streak: {
     flexDirection: 'row',
     alignItems: 'center',
