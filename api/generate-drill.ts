@@ -11,6 +11,18 @@ import { SYSTEM_PROMPT, buildTopicPrompt } from '../functions/src/prompt';
  */
 
 const MODEL = process.env.DRILL_MODEL ?? 'claude-sonnet-5';
+
+/**
+ * Thinking is configured differently across model families: the 4.6-and-later
+ * models take adaptive thinking, while Haiku 4.5 still takes a fixed budget
+ * and rejects `adaptive` outright. Without this, swapping DRILL_MODEL to Haiku
+ * to save money would just 400.
+ */
+function thinkingFor(model: string) {
+  return model.includes('haiku')
+    ? { type: 'enabled' as const, budget_tokens: 2000 }
+    : { type: 'adaptive' as const };
+}
 const MAX_TOPIC = 300;
 
 // Best-effort throttle. Serverless instances are reused, so this catches the
@@ -79,7 +91,7 @@ export default async function handler(req: any, res: any) {
     const response = await client.messages.parse({
       model: MODEL,
       max_tokens: 8000,
-      thinking: { type: 'adaptive' },
+      thinking: thinkingFor(MODEL),
       output_config: { format: zodOutputFormat(GeneratedQuestion) },
       system: SYSTEM_PROMPT,
       messages: [{ role: 'user', content: buildTopicPrompt(topic) }],

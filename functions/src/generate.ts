@@ -3,9 +3,10 @@ import { zodOutputFormat } from '@anthropic-ai/sdk/helpers/zod';
 import { GeneratedQuestion, type Category } from './schema';
 import { SYSTEM_PROMPT, buildUserPrompt } from './prompt';
 
-// User-selected model. Sonnet 4.6 is the cheaper choice for daily volume;
-// swap to "claude-opus-4-8" for the highest-quality answers.
-const MODEL = 'claude-sonnet-4-6';
+// Sonnet 5 is both newer and cheaper than Sonnet 4.6 ($2/$10 per MTok vs
+// $3/$15), so there is no reason to stay on 4.6. Swap to "claude-opus-5" if
+// daily quality ever matters more than cost.
+const MODEL = 'claude-sonnet-5';
 
 /**
  * Generate one structured question for a category, avoiding the given titles.
