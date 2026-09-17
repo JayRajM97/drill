@@ -100,7 +100,7 @@ export default async function handler(req: any, res: any) {
         framework: parsed.framework,
         key_pointers: parsed.key_pointers,
         answer: toAnswerSections(parsed.answer),
-        strong_vs_generic: parsed.strong_vs_generic,
+        strong_vs_generic: parsed.strong_vs_generic ?? undefined,
         is_published: true,
       },
       generatedBy: `${provider}:${model}`,

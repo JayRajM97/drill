@@ -30,11 +30,15 @@ export const DOMAIN_TAGS = [
 export const GeneratedSection = z.object({
   heading: z.string(),
   type: z.enum(['bullets', 'callout', 'table', 'text']),
-  bullets: z.array(z.string()).optional(),
-  text: z.string().optional(),
+  // Nullable rather than optional: OpenAI's structured outputs require every
+  // property to be present and express "absent" as null, and rejects a bare
+  // .optional() outright. Anthropic and Gemini both accept nullable too, so
+  // one schema still serves all three.
+  bullets: z.array(z.string()).nullable(),
+  text: z.string().nullable(),
   table: z
     .object({ headers: z.array(z.string()), rows: z.array(z.array(z.string())) })
-    .optional(),
+    .nullable(),
 });
 
 export const GeneratedQuestion = z.object({
@@ -50,7 +54,7 @@ export const GeneratedQuestion = z.object({
   answer: z.array(GeneratedSection).min(5),
   strong_vs_generic: z
     .array(z.object({ strong: z.string(), generic: z.string() }))
-    .optional(),
+    .nullable(),
 });
 
 export type GeneratedQuestion = z.infer<typeof GeneratedQuestion>;

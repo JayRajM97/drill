@@ -1,0 +1,9 @@
+# Native build output — hundreds of MB, and irrelevant to the web deploy.
+# Without this the CLI archives Xcode's intermediates, which also breaks the
+# upload outright if a device build is running at the same time.
+ios/
+android/
+functions/node_modules/
+functions/lib/
+assets/narration/
+.expo/
