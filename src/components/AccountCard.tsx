@@ -1,10 +1,9 @@
 import React, { useState } from 'react';
-import { ActivityIndicator, Image, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
+import { ActivityIndicator, Image, Pressable, StyleSheet, Text, View } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
 import { useAuth } from '@/auth/AuthProvider';
 import { useProgress } from '@/state/useProgress';
-import { Card } from '@/components/ui';
-import { colors, radius, space } from '@/theme/tokens';
+import { colors, radius, shadow, space } from '@/theme/tokens';
 
 const SYNC_LABEL: Record<string, string> = {
   syncing: 'Syncing…',
@@ -15,212 +14,138 @@ const SYNC_LABEL: Record<string, string> = {
 };
 
 /**
- * Sign in to carry the streak across devices and survive a reinstall.
- * Everything keeps working signed out; this only adds a cloud copy.
+ * Google only. Signed out it is a single button; signed in it is the person's
+ * name, their picture, and a way out. Nothing else belongs here.
  */
-export function AccountCard() {
-  const { account, ready, configured, signIn, signUp, signInWithGoogle, googleReady, signOut } = useAuth();
-  const { sync, progress } = useProgress();
-  const [mode, setMode] = useState<'signIn' | 'signUp'>('signIn');
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+export function AccountCard({ compact }: { compact?: boolean }) {
+  const { account, ready, signInWithGoogle, googleReady } = useAuth();
+  const { sync } = useProgress();
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  if (!configured) {
-    return (
-      <Card style={styles.card}>
-        <Text style={styles.title}>Save your streak</Text>
-        <Text style={styles.sub}>
-          Cloud sync isn’t set up in this build, so your {progress.streak}-day streak lives only on
-          this device.
-        </Text>
-      </Card>
-    );
-  }
+  if (!ready) return null;
 
-  if (!ready) {
-    return (
-      <Card style={[styles.card, styles.center]}>
-        <ActivityIndicator color={colors.accent} />
-      </Card>
-    );
-  }
-
-  if (account) {
-    return (
-      <Card style={styles.card}>
-        <View style={styles.row}>
-          {account.photo ? (
-            <Image source={{ uri: account.photo }} style={styles.avatar} />
-          ) : (
-            <View style={styles.badge}>
-              <MaterialIcons name="person" size={20} color={colors.accent} />
-            </View>
-          )}
-          <View style={{ flex: 1, gap: 2 }}>
-            <Text style={styles.title} numberOfLines={1}>
-              {account.name ?? account.email ?? 'Signed in'}
-            </Text>
-            {account.name && account.email ? (
-              <Text style={styles.sub} numberOfLines={1} ellipsizeMode="middle">
-                {account.email}
-              </Text>
-            ) : null}
-            <Text style={styles.sub}>{SYNC_LABEL[sync] ?? SYNC_LABEL.local}</Text>
-          </View>
-        </View>
-        <Pressable onPress={() => signOut()} style={styles.ghost} hitSlop={6}>
-          <Text style={styles.ghostText}>Sign out</Text>
-        </Pressable>
-      </Card>
-    );
-  }
-
-  const submit = async () => {
+  const onPress = async () => {
+    if (!googleReady) {
+      setError('Google sign-in is not configured in this build.');
+      return;
+    }
     setBusy(true);
     setError(null);
-    const message = mode === 'signIn' ? await signIn(email, password) : await signUp(email, password);
+    const message = await signInWithGoogle();
     setBusy(false);
     if (message) setError(message);
-    else {
-      setEmail('');
-      setPassword('');
-    }
   };
 
+  if (account) {
+    if (compact) return null; // the streak card has nothing to offer once signed in
+    return (
+      <View style={styles.signedIn}>
+        {account.photo ? (
+          <Image source={{ uri: account.photo }} style={styles.avatar} />
+        ) : (
+          <View style={styles.badge}>
+            <MaterialIcons name="person" size={20} color={colors.accent} />
+          </View>
+        )}
+        <View style={{ flex: 1, gap: 2 }}>
+          <Text style={styles.name} numberOfLines={1}>
+            {account.name ?? account.email ?? 'Signed in'}
+          </Text>
+          <Text style={styles.sync} numberOfLines={1}>
+            {SYNC_LABEL[sync] ?? SYNC_LABEL.local}
+          </Text>
+        </View>
+        <SignOutButton />
+      </View>
+    );
+  }
+
   return (
-    <Card style={styles.card}>
-      <Text style={styles.title}>Save your streak</Text>
-      <Text style={styles.sub}>
-        {progress.streak > 0
-          ? `Your ${progress.streak}-day streak lives only on this phone. Sign in to keep it safe.`
-          : 'Sign in to keep your streak, bookmarks and completed drills across devices.'}
-      </Text>
-
-      {googleReady ? (
-        <>
-          <Pressable
-            onPress={async () => {
-              setBusy(true);
-              setError(null);
-              const message = await signInWithGoogle();
-              setBusy(false);
-              if (message) setError(message);
-            }}
-            disabled={busy}
-            style={({ pressed }) => [styles.google, busy && { opacity: 0.6 }, pressed && { opacity: 0.9 }]}
-          >
-            <Text style={styles.gMark}>G</Text>
-            <Text style={styles.googleText}>Continue with Google</Text>
-          </Pressable>
-          <Text style={styles.or}>or with email</Text>
-        </>
-      ) : null}
-
-      <TextInput
-        value={email}
-        onChangeText={setEmail}
-        placeholder="Email"
-        placeholderTextColor={colors.textFaint}
-        autoCapitalize="none"
-        autoCorrect={false}
-        keyboardType="email-address"
-        textContentType="emailAddress"
-        style={styles.input}
-      />
-      <TextInput
-        value={password}
-        onChangeText={setPassword}
-        placeholder="Password"
-        placeholderTextColor={colors.textFaint}
-        autoCapitalize="none"
-        autoCorrect={false}
-        secureTextEntry
-        textContentType={mode === 'signUp' ? 'newPassword' : 'password'}
-        style={styles.input}
-        onSubmitEditing={submit}
-      />
-
-      {error ? <Text style={styles.error}>{error}</Text> : null}
-
+    <View style={compact ? undefined : { gap: 6 }}>
       <Pressable
-        onPress={submit}
-        disabled={busy || !email || !password}
+        onPress={onPress}
+        disabled={busy}
         style={({ pressed }) => [
-          styles.primary,
-          (busy || !email || !password) && { opacity: 0.5 },
-          pressed && { opacity: 0.85 },
+          compact ? styles.googleCompact : styles.google,
+          busy && { opacity: 0.6 },
+          pressed && { opacity: 0.9 },
         ]}
       >
         {busy ? (
-          <ActivityIndicator color={colors.onAccent} />
+          <ActivityIndicator color={compact ? colors.onAccent : colors.text} />
         ) : (
-          <Text style={styles.primaryText}>{mode === 'signIn' ? 'Sign in' : 'Create account'}</Text>
+          <>
+            <Text style={[styles.gMark, compact && styles.gMarkCompact]}>G</Text>
+            <Text style={[styles.googleText, compact && styles.googleTextCompact]}>
+              {compact ? 'Continue with Google to save your streak' : 'Continue with Google'}
+            </Text>
+          </>
         )}
       </Pressable>
+      {error && !compact ? <Text style={styles.error}>{error}</Text> : null}
+    </View>
+  );
+}
 
-      <Pressable
-        onPress={() => {
-          setMode(mode === 'signIn' ? 'signUp' : 'signIn');
-          setError(null);
-        }}
-        hitSlop={6}
-        style={styles.ghost}
-      >
-        <Text style={styles.ghostText}>
-          {mode === 'signIn' ? 'New here? Create an account' : 'Already have an account? Sign in'}
-        </Text>
-      </Pressable>
-    </Card>
+function SignOutButton() {
+  const { signOut } = useAuth();
+  return (
+    <Pressable onPress={() => signOut()} hitSlop={8} style={styles.out}>
+      <Text style={styles.outText}>Sign out</Text>
+    </Pressable>
   );
 }
 
 const styles = StyleSheet.create({
-  card: { gap: space.sm, marginTop: space.lg },
-  center: { alignItems: 'center', paddingVertical: space.xl },
-  row: { flexDirection: 'row', alignItems: 'center', gap: space.md },
-  avatar: { width: 42, height: 42, borderRadius: 21, backgroundColor: colors.surfaceAlt },
-  badge: {
-    width: 38,
-    height: 38,
-    borderRadius: 19,
-    backgroundColor: colors.accentSoft,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  title: { color: colors.text, fontSize: 17, fontWeight: '800', letterSpacing: -0.2 },
-  sub: { color: colors.textMuted, fontSize: 13, lineHeight: 19 },
-  input: {
-    backgroundColor: colors.surfaceAlt,
-    borderRadius: radius.lg,
-    paddingHorizontal: space.md,
-    paddingVertical: 12,
-    color: colors.text,
-    fontSize: 15,
-  },
-  error: { color: colors.warning, fontSize: 13, lineHeight: 18 },
   google: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
     gap: space.sm,
-    backgroundColor: colors.surfaceAlt,
+    backgroundColor: colors.surface,
     borderRadius: radius.lg,
-    paddingVertical: 13,
+    paddingVertical: 15,
+    borderWidth: 1,
+    borderColor: colors.border,
+    ...shadow.card,
   },
-  gMark: { color: '#4285F4', fontSize: 17, fontWeight: '800' },
-  googleText: { color: colors.text, fontSize: 15, fontWeight: '700' },
-  or: { color: colors.textFaint, fontSize: 12, fontWeight: '700', textAlign: 'center', marginTop: 2 },
-  primary: {
-    backgroundColor: colors.accent,
-    borderRadius: radius.lg,
-    paddingVertical: 13,
+  googleCompact: {
+    flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    minHeight: 46,
+    gap: 8,
+    backgroundColor: 'rgba(255,255,255,0.16)',
+    borderRadius: radius.pill,
+    paddingVertical: 10,
+    paddingHorizontal: space.md,
+    marginTop: space.sm,
   },
-  primaryText: { color: colors.onAccent, fontSize: 15, fontWeight: '800' },
-  ghost: { alignItems: 'center', paddingVertical: 6 },
-  ghostText: { color: colors.accent, fontSize: 13, fontWeight: '700' },
+  gMark: { color: '#4285F4', fontSize: 17, fontWeight: '800' },
+  gMarkCompact: { color: colors.onAccent, fontSize: 14 },
+  googleText: { color: colors.text, fontSize: 16, fontWeight: '700' },
+  googleTextCompact: { color: colors.onAccent, fontSize: 13, fontWeight: '700' },
+  signedIn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: space.md,
+    backgroundColor: colors.surface,
+    borderRadius: radius.lg,
+    padding: space.md,
+    ...shadow.card,
+  },
+  avatar: { width: 40, height: 40, borderRadius: 20, backgroundColor: colors.surfaceAlt },
+  badge: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: colors.accentSoft,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  name: { color: colors.text, fontSize: 16, fontWeight: '800', letterSpacing: -0.2 },
+  sync: { color: colors.textMuted, fontSize: 12 },
+  out: { paddingHorizontal: space.sm, paddingVertical: 6 },
+  outText: { color: colors.accent, fontSize: 13, fontWeight: '700' },
+  error: { color: colors.warning, fontSize: 13, lineHeight: 18, textAlign: 'center' },
 });

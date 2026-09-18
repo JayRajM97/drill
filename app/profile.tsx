@@ -57,12 +57,15 @@ export default function ProfileScreen() {
           </View>
         </View>
 
+        <AccountCard />
+
         <Card style={[styles.streak, shadow.accent]}>
           <Eyebrow style={{ color: colors.onAccentMuted }}>Day streak</Eyebrow>
           <View style={styles.streakRow}>
             <Text style={styles.streakNum}>{progress.streak}</Text>
             <MaterialIcons name="local-fire-department" size={44} color={colors.onAccent} />
           </View>
+          <AccountCard compact />
         </Card>
 
         <View style={styles.row}>
@@ -77,8 +80,6 @@ export default function ProfileScreen() {
             <Text style={styles.statLabel}>Saved</Text>
           </Card>
         </View>
-
-        <AccountCard />
 
         {Platform.OS !== 'web' ? (
           <Card style={styles.nudge}>
