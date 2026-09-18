@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import {
   ActivityIndicator,
   KeyboardAvoidingView,
@@ -16,6 +16,7 @@ import { MaterialIcons } from '@expo/vector-icons';
 import { generateDrillStreaming, type DrillProgress } from '@/data/generateDrill';
 import { GeneratingState } from '@/components/GeneratingState';
 import { addCustom } from '@/data/customStore';
+import { questions } from '@/data';
 import { useAuth } from '@/auth/AuthProvider';
 import { saveRemoteDrill } from '@/state/cloudProgress';
 import type { Question } from '@/types/question';
@@ -43,6 +44,51 @@ export default function CreateScreen() {
   // we navigate, so the drill doesn't just appear from nowhere.
   const [written, setWritten] = useState<Question | null>(null);
   const [progress, setProgress] = useState<DrillProgress>({ title: '', headings: [] });
+  // Preview replays the whole animation against a drill already in the app:
+  // no API call, no tokens, and nothing saved to the library.
+  const [preview, setPreview] = useState(false);
+  const timers = useRef<ReturnType<typeof setInterval>[]>([]);
+
+  useEffect(() => () => timers.current.forEach(clearInterval), []);
+
+  const runPreview = async () => {
+    if (busy) return;
+    const sample =
+      (await questions.getById('position-notion-vs-confluence-google-docs')) ??
+      (await questions.list({ limit: 1 }))[0];
+    if (!sample) return;
+
+    setPreview(true);
+    setBusy(true);
+    setError(null);
+    setProgress({ title: '', headings: [] });
+
+    const heads = sample.answer.map((a) => a.heading).slice(0, 5);
+    let cut = 4;
+    const typing = setInterval(() => {
+      if (cut <= sample.title.length) {
+        setProgress({ title: sample.title.slice(0, cut), headings: [] });
+        cut += 4;
+        return;
+      }
+      clearInterval(typing);
+      let n = 0;
+      const listing = setInterval(() => {
+        n += 1;
+        setProgress({ title: sample.title, headings: heads.slice(0, n) });
+        if (n >= heads.length) {
+          clearInterval(listing);
+          const settle = setInterval(() => {
+            clearInterval(settle);
+            setWritten(sample);
+          }, 700);
+          timers.current.push(settle);
+        }
+      }, 620);
+      timers.current.push(listing);
+    }, 45);
+    timers.current.push(typing);
+  };
 
   const goBack = () => (router.canGoBack() ? router.back() : router.replace('/'));
 
@@ -85,6 +131,16 @@ export default function CreateScreen() {
               question={written}
               progress={progress}
               onRevealed={() => {
+                if (preview) {
+                  // Put everything back; a preview leaves no trace.
+                  timers.current.forEach(clearInterval);
+                  timers.current = [];
+                  setPreview(false);
+                  setBusy(false);
+                  setWritten(null);
+                  setProgress({ title: '', headings: [] });
+                  return;
+                }
                 if (written) router.replace(`/question/${written.id}`);
               }}
             />
@@ -186,6 +242,9 @@ export default function CreateScreen() {
                 ? 'This takes around half a minute. A full answer is being written, not just a question.'
                 : 'It gets saved to your library, so you can come back to it.'}
             </Text>
+            <Pressable onPress={runPreview} hitSlop={6} style={styles.ghostBtn}>
+              <Text style={styles.ghostText}>See how it works — free, nothing saved</Text>
+            </Pressable>
           </View>
           </>
         )}
@@ -251,4 +310,6 @@ const styles = StyleSheet.create({
   busyRow: { flexDirection: 'row', alignItems: 'center', gap: space.sm },
   primaryText: { color: colors.onAccent, fontSize: 16, fontWeight: '800' },
   hint: { color: colors.textFaint, fontSize: 12, lineHeight: 18, textAlign: 'center' },
+  ghostBtn: { alignItems: 'center', paddingVertical: 6 },
+  ghostText: { color: colors.accent, fontSize: 13, fontWeight: '700' },
 });
