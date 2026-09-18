@@ -6,6 +6,8 @@ import Animated, {
   useAnimatedStyle,
   useSharedValue,
   withDelay,
+  withRepeat,
+  withSequence,
   withTiming,
 } from 'react-native-reanimated';
 import { MaterialIcons } from '@expo/vector-icons';
@@ -15,9 +17,11 @@ import { FlipCard } from '@/components/FlipCard';
 import { colors, radius, shadow, space } from '@/theme/tokens';
 
 /**
- * Writing a drill takes the better part of a minute. Rather than spin, hand
- * the user flashcards from the decks they already practise — the wait becomes
- * practice — then let the finished drill assemble itself on screen.
+ * Writing a drill takes the better part of a minute. The card is visibly
+ * being written for the whole of it — skeleton lines drafting in, each step
+ * ticking off as it completes — and underneath sits a flashcard from the
+ * decks the user already practises, so the wait is also practice. When the
+ * drill lands, the same card fills in with the real thing.
  */
 
 const STEPS = [
@@ -36,6 +40,78 @@ function shuffled(pool: Fact[], n: number): Fact[] {
     [copy[i], copy[j]] = [copy[j], copy[i]];
   }
   return copy.slice(0, n);
+}
+
+/** Skeleton line that pulses while it waits to be filled in. */
+function GhostLine({ width, delay }: { width: `${number}%`; delay: number }) {
+  const pulse = useSharedValue(0.35);
+  useEffect(() => {
+    pulse.value = withDelay(
+      delay,
+      withRepeat(
+        withSequence(
+          withTiming(0.85, { duration: 620, easing: Easing.inOut(Easing.quad) }),
+          withTiming(0.35, { duration: 620, easing: Easing.inOut(Easing.quad) }),
+        ),
+        -1,
+        false,
+      ),
+    );
+  }, [delay, pulse]);
+  const style = useAnimatedStyle(() => ({ opacity: pulse.value }));
+  return <Animated.View style={[styles.ghost, { width }, style]} />;
+}
+
+/** A blinking caret, so the card reads as actively being typed into. */
+function Caret() {
+  const blink = useSharedValue(1);
+  useEffect(() => {
+    blink.value = withRepeat(
+      withSequence(withTiming(0, { duration: 460 }), withTiming(1, { duration: 460 })),
+      -1,
+      false,
+    );
+  }, [blink]);
+  const style = useAnimatedStyle(() => ({ opacity: blink.value }));
+  return <Animated.View style={[styles.caret, style]} />;
+}
+
+/** The drill card mid-composition: a drafting title, then steps ticking off. */
+function WritingCard({ step }: { step: number }) {
+  return (
+    <View style={[styles.sheet, shadow.card]}>
+      <GhostLine width="92%" delay={0} />
+      <GhostLine width="74%" delay={140} />
+      <GhostLine width="52%" delay={280} />
+
+      <View style={styles.stepList}>
+        {STEPS.map((s, i) => {
+          const doneStep = i < step;
+          const current = i === step;
+          return (
+            <View key={s.label} style={styles.stepRow}>
+              {doneStep ? (
+                <MaterialIcons name="check-circle" size={15} color={colors.accent} />
+              ) : (
+                <View style={[styles.stepDot, current && styles.stepDotNow]} />
+              )}
+              <Text
+                style={[
+                  styles.stepText,
+                  doneStep && styles.stepTextDone,
+                  current && styles.stepTextNow,
+                ]}
+                numberOfLines={1}
+              >
+                {s.label}
+              </Text>
+              {current ? <Caret /> : null}
+            </View>
+          );
+        })}
+      </View>
+    </View>
+  );
 }
 
 export function GeneratingState({
@@ -78,12 +154,12 @@ export function GeneratingState({
     <View style={styles.wrap}>
       <View style={styles.headRow}>
         <Animated.View key={step} entering={FadeIn.duration(260)}>
-          <Text style={styles.step}>{STEPS[step].label}…</Text>
+          <Text style={styles.step}>Writing your drill…</Text>
         </Animated.View>
-        <Text style={styles.dots}>
-          {STEPS.map((_, i) => (i <= step ? '•' : '·')).join(' ')}
-        </Text>
+        <Text style={styles.dots}>{STEPS.map((_, i) => (i <= step ? '•' : '·')).join(' ')}</Text>
       </View>
+
+      <WritingCard step={step} />
 
       <Text style={styles.meanwhile}>While you wait, a number worth knowing</Text>
 
@@ -106,21 +182,13 @@ export function GeneratingState({
               <Text style={styles.label} numberOfLines={2}>
                 {fact.label}
               </Text>
-              {fact.note ? (
-                <Text style={styles.note} numberOfLines={3}>
-                  {fact.note}
-                </Text>
-              ) : (
-                <Text style={styles.note} numberOfLines={2}>
-                  {contextFor(fact)}
-                </Text>
-              )}
+              <Text style={styles.note} numberOfLines={3}>
+                {fact.note ?? contextFor(fact)}
+              </Text>
             </View>
           }
         />
       </Pressable>
-
-      <Text style={styles.footer}>Your drill is still being written. This takes about a minute.</Text>
     </View>
   );
 }
@@ -200,13 +268,13 @@ const styles = StyleSheet.create({
   },
   // FlipCard's faces are absolutely positioned, so the wrapper needs a real
   // height — its own `flex: 1` cannot supply one inside a scroll view.
-  flipWrap: { height: 260 },
+  flipWrap: { height: 210 },
   flipFill: { height: '100%' },
   face: {
     flex: 1,
     backgroundColor: colors.surface,
     borderRadius: radius.card,
-    padding: space.xl,
+    padding: space.lg,
     alignItems: 'center',
     justifyContent: 'center',
     gap: space.sm,
@@ -214,12 +282,21 @@ const styles = StyleSheet.create({
   },
   faceBack: { backgroundColor: colors.accent },
   emoji: { fontSize: 28 },
-  q: { color: colors.text, fontSize: 19, lineHeight: 26, fontWeight: '800', textAlign: 'center' },
+  q: { color: colors.text, fontSize: 17, lineHeight: 23, fontWeight: '800', textAlign: 'center' },
   tap: { color: colors.textFaint, fontSize: 13, fontWeight: '700', marginTop: space.xs },
-  value: { color: colors.onAccent, fontSize: 40, fontWeight: '800', letterSpacing: -1, textAlign: 'center' },
+  value: { color: colors.onAccent, fontSize: 34, fontWeight: '800', letterSpacing: -1, textAlign: 'center' },
   label: { color: colors.onAccent, fontSize: 16, fontWeight: '700', textAlign: 'center' },
   note: { color: colors.onAccentMuted, fontSize: 13, lineHeight: 19, textAlign: 'center' },
   footer: { color: colors.textMuted, fontSize: 13, lineHeight: 19, textAlign: 'center' },
+  ghost: { height: 13, borderRadius: 7, backgroundColor: colors.surfaceAlt },
+  stepList: { marginTop: space.sm, gap: 7 },
+  stepRow: { flexDirection: 'row', alignItems: 'center', gap: space.sm },
+  stepDot: { width: 15, height: 15, borderRadius: 8, borderWidth: 2, borderColor: colors.border },
+  stepDotNow: { borderColor: colors.accent },
+  stepText: { color: colors.textFaint, fontSize: 13.5 },
+  stepTextDone: { color: colors.textMuted },
+  stepTextNow: { color: colors.text, fontWeight: '700' },
+  caret: { width: 2, height: 15, backgroundColor: colors.accent, borderRadius: 1 },
   sheet: { backgroundColor: colors.surface, borderRadius: radius.card, padding: space.xl, gap: space.sm },
   sheetTitle: { color: colors.text, fontSize: 20, lineHeight: 27, fontWeight: '800', letterSpacing: -0.4 },
   sheetMeta: { marginBottom: space.xs },
