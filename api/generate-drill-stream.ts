@@ -1,4 +1,4 @@
-import { toAnswerSections } from '../functions/src/schema';
+import { GeneratedQuestion, toAnswerSections } from '../functions/src/schema';
 import { SYSTEM_PROMPT, buildTopicPrompt } from '../functions/src/prompt';
 import { activeModel, activeProvider, apiKeyFor } from './_providers';
 
@@ -86,7 +86,6 @@ export default async function handler(req: any, res: any) {
   try {
     const { default: OpenAI } = await import('openai');
     const { zodTextFormat } = await import('openai/helpers/zod');
-    const { GeneratedQuestion } = await import('../functions/src/schema');
 
     const client = new OpenAI({ apiKey });
     const stream = await client.responses.stream({
