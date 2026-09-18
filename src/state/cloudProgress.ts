@@ -1,6 +1,6 @@
-import { doc, getDoc, setDoc } from 'firebase/firestore';
+import { collection, doc, getDoc, getDocs, setDoc } from 'firebase/firestore';
 import { getDbOrNull } from '@/auth/firebase';
-import { EMPTY_PROGRESS, type Progress } from '@/types/question';
+import { EMPTY_PROGRESS, type Progress, type Question } from '@/types/question';
 import { withActiveDates } from './progressMath';
 
 /** One document per user: users/{uid}. Firestore rules restrict it to its owner. */
@@ -41,4 +41,28 @@ export async function saveRemoteProgress(uid: string, p: Progress): Promise<void
     },
     { merge: true },
   );
+}
+
+
+/**
+ * Drills the user generated live at users/{uid}/drills/{id} — one document
+ * each rather than a field on the progress doc, because a drill is several
+ * kilobytes and Firestore caps a document at a megabyte.
+ */
+function drillsCollection(uid: string) {
+  const db = getDbOrNull();
+  return db ? collection(db, 'users', uid, 'drills') : null;
+}
+
+export async function loadRemoteDrills(uid: string): Promise<Question[]> {
+  const col = drillsCollection(uid);
+  if (!col) return [];
+  const snap = await getDocs(col);
+  return snap.docs.map((d) => d.data() as Question).filter((q) => q && q.id && q.title);
+}
+
+export async function saveRemoteDrill(uid: string, q: Question): Promise<void> {
+  const col = drillsCollection(uid);
+  if (!col) return;
+  await setDoc(doc(col, q.id), q, { merge: true });
 }

@@ -11,7 +11,8 @@ import { AppState } from 'react-native';
 import { useAuth } from '@/auth/AuthProvider';
 import { EMPTY_PROGRESS, type Progress } from '@/types/question';
 import { applyCompletion, mergeProgress, withActiveDates } from './progressMath';
-import { loadRemoteProgress, saveRemoteProgress } from './cloudProgress';
+import { loadRemoteDrills, loadRemoteProgress, saveRemoteDrill, saveRemoteProgress } from './cloudProgress';
+import { loadCustom, mergeCustom } from '@/data/customStore';
 import { getJSON, setJSON, STORAGE_KEYS } from './storage';
 
 export type SyncState = 'off' | 'local' | 'syncing' | 'synced' | 'error';
@@ -103,6 +104,17 @@ export function ProgressProvider({ children }: { children: React.ReactNode }) {
         void setJSON(STORAGE_KEYS.progress, merged);
         mergedUid.current = account.uid;
         return saveRemoteProgress(account.uid, merged);
+      })
+      // Generated drills live in their own collection; pull the cloud's,
+      // merge with this device's, and push anything the cloud is missing.
+      .then(async () => {
+        if (cancelled || !account) return;
+        const remote = await loadRemoteDrills(account.uid);
+        const local = await loadCustom();
+        const merged = await mergeCustom(remote);
+        const remoteIds = new Set(remote.map((q) => q.id));
+        for (const q of local) if (!remoteIds.has(q.id)) await saveRemoteDrill(account.uid, q);
+        return merged;
       })
       .then(() => {
         if (!cancelled) setSync('synced');

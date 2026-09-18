@@ -13,9 +13,11 @@ import {
 import { useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { MaterialIcons } from '@expo/vector-icons';
-import { generateDrill } from '@/data/generateDrill';
+import { generateDrillStreaming, type DrillProgress } from '@/data/generateDrill';
 import { GeneratingState } from '@/components/GeneratingState';
 import { addCustom } from '@/data/customStore';
+import { useAuth } from '@/auth/AuthProvider';
+import { saveRemoteDrill } from '@/state/cloudProgress';
 import type { Question } from '@/types/question';
 import { IconButton } from '@/components/ui';
 import { colors, radius, shadow, space } from '@/theme/tokens';
@@ -31,6 +33,7 @@ const EXAMPLES = [
 export default function CreateScreen() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
+  const { account } = useAuth();
   const [topic, setTopic] = useState('');
   const [context, setContext] = useState('');
   const [busy, setBusy] = useState(false);
@@ -39,6 +42,7 @@ export default function CreateScreen() {
   // Set when generation finishes; the waiting state then writes it out before
   // we navigate, so the drill doesn't just appear from nowhere.
   const [written, setWritten] = useState<Question | null>(null);
+  const [progress, setProgress] = useState<DrillProgress>({ title: '', headings: [] });
 
   const goBack = () => (router.canGoBack() ? router.back() : router.replace('/'));
 
@@ -48,13 +52,16 @@ export default function CreateScreen() {
     setBusy(true);
     setError(null);
     setNote(null);
-    const result = await generateDrill(text, context.trim() || undefined);
+    setProgress({ title: '', headings: [] });
+    const result = await generateDrillStreaming(text, context.trim() || undefined, setProgress);
     if (!result.ok) {
       setBusy(false);
       setError(result.error);
       return;
     }
     await addCustom(result.question);
+    // Signed in: keep it off this device only.
+    if (account) saveRemoteDrill(account.uid, result.question).catch(() => {});
     setWritten(result.question);
   };
 
@@ -76,6 +83,7 @@ export default function CreateScreen() {
           <View style={styles.section}>
             <GeneratingState
               question={written}
+              progress={progress}
               onRevealed={() => {
                 if (written) router.replace(`/question/${written.id}`);
               }}

@@ -35,6 +35,16 @@ export async function addCustom(q: Question): Promise<void> {
   await write([q, ...existing.filter((x) => x.id !== q.id)]);
 }
 
+/** Merge drills pulled from the cloud, keeping the device's own as well. */
+export async function mergeCustom(incoming: Question[]): Promise<Question[]> {
+  const existing = await loadCustom();
+  const byId = new Map<string, Question>();
+  for (const q of [...incoming, ...existing]) if (q?.id) byId.set(q.id, q);
+  const merged = [...byId.values()];
+  await write(merged);
+  return merged;
+}
+
 export async function removeCustom(id: string): Promise<void> {
   const existing = await loadCustom();
   await write(existing.filter((x) => x.id !== id));

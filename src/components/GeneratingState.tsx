@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { Pressable, ScrollView, StyleSheet, Text, View, useWindowDimensions } from 'react-native';
 import Animated, {
   Easing,
   FadeIn,
@@ -32,6 +32,7 @@ const STEPS = [
 ];
 
 const CARD_MS = 9000;
+const CAROUSEL = 5;
 
 function shuffled(pool: Fact[], n: number): Fact[] {
   const copy = [...pool];
@@ -40,6 +41,43 @@ function shuffled(pool: Fact[], n: number): Fact[] {
     [copy[i], copy[j]] = [copy[j], copy[i]];
   }
   return copy.slice(0, n);
+}
+
+/** One card in the rail. Each keeps its own reveal, so swiping back keeps it. */
+function NumberCard({ fact, width, active }: { fact: Fact; width: number; active: boolean }) {
+  const [flipped, setFlipped] = useState(false);
+  useEffect(() => {
+    if (!active) setFlipped(false);
+  }, [active]);
+
+  return (
+    <Pressable onPress={() => setFlipped((f) => !f)} style={[styles.flipWrap, { width }]}>
+      <FlipCard
+        flipped={flipped}
+        style={styles.flipFill}
+        front={
+          <View style={styles.face}>
+            <Text style={styles.emoji}>{emojiFor(fact, '🔢')}</Text>
+            <Text style={styles.q}>{questionFor(fact)}</Text>
+            <Text style={styles.tap}>Tap to reveal</Text>
+          </View>
+        }
+        back={
+          <View style={[styles.face, styles.faceBack]}>
+            <Text style={styles.value} numberOfLines={2} adjustsFontSizeToFit>
+              {fact.value}
+            </Text>
+            <Text style={styles.label} numberOfLines={2}>
+              {fact.label}
+            </Text>
+            <Text style={styles.note} numberOfLines={3}>
+              {fact.note ?? contextFor(fact)}
+            </Text>
+          </View>
+        }
+      />
+    </Pressable>
+  );
 }
 
 /** Skeleton line that pulses while it waits to be filled in. */
@@ -77,12 +115,44 @@ function Caret() {
 }
 
 /** The drill card mid-composition: a drafting title, then steps ticking off. */
-function WritingCard({ step }: { step: number }) {
+function WritingCard({
+  step,
+  progress,
+}: {
+  step: number;
+  progress?: { title: string; headings: string[] };
+}) {
+  const title = progress?.title?.trim() ?? '';
+  const headings = progress?.headings ?? [];
+
   return (
     <View style={[styles.sheet, shadow.card]}>
-      <GhostLine width="92%" delay={0} />
-      <GhostLine width="74%" delay={140} />
-      <GhostLine width="52%" delay={280} />
+      {title ? (
+        // The real title, arriving a few characters at a time.
+        <Text style={styles.liveTitle}>
+          {title}
+          <Text style={styles.liveCaret}>|</Text>
+        </Text>
+      ) : (
+        <>
+          <GhostLine width="92%" delay={0} />
+          <GhostLine width="74%" delay={140} />
+          <GhostLine width="52%" delay={280} />
+        </>
+      )}
+
+      {headings.length ? (
+        <View style={styles.liveHeadings}>
+          {headings.slice(-4).map((h, i) => (
+            <Animated.View key={h + i} entering={FadeIn.duration(260)} style={styles.row}>
+              <View style={styles.rowDot} />
+              <Text style={styles.rowText} numberOfLines={1}>
+                {h}
+              </Text>
+            </Animated.View>
+          ))}
+        </View>
+      ) : null}
 
       <View style={styles.stepList}>
         {STEPS.map((s, i) => {
@@ -116,19 +186,24 @@ function WritingCard({ step }: { step: number }) {
 
 export function GeneratingState({
   question,
+  progress,
   onRevealed,
 }: {
   /** Non-null once generation finishes; that flips this into the write-out. */
   question: Question | null;
+  /** What the model has written so far, when the stream is available. */
+  progress?: { title: string; headings: string[] };
   /** Called when the write-out animation has finished playing. */
   onRevealed: () => void;
 }) {
   const [elapsed, setElapsed] = useState(0);
   const [index, setIndex] = useState(0);
-  const [flipped, setFlipped] = useState(false);
+  const railRef = useRef<ScrollView>(null);
+  const { width: screenW } = useWindowDimensions();
+  const cardW = Math.min(screenW, 520) - space.lg * 2;
 
   // Mix both decks so the wait covers anchors and product metrics alike.
-  const deck = useMemo(() => shuffled([...SETS.numbers.facts, ...SETS.metrics.facts], 12), []);
+  const deck = useMemo(() => shuffled([...SETS.numbers.facts, ...SETS.metrics.facts], CAROUSEL), []);
   const fact = deck[index % deck.length];
 
   useEffect(() => {
@@ -139,12 +214,13 @@ export function GeneratingState({
 
   useEffect(() => {
     if (question) return;
-    const rotate = setInterval(() => {
-      setFlipped(false);
-      setIndex((i) => i + 1);
-    }, CARD_MS);
+    const rotate = setInterval(() => setIndex((i) => i + 1), CARD_MS);
     return () => clearInterval(rotate);
   }, [question]);
+
+  useEffect(() => {
+    railRef.current?.scrollTo({ x: (index % CAROUSEL) * (cardW + space.md), animated: true });
+  }, [index, cardW]);
 
   const step = STEPS.reduce((acc, s, i) => (elapsed >= s.at ? i : acc), 0);
 
@@ -159,36 +235,40 @@ export function GeneratingState({
         <Text style={styles.dots}>{STEPS.map((_, i) => (i <= step ? '•' : '·')).join(' ')}</Text>
       </View>
 
-      <WritingCard step={step} />
+      <WritingCard step={step} progress={progress} />
 
-      <Text style={styles.meanwhile}>While you wait, a number worth knowing</Text>
+      <Text style={styles.meanwhile}>While you wait · {index % CAROUSEL + 1} of {CAROUSEL}</Text>
 
-      <Pressable onPress={() => setFlipped((f) => !f)} style={styles.flipWrap}>
-        <FlipCard
-          flipped={flipped}
-          style={styles.flipFill}
-          front={
-            <View style={styles.face}>
-              <Text style={styles.emoji}>{emojiFor(fact, '🔢')}</Text>
-              <Text style={styles.q}>{questionFor(fact)}</Text>
-              <Text style={styles.tap}>Tap to reveal</Text>
-            </View>
-          }
-          back={
-            <View style={[styles.face, styles.faceBack]}>
-              <Text style={styles.value} numberOfLines={2} adjustsFontSizeToFit>
-                {fact.value}
-              </Text>
-              <Text style={styles.label} numberOfLines={2}>
-                {fact.label}
-              </Text>
-              <Text style={styles.note} numberOfLines={3}>
-                {fact.note ?? contextFor(fact)}
-              </Text>
-            </View>
-          }
-        />
-      </Pressable>
+      <ScrollView
+        horizontal
+        // Not pagingEnabled: that snaps by the container's width, which is a
+        // few pixels wider than a card plus its gap, so every scroll fought
+        // its way back to the first card. snapToInterval matches the real
+        // card pitch instead.
+        showsHorizontalScrollIndicator={false}
+        ref={railRef}
+        scrollEventThrottle={64}
+        // onScroll rather than onMomentumScrollEnd: the web build never fires
+        // momentum events, so the counter and pips would never move there.
+        onScroll={(e) => {
+          const next = Math.round(e.nativeEvent.contentOffset.x / Math.max(1, cardW + space.md));
+          if (next !== index % CAROUSEL) setIndex(next);
+        }}
+        decelerationRate="fast"
+        snapToInterval={cardW + space.md}
+        contentContainerStyle={{ gap: space.md, paddingRight: space.lg }}
+        style={styles.rail}
+      >
+        {deck.map((f, i) => (
+          <NumberCard key={f.id} fact={f} width={cardW} active={i === index % CAROUSEL} />
+        ))}
+      </ScrollView>
+
+      <View style={styles.pips}>
+        {deck.map((f, i) => (
+          <View key={f.id} style={[styles.pip, i === index % CAROUSEL && styles.pipNow]} />
+        ))}
+      </View>
     </View>
   );
 }
@@ -211,29 +291,29 @@ function WriteOut({ question, onDone }: { question: Question; onDone: () => void
   return (
     <View style={styles.wrap}>
       <View style={styles.headRow}>
-        <Text style={[styles.step, { color: colors.success }]}>Your drill is ready</Text>
-        <MaterialIcons name="check-circle" size={18} color={colors.success} />
+        <Text style={[styles.step, { color: colors.accent }]}>Generated</Text>
+        <MaterialIcons name="check-circle" size={18} color={colors.accent} />
       </View>
 
-      <View style={[styles.sheet, shadow.card]}>
-        <Animated.Text entering={FadeIn.duration(420)} style={styles.sheetTitle} numberOfLines={4}>
+      <Animated.View entering={FadeIn.duration(320)} style={[styles.sheet, styles.sheetDone, shadow.accent]}>
+        <Animated.Text entering={FadeIn.duration(420)} style={[styles.sheetTitle, styles.sheetTitleDone]} numberOfLines={4}>
           {question.title}
         </Animated.Text>
         <View style={styles.sheetMeta}>
-          <Text style={styles.sheetMetaText}>
+          <Text style={[styles.sheetMetaText, styles.sheetMetaDone]}>
             {question.categories[0]} · {question.difficulty} · {question.clarifying_questions.length} clarifiers
           </Text>
         </View>
         {rows.map((heading, i) => (
-          <WriteRow key={heading + i} label={heading} delay={380 + i * 200} />
+          <WriteRow key={heading + i} label={heading} delay={380 + i * 200} onAccent />
         ))}
-      </View>
+      </Animated.View>
     </View>
   );
 }
 
 /** One section line drawing itself in. */
-function WriteRow({ label, delay }: { label: string; delay: number }) {
+function WriteRow({ label, delay, onAccent }: { label: string; delay: number; onAccent?: boolean }) {
   const progress = useSharedValue(0);
   useEffect(() => {
     progress.value = withDelay(delay, withTiming(1, { duration: 320, easing: Easing.out(Easing.cubic) }));
@@ -246,8 +326,8 @@ function WriteRow({ label, delay }: { label: string; delay: number }) {
 
   return (
     <Animated.View style={[styles.row, style]}>
-      <View style={styles.rowDot} />
-      <Text style={styles.rowText} numberOfLines={1}>
+      <View style={[styles.rowDot, onAccent && styles.rowDotDone]} />
+      <Text style={[styles.rowText, onAccent && styles.rowTextDone]} numberOfLines={1}>
         {label}
       </Text>
     </Animated.View>
@@ -259,6 +339,10 @@ const styles = StyleSheet.create({
   headRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
   step: { color: colors.text, fontSize: 16, fontWeight: '800', letterSpacing: -0.2 },
   dots: { color: colors.accent, fontSize: 15, fontWeight: '800', letterSpacing: 2 },
+  rail: { marginRight: -space.lg },
+  pips: { flexDirection: 'row', justifyContent: 'center', gap: 6, marginTop: 2 },
+  pip: { width: 6, height: 6, borderRadius: 3, backgroundColor: colors.border },
+  pipNow: { backgroundColor: colors.accent, width: 18 },
   meanwhile: {
     color: colors.textFaint,
     fontSize: 12,
@@ -268,7 +352,7 @@ const styles = StyleSheet.create({
   },
   // FlipCard's faces are absolutely positioned, so the wrapper needs a real
   // height — its own `flex: 1` cannot supply one inside a scroll view.
-  flipWrap: { height: 210 },
+  flipWrap: { height: 200 },
   flipFill: { height: '100%' },
   face: {
     flex: 1,
@@ -289,6 +373,9 @@ const styles = StyleSheet.create({
   note: { color: colors.onAccentMuted, fontSize: 13, lineHeight: 19, textAlign: 'center' },
   footer: { color: colors.textMuted, fontSize: 13, lineHeight: 19, textAlign: 'center' },
   ghost: { height: 13, borderRadius: 7, backgroundColor: colors.surfaceAlt },
+  liveTitle: { color: colors.text, fontSize: 18, lineHeight: 25, fontWeight: '800', letterSpacing: -0.3 },
+  liveCaret: { color: colors.accent, fontWeight: '400' },
+  liveHeadings: { marginTop: space.xs, gap: 2 },
   stepList: { marginTop: space.sm, gap: 7 },
   stepRow: { flexDirection: 'row', alignItems: 'center', gap: space.sm },
   stepDot: { width: 15, height: 15, borderRadius: 8, borderWidth: 2, borderColor: colors.border },
@@ -299,6 +386,11 @@ const styles = StyleSheet.create({
   caret: { width: 2, height: 15, backgroundColor: colors.accent, borderRadius: 1 },
   sheet: { backgroundColor: colors.surface, borderRadius: radius.card, padding: space.xl, gap: space.sm },
   sheetTitle: { color: colors.text, fontSize: 20, lineHeight: 27, fontWeight: '800', letterSpacing: -0.4 },
+  sheetDone: { backgroundColor: colors.accent },
+  sheetTitleDone: { color: colors.onAccent },
+  sheetMetaDone: { color: colors.onAccentMuted },
+  rowDotDone: { backgroundColor: colors.onAccent },
+  rowTextDone: { color: colors.onAccent },
   sheetMeta: { marginBottom: space.xs },
   sheetMetaText: { color: colors.textFaint, fontSize: 12, fontWeight: '700' },
   row: { flexDirection: 'row', alignItems: 'center', gap: space.sm, paddingVertical: 5 },
