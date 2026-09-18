@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Platform, Pressable, ScrollView, StyleSheet, Switch, Text, View } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { MaterialIcons } from '@expo/vector-icons';
@@ -148,6 +149,16 @@ export default function ProfileScreen() {
             />
           ))
         )}
+        <Pressable
+          onPress={async () => {
+            await AsyncStorage.removeItem('drill:onboarded:v1').catch(() => {});
+            router.push('/onboarding');
+          }}
+          hitSlop={8}
+          style={styles.replay}
+        >
+          <Text style={styles.replayText}>Replay intro</Text>
+        </Pressable>
       </ScrollView>
 
       <BottomNavBar active="profile" />
@@ -193,6 +204,8 @@ const styles = StyleSheet.create({
   testText: { color: colors.accent, fontSize: 13, fontWeight: '700' },
   timePill: { backgroundColor: colors.accentSoft, borderRadius: radius.pill, paddingHorizontal: 10, paddingVertical: 5 },
   timeText: { color: colors.accent, fontSize: 12, fontWeight: '800' },
+  replay: { alignItems: 'center', paddingVertical: space.lg },
+  replayText: { color: colors.textFaint, fontSize: 13, fontWeight: '700' },
   empty: { alignItems: 'center', gap: space.sm, paddingVertical: space.xl },
   emptyTitle: { color: colors.text, fontSize: 17, fontWeight: '700', marginTop: space.xs },
   emptyText: { color: colors.textMuted, fontSize: 14, textAlign: 'center', maxWidth: 240 },
