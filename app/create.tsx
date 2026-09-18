@@ -14,7 +14,9 @@ import { useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { MaterialIcons } from '@expo/vector-icons';
 import { generateDrill } from '@/data/generateDrill';
+import { GeneratingState } from '@/components/GeneratingState';
 import { addCustom } from '@/data/customStore';
+import type { Question } from '@/types/question';
 import { IconButton } from '@/components/ui';
 import { colors, radius, shadow, space } from '@/theme/tokens';
 
@@ -33,6 +35,9 @@ export default function CreateScreen() {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [note, setNote] = useState<string | null>(null);
+  // Set when generation finishes; the waiting state then writes it out before
+  // we navigate, so the drill doesn't just appear from nowhere.
+  const [written, setWritten] = useState<Question | null>(null);
 
   const goBack = () => (router.canGoBack() ? router.back() : router.replace('/'));
 
@@ -49,8 +54,7 @@ export default function CreateScreen() {
       return;
     }
     await addCustom(result.question);
-    setBusy(false);
-    router.replace(`/question/${result.question.id}`);
+    setWritten(result.question);
   };
 
   return (
@@ -67,87 +71,100 @@ export default function CreateScreen() {
           <IconButton icon="close" onPress={goBack} />
         </View>
 
-        <View style={styles.head}>
-          <Text style={styles.title}>What drill would you like to solve?</Text>
-          <Text style={styles.sub}>
-            Type it the way you would say it out loud. A company, a problem, a question you got
-            asked — anything.
-          </Text>
-        </View>
-
-        <View style={styles.section}>
-          <TextInput
-            value={topic}
-            onChangeText={(t) => {
-              setTopic(t);
-              if (error) setError(null);
-            }}
-            placeholder="e.g. Revamp Swiggy’s search for late-night orders"
-            placeholderTextColor={colors.textFaint}
-            style={styles.input}
-            multiline
-            maxLength={300}
-            editable={!busy}
-            autoFocus
-          />
-          <Text style={styles.count}>{topic.trim().length}/300</Text>
-        </View>
-
-        <View style={styles.section}>
-          <Text style={styles.eyebrow}>Or start from one of these</Text>
-          <View style={styles.chips}>
-            {EXAMPLES.map((e) => (
-              <Pressable
-                key={e}
-                onPress={() => setTopic(e)}
-                disabled={busy}
-                style={({ pressed }) => [styles.chip, pressed && { opacity: 0.85 }]}
-              >
-                <Text style={styles.chipText}>{e}</Text>
-              </Pressable>
-            ))}
-          </View>
-        </View>
-
-        {error ? (
+        {busy ? (
           <View style={styles.section}>
-            <View style={styles.errorBox}>
-              <MaterialIcons name="error-outline" size={18} color={colors.warning} />
-              <Text style={styles.errorText}>{error}</Text>
+            <GeneratingState
+              question={written}
+              onRevealed={() => {
+                if (written) router.replace(`/question/${written.id}`);
+              }}
+            />
+          </View>
+        ) : (
+          <>
+          <View style={styles.head}>
+            <Text style={styles.title}>What drill would you like to solve?</Text>
+            <Text style={styles.sub}>
+              Type it the way you would say it out loud. A company, a problem, a question you got
+              asked — anything.
+            </Text>
+          </View>
+
+          <View style={styles.section}>
+            <TextInput
+              value={topic}
+              onChangeText={(t) => {
+                setTopic(t);
+                if (error) setError(null);
+              }}
+              placeholder="e.g. Revamp Swiggy’s search for late-night orders"
+              placeholderTextColor={colors.textFaint}
+              style={styles.input}
+              multiline
+              maxLength={300}
+              editable={!busy}
+              autoFocus
+            />
+            <Text style={styles.count}>{topic.trim().length}/300</Text>
+          </View>
+
+          <View style={styles.section}>
+            <Text style={styles.eyebrow}>Or start from one of these</Text>
+            <View style={styles.chips}>
+              {EXAMPLES.map((e) => (
+                <Pressable
+                  key={e}
+                  onPress={() => setTopic(e)}
+                  disabled={busy}
+                  style={({ pressed }) => [styles.chip, pressed && { opacity: 0.85 }]}
+                >
+                  <Text style={styles.chipText}>{e}</Text>
+                </Pressable>
+              ))}
             </View>
           </View>
-        ) : null}
-        {note ? (
-          <View style={styles.section}>
-            <Text style={styles.note}>{note}</Text>
-          </View>
-        ) : null}
 
-        <View style={styles.section}>
-          <Pressable
-            onPress={generate}
-            disabled={busy || topic.trim().length < 3}
-            style={({ pressed }) => [
-              styles.primary,
-              (busy || topic.trim().length < 3) && { opacity: 0.5 },
-              pressed && { opacity: 0.9 },
-            ]}
-          >
-            {busy ? (
-              <View style={styles.busyRow}>
-                <ActivityIndicator color={colors.onAccent} />
-                <Text style={styles.primaryText}>Writing your drill…</Text>
+          {error ? (
+            <View style={styles.section}>
+              <View style={styles.errorBox}>
+                <MaterialIcons name="error-outline" size={18} color={colors.warning} />
+                <Text style={styles.errorText}>{error}</Text>
               </View>
-            ) : (
-              <Text style={styles.primaryText}>Make the drill</Text>
-            )}
-          </Pressable>
-          <Text style={styles.hint}>
-            {busy
-              ? 'This takes around half a minute. A full answer is being written, not just a question.'
-              : 'It gets saved to your library, so you can come back to it.'}
-          </Text>
-        </View>
+            </View>
+          ) : null}
+          {note ? (
+            <View style={styles.section}>
+              <Text style={styles.note}>{note}</Text>
+            </View>
+          ) : null}
+
+          <View style={styles.section}>
+            <Pressable
+              onPress={generate}
+              disabled={busy || topic.trim().length < 3}
+              style={({ pressed }) => [
+                styles.primary,
+                (busy || topic.trim().length < 3) && { opacity: 0.5 },
+                pressed && { opacity: 0.9 },
+              ]}
+            >
+              {busy ? (
+                <View style={styles.busyRow}>
+                  <ActivityIndicator color={colors.onAccent} />
+                  <Text style={styles.primaryText}>Writing your drill…</Text>
+                </View>
+              ) : (
+                <Text style={styles.primaryText}>Make the drill</Text>
+              )}
+            </Pressable>
+            <Text style={styles.hint}>
+              {busy
+                ? 'This takes around half a minute. A full answer is being written, not just a question.'
+                : 'It gets saved to your library, so you can come back to it.'}
+            </Text>
+          </View>
+          </>
+        )}
       </ScrollView>
     </KeyboardAvoidingView>
   );
