@@ -20,7 +20,7 @@ export type GenerateResult =
   | { ok: true; question: Question; placeholder?: boolean }
   | { ok: false; error: string };
 
-export async function generateDrill(topic: string): Promise<GenerateResult> {
+export async function generateDrill(topic: string, context?: string): Promise<GenerateResult> {
   try {
     // Generation takes a while; give it room but don't hang forever.
     const controller = new AbortController();
@@ -32,7 +32,7 @@ export async function generateDrill(topic: string): Promise<GenerateResult> {
         'content-type': 'application/json',
         ...(CLIENT_KEY ? { 'x-drill-key': CLIENT_KEY } : {}),
       },
-      body: JSON.stringify({ topic }),
+      body: JSON.stringify({ topic, context: context?.trim() || undefined }),
       signal: controller.signal,
     });
     clearTimeout(timeout);

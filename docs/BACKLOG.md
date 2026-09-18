@@ -77,6 +77,60 @@ test against, so it was deferred rather than shipped untested):
 
 ---
 
+## Next: career-stage journeys (early / mid / senior)
+
+People arriving at Drill are at very different points, and one flat question
+pool serves none of them well. Shreyas Doshi's threads on PM levels are the
+reference to read before designing this — his framing is that what matters
+changes by level, so the practice should too.
+
+Rough shape of the three journeys:
+- **Early career / breaking in** — how to get into product at all. Simpler
+  questions, lighter frameworks, and an AI-PM slant since that is the current
+  way in.
+- **Mid career** — analytics and execution. Metric trees, RCA, experiment
+  design, shipping under constraints. The Data section already feeds this.
+- **Senior / leadership** — leadership and org-level analytics: strategy bets,
+  team and portfolio decisions, influencing without authority.
+
+Open questions:
+1. Is stage asked once at onboarding, inferred from behaviour, or switchable?
+2. Does it filter the existing pool, re-rank it, or need its own questions?
+   (Most likely: tag every question with a stage, then filter and re-rank.)
+3. Do Frameworks, Learn and Data get the same treatment, or just drills?
+4. Generated drills should take stage as an input to the prompt.
+
+---
+
+## Next: conversational drilling (and later, voice)
+
+Today a drill is a deck you page through. It should feel more like being
+coached: the deck prompts you, and you can ask for help without leaving it.
+
+The idea, kept deliberately unrestricted:
+- After the question card, a small card offering the next step — "Want a
+  hint?", "Want me to course-correct you?", "Ready for the answer?"
+- Hints arrive as one or two cards, progressive rather than all at once, so
+  the user can take the smallest nudge that unblocks them.
+- Course-correct: the user says their approach, and the response says where it
+  is going wrong before revealing the model answer.
+- This reuses the generation endpoint — it is the same model with the question
+  and the user's attempt as context.
+
+Later: voice. The narration work already proves the audio pipeline; the step
+beyond is speaking rather than reading, so a drill can be practised out loud,
+which is how the real interview happens.
+
+Open questions:
+1. Does the conversation live inside the deck as extra cards, or as a sheet
+   over it?
+2. Are hints pre-generated with the drill (fast, cheap, fixed) or generated on
+   demand (slower, costlier, responsive to what the user actually said)?
+3. How much does a coached drill cost per session, and does that change the
+   model choice?
+
+---
+
 ## Smaller items
 - Numbers: figures are from memory (2024 ballpark) — do a source pass and add a
   `source` / `asOf` field per fact.

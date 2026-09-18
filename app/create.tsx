@@ -32,6 +32,7 @@ export default function CreateScreen() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
   const [topic, setTopic] = useState('');
+  const [context, setContext] = useState('');
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [note, setNote] = useState<string | null>(null);
@@ -47,7 +48,7 @@ export default function CreateScreen() {
     setBusy(true);
     setError(null);
     setNote(null);
-    const result = await generateDrill(text);
+    const result = await generateDrill(text, context.trim() || undefined);
     if (!result.ok) {
       setBusy(false);
       setError(result.error);
@@ -101,11 +102,26 @@ export default function CreateScreen() {
               placeholderTextColor={colors.textFaint}
               style={styles.input}
               multiline
-              maxLength={300}
+              maxLength={500}
               editable={!busy}
               autoFocus
             />
-            <Text style={styles.count}>{topic.trim().length}/300</Text>
+            <Text style={styles.count}>{topic.trim().length}/500</Text>
+          </View>
+
+          <View style={styles.section}>
+            <Text style={styles.eyebrow}>Context — optional</Text>
+            <TextInput
+              value={context}
+              onChangeText={setContext}
+              placeholder="Anything that shapes the answer: the product, the users, the numbers, what you have already tried."
+              placeholderTextColor={colors.textFaint}
+              style={[styles.input, styles.contextInput]}
+              multiline
+              maxLength={1000}
+              editable={!busy}
+            />
+            <Text style={styles.count}>{context.trim().length}/1000</Text>
           </View>
 
           <View style={styles.section}>
@@ -189,6 +205,7 @@ const styles = StyleSheet.create({
     ...shadow.card,
   },
   count: { color: colors.textFaint, fontSize: 12, fontWeight: '700', alignSelf: 'flex-end' },
+  contextInput: { minHeight: 150, fontSize: 15, lineHeight: 22 },
   eyebrow: {
     color: colors.textFaint,
     fontSize: 12,

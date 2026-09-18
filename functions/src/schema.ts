@@ -87,10 +87,34 @@ export interface Question {
 
 /** Map the generated shape to the app's `AnswerSection[]` (typed `content`). */
 export function toAnswerSections(gen: GeneratedQuestion['answer']): AnswerSection[] {
-  return gen.map((s) => {
-    if (s.type === 'bullets') return { heading: s.heading, type: 'bullets', content: s.bullets ?? [] };
-    if (s.type === 'table')
-      return { heading: s.heading, type: 'table', content: s.table ?? { headers: [], rows: [] } };
-    return { heading: s.heading, type: s.type, content: s.text ?? '' };
-  });
+  const out: AnswerSection[] = [];
+
+  for (const s of gen) {
+    const bullets = (s.bullets ?? []).map((b) => b?.trim()).filter((b): b is string => !!b);
+    const text = (s.text ?? '').trim();
+    const table = s.table && s.table.rows?.length ? s.table : null;
+    const heading = s.heading;
+
+    // Trust the field that actually holds content over the declared `type`.
+    // The model sometimes labels a section "callout" but writes into
+    // `bullets`, which used to map to an empty string and render as a card
+    // with a heading and nothing beneath it.
+    if (table) {
+      out.push({ heading, type: 'table', content: table });
+    } else if (s.type === 'bullets' && bullets.length) {
+      out.push({ heading, type: 'bullets', content: bullets });
+    } else if (text) {
+      out.push({ heading, type: s.type === 'callout' ? 'callout' : 'text', content: text });
+    } else if (bullets.length) {
+      // A callout written as bullets still belongs on one card, so join it.
+      out.push({
+        heading,
+        type: s.type === 'callout' ? 'callout' : 'bullets',
+        content: s.type === 'callout' ? bullets.join('\n') : bullets,
+      });
+    }
+    // Nothing in any field: drop the section rather than ship a blank card.
+  }
+
+  return out;
 }

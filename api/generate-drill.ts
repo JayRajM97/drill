@@ -11,7 +11,8 @@ import { activeModel, activeProvider, apiKeyFor, generate } from './_providers';
  * could read it.
  */
 
-const MAX_TOPIC = 300;
+const MAX_TOPIC = 500;
+const MAX_CONTEXT = 1000;
 
 // Best-effort throttle. Serverless instances are reused, so this catches the
 // common case of one client hammering the endpoint. It is a speed bump, not a
@@ -56,7 +57,13 @@ export default async function handler(req: any, res: any) {
     return;
   }
   if (topic.length > MAX_TOPIC) {
-    res.status(400).json({ error: `Keep it under ${MAX_TOPIC} characters.` });
+    res.status(400).json({ error: `Keep the question under ${MAX_TOPIC} characters.` });
+    return;
+  }
+
+  const context = typeof body?.context === 'string' ? body.context.trim() : '';
+  if (context.length > MAX_CONTEXT) {
+    res.status(400).json({ error: `Keep the context under ${MAX_CONTEXT} characters.` });
     return;
   }
 
@@ -79,7 +86,7 @@ export default async function handler(req: any, res: any) {
   try {
     const parsed = await generate(provider, apiKey, {
       system: SYSTEM_PROMPT,
-      user: buildTopicPrompt(topic),
+      user: buildTopicPrompt(topic, context),
       model,
     });
     if (!parsed) {

@@ -255,7 +255,11 @@ function answerCards(s: AnswerSection): DeckCard[] {
         : /insight/i.test(s.heading)
           ? 'The senior insight'
           : 'The bet';
-      return [{ kind: 'callout', section: 'Answer', title, body: String(s.content), label }];
+      const body = String(s.content ?? '').trim();
+      // A section that arrived without content would otherwise render as a
+      // heading over blank space — drop the card instead.
+      if (!body) return [];
+      return [{ kind: 'callout', section: 'Answer', title, body, label }];
     }
     case 'bullets': {
       const items = s.content as string[];
