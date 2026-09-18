@@ -22,7 +22,7 @@ npm run build:android     # eas build -p android --profile preview
 ```
 EAS builds in the cloud and prints a link; friends open it on the phone,
 download the APK and install (allow "install unknown apps" once). No Play Store
-account needed. `android.package` = `in.aitainment.drill`.
+account needed. `android.package` = `com.jayraj.drill`.
 
 ## Your iPhone
 - **Free**: plug in the phone, `npx expo run:ios --device` (personal team
@@ -40,7 +40,7 @@ screen → Edit → Add Widget → Drill. Android widget is planned
 
 ## Play Store / App Store later
 `eas build --profile production` + `eas submit` for both stores.
-`ios.bundleIdentifier` / `android.package` are set to `in.aitainment.drill`
-(reverse-DNS of aitainment.in) — change them in app.json before the first
-store upload if you want a different identity; they are permanent once
-published.
+`ios.bundleIdentifier` / `android.package` are set to `com.jayraj.drill`,
+matching the personal-account convention used by Lore and Ramanujan. Drill is
+signed with the personal Apple team, so it must not sit under a company
+namespace. These are permanent once published to a store.
