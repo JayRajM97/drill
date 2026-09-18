@@ -2,6 +2,7 @@ import React from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
 import type { Question } from '@/types/question';
+import { isCustom } from '@/data/customStore';
 import { categoryIcon, categoryPastel, colors, radius, space } from '@/theme/tokens';
 import { Card, CategoryIcon, DifficultyBadge, DifficultyDot } from './ui';
 
@@ -17,6 +18,7 @@ interface Props {
 
 export function QuestionCard({ question, onPress, compact, bookmarked, onToggleBookmark, done }: Props) {
   const category = question.categories[0];
+  const ai = isCustom(question.id);
 
   if (compact) {
     return (
@@ -32,6 +34,7 @@ export function QuestionCard({ question, onPress, compact, bookmarked, onToggleB
               {question.difficulty}
               {question.domain_tags[0] ? ` · ${question.domain_tags[0]}` : ''}
             </Text>
+            {ai ? <AiTag /> : null}
           </View>
         </View>
         {onToggleBookmark ? (
@@ -60,6 +63,7 @@ export function QuestionCard({ question, onPress, compact, bookmarked, onToggleB
         ) : (
           <View />
         )}
+        {ai ? <AiTag /> : null}
         {onToggleBookmark ? (
           <Pressable onPress={onToggleBookmark} hitSlop={10}>
             <MaterialIcons
@@ -80,8 +84,28 @@ export function QuestionCard({ question, onPress, compact, bookmarked, onToggleB
   );
 }
 
+/** Marks a drill the user generated, so it is never mistaken for a curated one. */
+function AiTag() {
+  return (
+    <View style={styles.aiTag}>
+      <MaterialIcons name="auto-awesome" size={11} color={colors.accent} />
+      <Text style={styles.aiTagText}>AI</Text>
+    </View>
+  );
+}
+
 const styles = StyleSheet.create({
   card: { padding: space.lg, gap: space.md },
+  aiTag: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 3,
+    backgroundColor: colors.accentSoft,
+    borderRadius: radius.pill,
+    paddingHorizontal: 7,
+    paddingVertical: 3,
+  },
+  aiTagText: { color: colors.accent, fontSize: 10, fontWeight: '800', letterSpacing: 0.4 },
   top: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', gap: space.sm },
   catChip: { flexDirection: 'row', alignItems: 'center', gap: 5, borderRadius: radius.pill, paddingHorizontal: 10, paddingVertical: 6, flexShrink: 1 },
   catText: { fontSize: 12, fontWeight: '800', flexShrink: 1 },

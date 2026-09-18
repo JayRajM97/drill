@@ -93,10 +93,15 @@ export default function ProfileScreen() {
             <Text style={styles.statNum}>{saved.length}</Text>
             <Text style={styles.statLabel}>Saved</Text>
           </Card>
+          <Card style={styles.stat}>
+            <MaterialIcons name="auto-awesome" size={22} color={colors.accent} />
+            <Text style={styles.statNum}>{mine.length}</Text>
+            <Text style={styles.statLabel}>My drills</Text>
+          </Card>
         </View>
 
         <View style={styles.sectionHead}>
-          <Text style={styles.sectionTitle}>Your questions</Text>
+          <Text style={styles.sectionTitle}>My drills</Text>
           <Text style={styles.sectionMeta}>{mine.length}</Text>
         </View>
         {mine.length === 0 ? (
@@ -225,9 +230,9 @@ const styles = StyleSheet.create({
   streakRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
   streakNum: { color: colors.onAccent, fontSize: 64, fontWeight: '800', letterSpacing: -2, lineHeight: 70 },
   row: { flexDirection: 'row', gap: space.md },
-  stat: { flex: 1, gap: 6, alignItems: 'flex-start' },
+  stat: { flex: 1, gap: 6, alignItems: 'flex-start', paddingHorizontal: space.md },
   statNum: { color: colors.text, fontSize: 28, fontWeight: '800', letterSpacing: -0.5 },
-  statLabel: { color: colors.textMuted, fontSize: 13, fontWeight: '600' },
+  statLabel: { color: colors.textMuted, fontSize: 12, fontWeight: '600' },
   sectionHead: {
     flexDirection: 'row',
     alignItems: 'baseline',
