@@ -19,7 +19,7 @@ const SYNC_LABEL: Record<string, string> = {
  * Everything keeps working signed out; this only adds a cloud copy.
  */
 export function AccountCard() {
-  const { account, ready, configured, signIn, signUp, signOut } = useAuth();
+  const { account, ready, configured, signIn, signUp, signInWithGoogle, googleReady, signOut } = useAuth();
   const { sync, progress } = useProgress();
   const [mode, setMode] = useState<'signIn' | 'signUp'>('signIn');
   const [email, setEmail] = useState('');
@@ -88,6 +88,26 @@ export function AccountCard() {
           ? `Your ${progress.streak}-day streak lives only on this phone. Sign in to keep it safe.`
           : 'Sign in to keep your streak, bookmarks and completed drills across devices.'}
       </Text>
+
+      {googleReady ? (
+        <>
+          <Pressable
+            onPress={async () => {
+              setBusy(true);
+              setError(null);
+              const message = await signInWithGoogle();
+              setBusy(false);
+              if (message) setError(message);
+            }}
+            disabled={busy}
+            style={({ pressed }) => [styles.google, busy && { opacity: 0.6 }, pressed && { opacity: 0.9 }]}
+          >
+            <Text style={styles.gMark}>G</Text>
+            <Text style={styles.googleText}>Continue with Google</Text>
+          </Pressable>
+          <Text style={styles.or}>or with email</Text>
+        </>
+      ) : null}
 
       <TextInput
         value={email}
@@ -170,6 +190,18 @@ const styles = StyleSheet.create({
     fontSize: 15,
   },
   error: { color: colors.warning, fontSize: 13, lineHeight: 18 },
+  google: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: space.sm,
+    backgroundColor: colors.surfaceAlt,
+    borderRadius: radius.lg,
+    paddingVertical: 13,
+  },
+  gMark: { color: '#4285F4', fontSize: 17, fontWeight: '800' },
+  googleText: { color: colors.text, fontSize: 15, fontWeight: '700' },
+  or: { color: colors.textFaint, fontSize: 12, fontWeight: '700', textAlign: 'center', marginTop: 2 },
   primary: {
     backgroundColor: colors.accent,
     borderRadius: radius.lg,

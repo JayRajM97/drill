@@ -51,7 +51,8 @@
           "icon": "./assets/android-icon-monochrome.png",
           "color": "#1F5EFF"
         }
-      ]
+      ],
+      "expo-web-browser"
     ],
     "description": "Flashcard-style practice for product management interviews: real case studies broken into cards, plus the numbers every PM should know.",
     "primaryColor": "#1F5EFF"

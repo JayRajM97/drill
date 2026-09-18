@@ -8,6 +8,7 @@ import {
   useWindowDimensions,
 } from 'react-native';
 import { useRouter } from 'expo-router';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { MaterialIcons } from '@expo/vector-icons';
 import { questions, type CategorySummary } from '@/data';
@@ -91,6 +92,15 @@ export default function HomeScreen() {
   useEffect(() => {
     questions.getCategories().then(setCategories);
   }, []);
+
+  // First run goes to onboarding once; after that this never fires again.
+  useEffect(() => {
+    AsyncStorage.getItem('drill:onboarded:v1')
+      .then((seen) => {
+        if (!seen) router.replace('/onboarding');
+      })
+      .catch(() => {});
+  }, [router]);
 
   const cardW = Math.min(W - space.lg * 2 - 36, 360);
   const numbers = useMemo(() => todaysNumbers(), []);
