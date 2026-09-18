@@ -1,4 +1,4 @@
-import React, { useMemo, useRef, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import {
   ActivityIndicator,
   Image,
@@ -11,26 +11,26 @@ import {
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { MaterialIcons } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useAuth } from '@/auth/AuthProvider';
 import { curatedQuestions } from '@/data/curated';
-import { ALL_FACTS, emojiFor } from '@/data/numbers';
+import { ALL_FACTS, emojiFor, type Fact } from '@/data/numbers';
 import { FRAMEWORKS } from '@/data/frameworks';
+import type { Question } from '@/types/question';
+import { QuestionCard } from '@/components/QuestionCard';
+import { FrameworkCard } from '@/components/FrameworkCard';
 import { colors, radius, shadow, space } from '@/theme/tokens';
 
 export const ONBOARDED_KEY = 'drill:onboarded:v1';
 
 type Slide =
-  | { kind: 'case'; title: string; meta: string }
-  | { kind: 'number'; value: string; label: string; emoji: string }
-  | { kind: 'framework'; name: string; line: string; emoji: string };
+  | { key: string; kind: 'question'; question: Question }
+  | { key: string; kind: 'number'; fact: Fact }
+  | { key: string; kind: 'framework'; index: number };
 
-/**
- * First run: what Drill is, a taste of the content, and a way in.
- * Everything shown here is real — drills, numbers and frameworks already in
- * the app — so the first screen is not a promise, it is the product.
- */
+const AUTO_MS = 3200;
+
+/** First run: what Drill is, a taste of the real cards, and a way in. */
 export default function Onboarding() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
@@ -38,28 +38,61 @@ export default function Onboarding() {
   const { width: W } = useWindowDimensions();
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [index, setIndex] = useState(0);
 
   const railW = Math.min(W, 520);
-  const cardW = Math.round(railW * 0.74);
-  const gap = space.md;
+  const cardW = Math.round(railW * 0.70);
+  const pitch = cardW + space.md;
   const sidePad = Math.round((railW - cardW) / 2);
   const railRef = useRef<ScrollView>(null);
+  const offset = useRef(0);
+  const paused = useRef(false);
 
-  const slides = useMemo<Slide[]>(() => {
-    const q = curatedQuestions[0];
-    const q2 = curatedQuestions[1];
-    const f = ALL_FACTS.find((x) => x.id === 'in.pop') ?? ALL_FACTS[0];
-    const f2 = ALL_FACTS.find((x) => x.value.length <= 10 && x.id !== f.id) ?? ALL_FACTS[1];
-    const fw = FRAMEWORKS[0];
+  const base = useMemo<Slide[]>(() => {
+    const facts = ALL_FACTS.filter((f) => !f.parts && f.value.length <= 10);
     return [
-      { kind: 'case', title: q.title, meta: `${q.categories[0]} · ${q.difficulty}` },
-      { kind: 'number', value: f.value, label: f.label, emoji: emojiFor(f, '🔢') },
-      { kind: 'framework', name: fw.name, line: fw.oneLiner, emoji: fw.emoji },
-      { kind: 'number', value: f2.value, label: f2.label, emoji: emojiFor(f2, '🔢') },
-      { kind: 'case', title: q2.title, meta: `${q2.categories[0]} · ${q2.difficulty}` },
+      { key: 'q0', kind: 'question', question: curatedQuestions[0] },
+      { key: 'n0', kind: 'number', fact: facts[3] ?? ALL_FACTS[0] },
+      { key: 'f0', kind: 'framework', index: 0 },
+      { key: 'q1', kind: 'question', question: curatedQuestions[1] },
+      { key: 'n1', kind: 'number', fact: facts[9] ?? ALL_FACTS[1] },
     ];
   }, []);
+
+  // Three copies, parked in the middle: there is always a card to the left and
+  // the right, and scrolling past either end silently recentres, so the rail
+  // never runs out in either direction.
+  const loop = useMemo(
+    () => [...base, ...base, ...base].map((s, i) => ({ ...s, key: `${s.key}-${i}` })),
+    [base],
+  );
+  const startIndex = base.length;
+
+  useEffect(() => {
+    const t = setTimeout(() => {
+      railRef.current?.scrollTo({ x: startIndex * pitch, animated: false });
+      offset.current = startIndex * pitch;
+    }, 50);
+    return () => clearTimeout(t);
+  }, [startIndex, pitch]);
+
+  useEffect(() => {
+    const tick = setInterval(() => {
+      if (paused.current) return;
+      offset.current += pitch;
+      railRef.current?.scrollTo({ x: offset.current, animated: true });
+    }, AUTO_MS);
+    return () => clearInterval(tick);
+  }, [pitch]);
+
+  const recentre = (x: number) => {
+    offset.current = x;
+    const span = base.length * pitch;
+    if (x < span * 0.5 || x > span * 2.5) {
+      const wrapped = ((x - span) % span + span) % span + span;
+      offset.current = wrapped;
+      railRef.current?.scrollTo({ x: wrapped, animated: false });
+    }
+  };
 
   const finish = async () => {
     await AsyncStorage.setItem(ONBOARDED_KEY, 'yes').catch(() => {});
@@ -67,6 +100,14 @@ export default function Onboarding() {
   };
 
   const onGoogle = async () => {
+    if (!googleReady) {
+      setError(
+        configured
+          ? 'Google sign-in needs its client ids in .env.local before it can run.'
+          : 'Cloud sync is not configured in this build yet.',
+      );
+      return;
+    }
     setBusy(true);
     setError(null);
     const message = await signInWithGoogle();
@@ -76,163 +117,126 @@ export default function Onboarding() {
   };
 
   return (
-    <View style={[styles.screen, { paddingTop: insets.top + space.xl, paddingBottom: insets.bottom + space.lg }]}>
-      <View style={styles.head}>
-        <Image source={require('../assets/icon.png')} style={styles.logo} />
-        <Text style={styles.wordmark}>Drill</Text>
+    <View style={[styles.screen, { paddingTop: insets.top + space.md, paddingBottom: insets.bottom + space.md }]}>
+      <View style={styles.top}>
+        <View style={styles.head}>
+          <Image source={require('../assets/icon.png')} style={styles.logo} />
+          <Text style={styles.wordmark}>drill</Text>
+        </View>
         <Text style={styles.tagline}>Practice PM interviews one card at a time.</Text>
-        <Text style={styles.sub}>Real case studies, the numbers worth knowing, and the frameworks behind them.</Text>
       </View>
 
+      <View style={styles.middle}>
       <ScrollView
         horizontal
         ref={railRef}
         showsHorizontalScrollIndicator={false}
         decelerationRate="fast"
-        snapToInterval={cardW + gap}
-        scrollEventThrottle={64}
-        onScroll={(e) => {
-          const next = Math.round(e.nativeEvent.contentOffset.x / (cardW + gap));
-          if (next !== index) setIndex(next);
+        snapToInterval={pitch}
+        scrollEventThrottle={32}
+        onScroll={(e) => recentre(e.nativeEvent.contentOffset.x)}
+        onTouchStart={() => {
+          paused.current = true;
         }}
-        contentContainerStyle={{ paddingHorizontal: sidePad, gap }}
+        onTouchEnd={() => {
+          paused.current = false;
+        }}
+        contentContainerStyle={{ paddingHorizontal: sidePad, gap: space.md }}
         style={styles.rail}
       >
-        {slides.map((s, i) => (
-          <SlideCard key={i} slide={s} width={cardW} />
+        {loop.map((s) => (
+          <View key={s.key} style={{ width: cardW }}>
+            {s.kind === 'question' ? (
+              <QuestionCard question={s.question} onPress={() => {}} />
+            ) : s.kind === 'framework' ? (
+              <FrameworkCard framework={FRAMEWORKS[s.index]} onPress={() => {}} />
+            ) : (
+              <NumberCard fact={s.fact} />
+            )}
+          </View>
         ))}
       </ScrollView>
-
-      <View style={styles.pips}>
-        {slides.map((_, i) => (
-          <View key={i} style={[styles.pip, i === index && styles.pipNow]} />
-        ))}
       </View>
 
       <View style={styles.footer}>
         {error ? <Text style={styles.error}>{error}</Text> : null}
 
-        {googleReady ? (
-          <Pressable
-            onPress={onGoogle}
-            disabled={busy}
-            style={({ pressed }) => [styles.google, busy && { opacity: 0.6 }, pressed && { opacity: 0.9 }]}
-          >
-            {busy ? (
-              <ActivityIndicator color={colors.text} />
-            ) : (
-              <>
-                <GoogleMark />
-                <Text style={styles.googleText}>Continue with Google</Text>
-              </>
-            )}
-          </Pressable>
-        ) : (
-          <View style={styles.notice}>
-            <MaterialIcons name="info-outline" size={16} color={colors.textMuted} />
-            <Text style={styles.noticeText}>
-              {configured
-                ? 'Google sign-in needs its OAuth client ids before it can be offered.'
-                : 'Cloud sync is not set up in this build, so your progress stays on this device.'}
-            </Text>
-          </View>
-        )}
+        <Pressable
+          onPress={onGoogle}
+          disabled={busy}
+          style={({ pressed }) => [styles.google, busy && { opacity: 0.6 }, pressed && { opacity: 0.9 }]}
+        >
+          {busy ? (
+            <ActivityIndicator color={colors.text} />
+          ) : (
+            <>
+              <Text style={styles.gMark}>G</Text>
+              <Text style={styles.googleText}>Continue with Google</Text>
+            </>
+          )}
+        </Pressable>
 
         <Pressable onPress={finish} hitSlop={8} style={styles.skip}>
-          <Text style={styles.skipText}>
-            {googleReady ? 'Not now — just let me practise' : 'Start practising'}
-          </Text>
+          <Text style={styles.skipText}>Start practising</Text>
         </Pressable>
       </View>
     </View>
   );
 }
 
-/** Google's mark, drawn rather than fetched so nothing loads over the network. */
-function GoogleMark() {
+/** Same language as the numbers tiles on Home, sized for the rail. */
+function NumberCard({ fact }: { fact: Fact }) {
   return (
-    <View style={styles.gMark}>
-      <Text style={styles.gText}>G</Text>
-    </View>
-  );
-}
-
-function SlideCard({ slide, width }: { slide: Slide; width: number }) {
-  if (slide.kind === 'number') {
-    return (
-      <View style={[styles.card, styles.cardBlue, { width }, shadow.accent]}>
-        <Text style={styles.cardEmoji}>{slide.emoji}</Text>
-        <Text style={styles.numValue} numberOfLines={1} adjustsFontSizeToFit>
-          {slide.value}
-        </Text>
-        <Text style={styles.numLabel} numberOfLines={2}>
-          {slide.label}
-        </Text>
-        <Text style={styles.cardTag}>Numbers</Text>
-      </View>
-    );
-  }
-  if (slide.kind === 'framework') {
-    return (
-      <View style={[styles.card, { width }, shadow.card]}>
-        <Text style={styles.cardEmoji}>{slide.emoji}</Text>
-        <Text style={styles.cardTitle} numberOfLines={2}>
-          {slide.name}
-        </Text>
-        <Text style={styles.cardLine} numberOfLines={3}>
-          {slide.line}
-        </Text>
-        <Text style={[styles.cardTag, { color: colors.accent }]}>Frameworks</Text>
-      </View>
-    );
-  }
-  return (
-    <View style={[styles.card, { width }, shadow.card]}>
-      <Text style={styles.cardEmoji}>🧩</Text>
-      <Text style={styles.cardTitle} numberOfLines={4}>
-        {slide.title}
+    <View style={[styles.numCard, shadow.accent]}>
+      <Text style={styles.numEmoji}>{emojiFor(fact, '🔢')}</Text>
+      <Text style={styles.numValue} numberOfLines={1} adjustsFontSizeToFit>
+        {fact.value}
       </Text>
-      <Text style={styles.cardLine}>{slide.meta}</Text>
-      <Text style={[styles.cardTag, { color: colors.accent }]}>Case study</Text>
+      <Text style={styles.numLabel} numberOfLines={2}>
+        {fact.label}
+      </Text>
+      <Text style={styles.numTag}>Numbers</Text>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  screen: { flex: 1, backgroundColor: colors.bg, justifyContent: 'space-between' },
-  head: { alignItems: 'center', paddingHorizontal: space.xl, gap: 6 },
-  logo: { width: 64, height: 64, borderRadius: 16 },
-  wordmark: { color: colors.text, fontSize: 30, fontWeight: '800', letterSpacing: -0.8, marginTop: 2 },
+  screen: { flex: 1, backgroundColor: colors.bg },
+  top: { gap: space.lg, paddingTop: space.sm },
+  head: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8 },
+  logo: { width: 26, height: 26, borderRadius: 7 },
+  wordmark: { color: colors.text, fontSize: 19, fontWeight: '800', letterSpacing: -0.4 },
   tagline: {
     color: colors.text,
-    fontSize: 20,
-    lineHeight: 27,
+    fontSize: 22,
+    lineHeight: 30,
     fontWeight: '700',
     textAlign: 'center',
-    letterSpacing: -0.3,
-    marginTop: space.xs,
+    letterSpacing: -0.4,
+    paddingHorizontal: space.xl,
   },
-  sub: { color: colors.textMuted, fontSize: 14, lineHeight: 20, textAlign: 'center' },
   rail: { flexGrow: 0 },
-  card: {
-    height: 290,
-    backgroundColor: colors.surface,
+  middle: { flex: 1, justifyContent: 'center' },
+  numCard: {
+    backgroundColor: colors.accent,
     borderRadius: radius.card,
-    padding: space.xl,
+    padding: space.lg,
+    gap: 4,
+    minHeight: 150,
     justifyContent: 'center',
-    gap: space.sm,
   },
-  cardBlue: { backgroundColor: colors.accent },
-  cardEmoji: { fontSize: 26 },
-  cardTitle: { color: colors.text, fontSize: 20, lineHeight: 27, fontWeight: '800', letterSpacing: -0.3 },
-  cardLine: { color: colors.textMuted, fontSize: 14, lineHeight: 20 },
-  cardTag: { color: colors.onAccentMuted, fontSize: 11, fontWeight: '800', letterSpacing: 0.8, textTransform: 'uppercase', marginTop: 2 },
-  numValue: { color: colors.onAccent, fontSize: 44, fontWeight: '800', letterSpacing: -1.5 },
-  numLabel: { color: colors.onAccent, fontSize: 16, lineHeight: 22, fontWeight: '700' },
-  pips: { flexDirection: 'row', justifyContent: 'center', gap: 6 },
-  pip: { width: 6, height: 6, borderRadius: 3, backgroundColor: colors.border },
-  pipNow: { backgroundColor: colors.accent, width: 20 },
-  footer: { paddingHorizontal: space.lg, gap: space.sm },
+  numEmoji: { fontSize: 20 },
+  numValue: { color: colors.onAccent, fontSize: 26, fontWeight: '800', letterSpacing: -0.6 },
+  numLabel: { color: colors.onAccent, fontSize: 14, lineHeight: 19, fontWeight: '700' },
+  numTag: {
+    color: colors.onAccentMuted,
+    fontSize: 11,
+    fontWeight: '800',
+    letterSpacing: 0.8,
+    textTransform: 'uppercase',
+    marginTop: 2,
+  },
+  footer: { paddingHorizontal: space.lg, gap: space.xs },
   google: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -240,17 +244,14 @@ const styles = StyleSheet.create({
     gap: space.sm,
     backgroundColor: colors.surface,
     borderRadius: radius.lg,
-    paddingVertical: 15,
+    paddingVertical: 16,
     borderWidth: 1,
     borderColor: colors.border,
     ...shadow.card,
   },
-  gMark: { width: 20, height: 20, alignItems: 'center', justifyContent: 'center' },
-  gText: { color: '#4285F4', fontSize: 18, fontWeight: '800' },
+  gMark: { color: '#4285F4', fontSize: 18, fontWeight: '800' },
   googleText: { color: colors.text, fontSize: 16, fontWeight: '700' },
-  notice: { flexDirection: 'row', gap: space.sm, alignItems: 'flex-start', paddingHorizontal: space.xs },
-  noticeText: { flex: 1, color: colors.textMuted, fontSize: 13, lineHeight: 19 },
   error: { color: colors.warning, fontSize: 13, lineHeight: 19, textAlign: 'center' },
-  skip: { alignItems: 'center', paddingVertical: 10 },
-  skipText: { color: colors.accent, fontSize: 14, fontWeight: '700' },
+  skip: { alignItems: 'center', paddingVertical: 12 },
+  skipText: { color: colors.textMuted, fontSize: 14, fontWeight: '700' },
 });

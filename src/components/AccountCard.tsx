@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { ActivityIndicator, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
+import { ActivityIndicator, Image, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
 import { useAuth } from '@/auth/AuthProvider';
 import { useProgress } from '@/state/useProgress';
@@ -51,13 +51,22 @@ export function AccountCard() {
     return (
       <Card style={styles.card}>
         <View style={styles.row}>
-          <View style={styles.badge}>
-            <MaterialIcons name="cloud-done" size={20} color={colors.accent} />
-          </View>
+          {account.photo ? (
+            <Image source={{ uri: account.photo }} style={styles.avatar} />
+          ) : (
+            <View style={styles.badge}>
+              <MaterialIcons name="person" size={20} color={colors.accent} />
+            </View>
+          )}
           <View style={{ flex: 1, gap: 2 }}>
-            <Text style={styles.title} numberOfLines={1} ellipsizeMode="middle">
-              {account.email ?? 'Signed in'}
+            <Text style={styles.title} numberOfLines={1}>
+              {account.name ?? account.email ?? 'Signed in'}
             </Text>
+            {account.name && account.email ? (
+              <Text style={styles.sub} numberOfLines={1} ellipsizeMode="middle">
+                {account.email}
+              </Text>
+            ) : null}
             <Text style={styles.sub}>{SYNC_LABEL[sync] ?? SYNC_LABEL.local}</Text>
           </View>
         </View>
@@ -171,6 +180,7 @@ const styles = StyleSheet.create({
   card: { gap: space.sm, marginTop: space.lg },
   center: { alignItems: 'center', paddingVertical: space.xl },
   row: { flexDirection: 'row', alignItems: 'center', gap: space.md },
+  avatar: { width: 42, height: 42, borderRadius: 21, backgroundColor: colors.surfaceAlt },
   badge: {
     width: 38,
     height: 38,

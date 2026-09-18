@@ -30,6 +30,9 @@ export const isGoogleConfigured = Boolean(
 export interface Account {
   uid: string;
   email: string | null;
+  /** Google gives these; an email account has neither. */
+  name: string | null;
+  photo: string | null;
 }
 
 interface AuthContextValue {
@@ -60,7 +63,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const auth = getAuthOrNull();
     if (!auth) return;
     return onAuthStateChanged(auth, (user: User | null) => {
-      setAccount(user ? { uid: user.uid, email: user.email } : null);
+      setAccount(
+        user
+          ? { uid: user.uid, email: user.email, name: user.displayName, photo: user.photoURL }
+          : null,
+      );
       setReady(true);
     });
   }, []);
