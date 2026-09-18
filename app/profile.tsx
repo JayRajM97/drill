@@ -1,13 +1,15 @@
 import React, { useEffect, useState } from 'react';
-import { Platform, Pressable, ScrollView, StyleSheet, Switch, Text, View } from 'react-native';
+import { Image, Platform, Pressable, ScrollView, StyleSheet, Switch, Text, View } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { MaterialIcons } from '@expo/vector-icons';
 import { questions } from '@/data';
+import { loadCustom } from '@/data/customStore';
 import type { Question } from '@/types/question';
 import { useProgress } from '@/state/useProgress';
 import { AccountCard } from '@/components/AccountCard';
+import { useAuth } from '@/auth/AuthProvider';
 import { BottomNavBar, NAV_CLEARANCE } from '@/components/BottomNavBar';
 import { QuestionCard } from '@/components/QuestionCard';
 import { Card, Eyebrow } from '@/components/ui';
@@ -24,13 +26,16 @@ export default function ProfileScreen() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
   const { progress, toggleBookmark } = useProgress();
+  const { account, signOut } = useAuth();
   const [all, setAll] = useState<Question[]>([]);
+  const [mine, setMine] = useState<Question[]>([]);
   const [nudges, setNudges] = useState(true);
   const [queued, setQueued] = useState<number | null>(null);
   const [tested, setTested] = useState(false);
 
   useEffect(() => {
     questions.list().then(setAll);
+    loadCustom().then(setMine);
     areNudgesEnabled().then(setNudges);
     pendingNudges().then((p) => setQueued(p.length)).catch(() => {});
   }, []);
@@ -49,16 +54,24 @@ export default function ProfileScreen() {
         showsVerticalScrollIndicator={false}
       >
         <View style={styles.head}>
-          <View style={styles.avatar}>
-            <MaterialIcons name="person" size={30} color={colors.accent} />
-          </View>
-          <View>
-            <Text style={styles.title}>You</Text>
-            <Text style={styles.sub}>Keep the streak alive.</Text>
+          {account?.photo ? (
+            <Image source={{ uri: account.photo }} style={styles.avatar} />
+          ) : (
+            <View style={styles.avatar}>
+              <MaterialIcons name="person" size={30} color={colors.accent} />
+            </View>
+          )}
+          <View style={{ flex: 1 }}>
+            <Text style={styles.title} numberOfLines={1}>
+              {account?.name ?? 'You'}
+            </Text>
+            <Text style={styles.sub}>
+              {account ? 'Saved to your account' : 'Keep the streak alive.'}
+            </Text>
           </View>
         </View>
 
-        <AccountCard />
+        <AccountCard showSignedIn />
 
         <Card style={[styles.streak, shadow.accent]}>
           <Eyebrow style={{ color: colors.onAccentMuted }}>Day streak</Eyebrow>
@@ -82,6 +95,51 @@ export default function ProfileScreen() {
           </Card>
         </View>
 
+        <View style={styles.sectionHead}>
+          <Text style={styles.sectionTitle}>Your questions</Text>
+          <Text style={styles.sectionMeta}>{mine.length}</Text>
+        </View>
+        {mine.length === 0 ? (
+          <Card style={styles.empty}>
+            <MaterialIcons name="auto-awesome" size={32} color={colors.textFaint} />
+            <Text style={styles.emptyTitle}>None yet</Text>
+            <Text style={styles.emptyText}>Tap + on Home to write a drill from your own prompt.</Text>
+          </Card>
+        ) : (
+          mine.map((q) => (
+            <QuestionCard
+              key={q.id}
+              question={q}
+              compact
+              bookmarked={progress.bookmarkIds.includes(q.id)}
+              onToggleBookmark={() => toggleBookmark(q.id)}
+              onPress={() => router.push(`/question/${q.id}`)}
+            />
+          ))
+        )}
+
+        <View style={styles.sectionHead}>
+          <Text style={styles.sectionTitle}>Saved</Text>
+          <Text style={styles.sectionMeta}>{saved.length}</Text>
+        </View>
+        {saved.length === 0 ? (
+          <Card style={styles.empty}>
+            <MaterialIcons name="bookmark-border" size={32} color={colors.textFaint} />
+            <Text style={styles.emptyTitle}>Nothing saved yet</Text>
+            <Text style={styles.emptyText}>Tap the bookmark on any question to keep it here.</Text>
+          </Card>
+        ) : (
+          saved.map((q) => (
+            <QuestionCard
+              key={q.id}
+              question={q}
+              compact
+              bookmarked
+              onToggleBookmark={() => toggleBookmark(q.id)}
+              onPress={() => router.push(`/question/${q.id}`)}
+            />
+          ))
+        )}
         {Platform.OS !== 'web' ? (
           <Card style={styles.nudge}>
             <View style={styles.nudgeHead}>
@@ -127,28 +185,12 @@ export default function ProfileScreen() {
           </Card>
         ) : null}
 
-        <View style={styles.sectionHead}>
-          <Text style={styles.sectionTitle}>Saved</Text>
-          <Text style={styles.sectionMeta}>{saved.length}</Text>
-        </View>
-        {saved.length === 0 ? (
-          <Card style={styles.empty}>
-            <MaterialIcons name="bookmark-border" size={32} color={colors.textFaint} />
-            <Text style={styles.emptyTitle}>Nothing saved yet</Text>
-            <Text style={styles.emptyText}>Tap the bookmark on any question to keep it here.</Text>
-          </Card>
-        ) : (
-          saved.map((q) => (
-            <QuestionCard
-              key={q.id}
-              question={q}
-              compact
-              bookmarked
-              onToggleBookmark={() => toggleBookmark(q.id)}
-              onPress={() => router.push(`/question/${q.id}`)}
-            />
-          ))
-        )}
+        {account ? (
+          <Pressable onPress={() => signOut()} hitSlop={8} style={styles.signOut}>
+            <Text style={styles.signOutText}>Sign out</Text>
+          </Pressable>
+        ) : null}
+
         <Pressable
           onPress={async () => {
             await AsyncStorage.removeItem('drill:onboarded:v1').catch(() => {});
@@ -204,6 +246,8 @@ const styles = StyleSheet.create({
   testText: { color: colors.accent, fontSize: 13, fontWeight: '700' },
   timePill: { backgroundColor: colors.accentSoft, borderRadius: radius.pill, paddingHorizontal: 10, paddingVertical: 5 },
   timeText: { color: colors.accent, fontSize: 12, fontWeight: '800' },
+  signOut: { alignItems: 'center', paddingVertical: space.md, marginTop: space.lg },
+  signOutText: { color: colors.accent, fontSize: 15, fontWeight: '700' },
   replay: { alignItems: 'center', paddingVertical: space.lg },
   replayText: { color: colors.textFaint, fontSize: 13, fontWeight: '700' },
   empty: { alignItems: 'center', gap: space.sm, paddingVertical: space.xl },

@@ -35,12 +35,11 @@ function matches(q: Question, f: QuestionFilters): boolean {
   return true;
 }
 
-/** Ordered ids shown in Home → Today. */
-const TODAY_PINNED = [
-  'position-notion-vs-confluence-google-docs',
-  'q-zomato-buy-again-metrics',
-  'design-netflix-for-kids',
-];
+/**
+ * The three case studies shown on Home rotate daily. They used to be a fixed
+ * pinned list, so the same three appeared every day from install onwards.
+ */
+const DAILY_COUNT = 3;
 
 /** Everything the app can show: the user's own drills first, then the bundled set. */
 async function allQuestions(): Promise<Question[]> {
@@ -59,22 +58,18 @@ export const localRepository: QuestionRepository = {
   },
 
   async getDaily(seedStr) {
-    // Today is a pinned, ordered set; fall back to one-per-category picks only
-    // for pinned ids that do not exist in this build.
-    const pinned = TODAY_PINNED.map((id) => QUESTIONS.find((q) => q.id === id)).filter((q): q is Question => !!q);
-    if (pinned.length) return pinned;
+    // Walk the whole set from a date-derived offset, in a stride that is
+    // coprime-ish with the pool, so each day gets a different trio and every
+    // question comes round rather than the same three forever.
+    const pool = await allQuestions();
+    if (pool.length === 0) return [];
+    const start = hashString(seedStr) % pool.length;
+    const stride = 7;
     const picks: Question[] = [];
-    for (const category of CATEGORIES) {
-      const pool = QUESTIONS.filter((q) => q.categories.includes(category));
-      if (pool.length === 0) continue;
-      const idx = hashString(`${seedStr}:${category}`) % pool.length;
-      for (let k = 0; k < pool.length; k++) {
-        const q = pool[(idx + k) % pool.length];
-        if (!picks.some((p) => p.id === q.id)) {
-          picks.push(q);
-          break;
-        }
-      }
+    for (let k = 0; picks.length < Math.min(DAILY_COUNT, pool.length); k++) {
+      const q = pool[(start + k * stride) % pool.length];
+      if (!picks.some((p) => p.id === q.id)) picks.push(q);
+      if (k > pool.length * 2) break;
     }
     return picks;
   },

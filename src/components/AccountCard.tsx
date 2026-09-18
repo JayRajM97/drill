@@ -17,7 +17,7 @@ const SYNC_LABEL: Record<string, string> = {
  * Google only. Signed out it is a single button; signed in it is the person's
  * name, their picture, and a way out. Nothing else belongs here.
  */
-export function AccountCard({ compact }: { compact?: boolean }) {
+export function AccountCard({ compact, showSignedIn }: { compact?: boolean; showSignedIn?: boolean }) {
   const { account, ready, signInWithGoogle, googleReady } = useAuth();
   const { sync } = useProgress();
   const [busy, setBusy] = useState(false);
@@ -38,7 +38,7 @@ export function AccountCard({ compact }: { compact?: boolean }) {
   };
 
   if (account) {
-    if (compact) return null; // the streak card has nothing to offer once signed in
+    if (compact || !showSignedIn) return null;
     return (
       <View style={styles.signedIn}>
         {account.photo ? (

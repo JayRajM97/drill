@@ -14,36 +14,33 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useAuth } from '@/auth/AuthProvider';
 import { curatedQuestions } from '@/data/curated';
-import { ALL_FACTS, SETS, emojiFor, type Fact } from '@/data/numbers';
 import { notionQuestions } from '@/data/notionQuestions';
+import { ALL_FACTS, SETS, emojiFor, type Fact } from '@/data/numbers';
 import { FRAMEWORKS } from '@/data/frameworks';
-import type { Question } from '@/types/question';
-import { QuestionCard } from '@/components/QuestionCard';
-import { FrameworkCard } from '@/components/FrameworkCard';
-import { colors, radius, shadow, space } from '@/theme/tokens';
+import type { Category } from '@/types/question';
+import { categoryPastel, colors, radius, shadow, space } from '@/theme/tokens';
 
 export const ONBOARDED_KEY = 'drill:onboarded:v1';
 
-type Slide =
-  | { key: string; kind: 'question'; question: Question }
-  | { key: string; kind: 'number'; fact: Fact }
-  | { key: string; kind: 'framework'; index: number }
-  | { key: string; kind: 'stat'; value: string; label: string }
-  | { key: string; kind: 'types'; items: string[] };
-
 const AUTO_MS = 3200;
-const CARD_H = 240;
+const CARD_H = 250;
 
-// Counted from the bundled data so the screen can never overstate what is in it.
+// Counted from the bundled data, so the screen cannot overstate what is in it.
 const QUESTION_COUNT = curatedQuestions.length + notionQuestions.length;
 const FRAMEWORK_COUNT = FRAMEWORKS.length;
 const NUMBER_COUNT = SETS.numbers.facts.length + SETS.metrics.facts.length;
 
-/** First run: what Drill is, a taste of the real cards, and a way in. */
+type Slide =
+  | { key: string; kind: 'question'; title: string; category: Category }
+  | { key: string; kind: 'number'; fact: Fact }
+  | { key: string; kind: 'framework'; emoji: string; name: string; line: string }
+  | { key: string; kind: 'stat'; value: string; label: string }
+  | { key: string; kind: 'types'; items: string[] };
+
 export default function Onboarding() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
-  const { signInWithGoogle, googleReady, configured } = useAuth();
+  const { signInWithGoogle, googleReady } = useAuth();
   const { width: W } = useWindowDimensions();
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -57,37 +54,36 @@ export default function Onboarding() {
   const paused = useRef(false);
 
   const base = useMemo<Slide[]>(() => {
-    // Short titles only: the rail is a taste of the product, not a wall of text.
-    const shortest = [...curatedQuestions].sort((a, b) => a.title.length - b.title.length);
+    const short = [...curatedQuestions].sort((a, b) => a.title.length - b.title.length);
     const facts = ALL_FACTS.filter((f) => !f.parts && f.value.length <= 10);
+    const fw = FRAMEWORKS[0];
     return [
-      { key: 'q0', kind: 'question', question: shortest[0] },
-      { key: 's1', kind: 'stat', value: `${QUESTION_COUNT}`, label: 'case studies,\nbroken into cards' },
-      { key: 'n0', kind: 'number', fact: facts[3] ?? ALL_FACTS[0] },
-      { key: 't0', kind: 'types', items: ['Product Strategy', 'Product Design', 'Guesstimate', 'Analytical', 'RCA', 'AI'] },
-      { key: 'f0', kind: 'framework', index: 0 },
-      { key: 's2', kind: 'stat', value: `${FRAMEWORK_COUNT}`, label: 'frameworks,\nstep by step' },
-      { key: 'n1', kind: 'number', fact: facts[9] ?? ALL_FACTS[1] },
-      { key: 's3', kind: 'stat', value: `${NUMBER_COUNT}`, label: 'numbers worth\nknowing cold' },
+      { key: 'q', kind: 'question', title: short[0].title, category: short[0].categories[0] },
+      { key: 's1', kind: 'stat', value: String(QUESTION_COUNT), label: 'case studies' },
+      { key: 'n1', kind: 'number', fact: facts[3] ?? ALL_FACTS[0] },
+      { key: 't', kind: 'types', items: ['Strategy', 'Design', 'Guesstimate', 'Analytical', 'RCA', 'AI'] },
+      { key: 'f', kind: 'framework', emoji: fw.emoji, name: fw.name, line: fw.oneLiner },
+      { key: 's2', kind: 'stat', value: String(FRAMEWORK_COUNT), label: 'frameworks' },
+      { key: 'n2', kind: 'number', fact: facts[9] ?? ALL_FACTS[1] },
+      { key: 's3', kind: 'stat', value: String(NUMBER_COUNT), label: 'numbers to know' },
     ];
   }, []);
 
-  // Three copies, parked in the middle: there is always a card to the left and
-  // the right, and scrolling past either end silently recentres, so the rail
-  // never runs out in either direction.
+  // Three copies parked in the middle: there is always a card either side, and
+  // scrolling past an end silently recentres, so the rail never runs out.
   const loop = useMemo(
     () => [...base, ...base, ...base].map((s, i) => ({ ...s, key: `${s.key}-${i}` })),
     [base],
   );
-  const startIndex = base.length;
 
   useEffect(() => {
     const t = setTimeout(() => {
-      railRef.current?.scrollTo({ x: startIndex * pitch, animated: false });
-      offset.current = startIndex * pitch;
+      const x = base.length * pitch;
+      railRef.current?.scrollTo({ x, animated: false });
+      offset.current = x;
     }, 50);
     return () => clearTimeout(t);
-  }, [startIndex, pitch]);
+  }, [base.length, pitch]);
 
   useEffect(() => {
     const tick = setInterval(() => {
@@ -102,7 +98,7 @@ export default function Onboarding() {
     offset.current = x;
     const span = base.length * pitch;
     if (x < span * 0.5 || x > span * 2.5) {
-      const wrapped = ((x - span) % span + span) % span + span;
+      const wrapped = (((x - span) % span) + span) % span + span;
       offset.current = wrapped;
       railRef.current?.scrollTo({ x: wrapped, animated: false });
     }
@@ -115,11 +111,7 @@ export default function Onboarding() {
 
   const onGoogle = async () => {
     if (!googleReady) {
-      setError(
-        configured
-          ? 'Google sign-in needs its client ids in .env.local before it can run.'
-          : 'Cloud sync is not configured in this build yet.',
-      );
+      setError('Google sign-in is not configured in this build.');
       return;
     }
     setBusy(true);
@@ -131,52 +123,39 @@ export default function Onboarding() {
   };
 
   return (
-    <View style={[styles.screen, { paddingTop: insets.top + space.md, paddingBottom: insets.bottom + space.md }]}>
+    <View style={[styles.screen, { paddingTop: insets.top + space.lg, paddingBottom: insets.bottom + space.md }]}>
       <View style={styles.top}>
         <Image source={require('../assets/icon.png')} style={styles.logo} />
         <Text style={styles.wordmark}>drill</Text>
-        <Text style={styles.tagline}>{'Crack the\nPM interview.'}</Text>
+        <Text style={styles.tagline}>Walk in ready.</Text>
       </View>
 
       <View style={styles.middle}>
-      <ScrollView
-        horizontal
-        ref={railRef}
-        showsHorizontalScrollIndicator={false}
-        decelerationRate="fast"
-        snapToInterval={pitch}
-        scrollEventThrottle={32}
-        onScroll={(e) => recentre(e.nativeEvent.contentOffset.x)}
-        onTouchStart={() => {
-          paused.current = true;
-        }}
-        onTouchEnd={() => {
-          paused.current = false;
-        }}
-        contentContainerStyle={{ paddingHorizontal: sidePad, gap: space.md }}
-        style={styles.rail}
-      >
-        {loop.map((s) => (
-          <View key={s.key} style={{ width: cardW, height: CARD_H, justifyContent: 'center' }}>
-            {s.kind === 'question' ? (
-              <QuestionCard question={s.question} onPress={() => {}} />
-            ) : s.kind === 'framework' ? (
-              <FrameworkCard framework={FRAMEWORKS[s.index]} onPress={() => {}} />
-            ) : s.kind === 'stat' ? (
-              <StatCard value={s.value} label={s.label} />
-            ) : s.kind === 'types' ? (
-              <TypesCard items={s.items} />
-            ) : (
-              <NumberCard fact={s.fact} />
-            )}
-          </View>
-        ))}
-      </ScrollView>
+        <ScrollView
+          horizontal
+          ref={railRef}
+          showsHorizontalScrollIndicator={false}
+          decelerationRate="fast"
+          snapToInterval={pitch}
+          scrollEventThrottle={32}
+          onScroll={(e) => recentre(e.nativeEvent.contentOffset.x)}
+          onTouchStart={() => {
+            paused.current = true;
+          }}
+          onTouchEnd={() => {
+            paused.current = false;
+          }}
+          contentContainerStyle={{ paddingHorizontal: sidePad, gap: space.md }}
+          style={styles.rail}
+        >
+          {loop.map((s) => (
+            <RailCard key={s.key} slide={s} width={cardW} />
+          ))}
+        </ScrollView>
       </View>
 
       <View style={styles.footer}>
         {error ? <Text style={styles.error}>{error}</Text> : null}
-
         <Pressable
           onPress={onGoogle}
           disabled={busy}
@@ -191,7 +170,6 @@ export default function Onboarding() {
             </>
           )}
         </Pressable>
-
         <Pressable onPress={finish} hitSlop={8} style={styles.skip}>
           <Text style={styles.skipText}>Start practising</Text>
         </Pressable>
@@ -200,105 +178,110 @@ export default function Onboarding() {
   );
 }
 
-/** A single big number: how much is actually in the app. */
-function StatCard({ value, label }: { value: string; label: string }) {
+/** One shell for every slide: same size, same padding, content centred. */
+function RailCard({ slide, width }: { slide: Slide; width: number }) {
+  const blue = slide.kind === 'number';
   return (
-    <View style={[styles.statCard, shadow.card]}>
-      <Text style={styles.statValue}>{value}</Text>
-      <Text style={styles.statLabel}>{label}</Text>
-    </View>
-  );
-}
-
-/** The kinds of question you get asked, as chips. */
-function TypesCard({ items }: { items: string[] }) {
-  return (
-    <View style={[styles.typesCard, shadow.card]}>
-      <Text style={styles.typesTitle}>Every question type</Text>
-      <View style={styles.typesWrap}>
-        {items.map((t) => (
-          <View key={t} style={styles.typeChip}>
-            <Text style={styles.typeChipText}>{t}</Text>
+    <View style={[styles.card, { width }, blue ? styles.cardBlue : styles.cardPlain, blue ? shadow.accent : shadow.card]}>
+      {slide.kind === 'question' ? (
+        <>
+          <View style={[styles.chip, { backgroundColor: categoryPastel[slide.category]?.bg ?? colors.accentSoft }]}>
+            <Text style={[styles.chipText, { color: categoryPastel[slide.category]?.fg ?? colors.accent }]}>
+              {slide.category}
+            </Text>
           </View>
-        ))}
-      </View>
-    </View>
-  );
-}
-
-/** Same language as the numbers tiles on Home, sized for the rail. */
-function NumberCard({ fact }: { fact: Fact }) {
-  return (
-    <View style={[styles.numCard, shadow.accent]}>
-      <Text style={styles.numEmoji}>{emojiFor(fact, '🔢')}</Text>
-      <Text style={styles.numValue} numberOfLines={1} adjustsFontSizeToFit>
-        {fact.value}
-      </Text>
-      <Text style={styles.numLabel} numberOfLines={2}>
-        {fact.label}
-      </Text>
-      <Text style={styles.numTag}>Numbers</Text>
+          <Text style={styles.qText} numberOfLines={4}>
+            {slide.title}
+          </Text>
+        </>
+      ) : slide.kind === 'number' ? (
+        <>
+          <Text style={styles.emoji}>{emojiFor(slide.fact, '🔢')}</Text>
+          <Text style={styles.numValue} numberOfLines={1} adjustsFontSizeToFit>
+            {slide.fact.value}
+          </Text>
+          <Text style={styles.numLabel} numberOfLines={2}>
+            {slide.fact.label}
+          </Text>
+        </>
+      ) : slide.kind === 'framework' ? (
+        <>
+          <Text style={styles.emoji}>{slide.emoji}</Text>
+          <Text style={styles.fwName} numberOfLines={2}>
+            {slide.name}
+          </Text>
+          <Text style={styles.fwLine} numberOfLines={3}>
+            {slide.line}
+          </Text>
+        </>
+      ) : slide.kind === 'stat' ? (
+        <>
+          <Text style={styles.statValue}>{slide.value}</Text>
+          <Text style={styles.statLabel} numberOfLines={2}>
+            {slide.label}
+          </Text>
+        </>
+      ) : (
+        <>
+          <Text style={styles.typesTitle}>Every question type</Text>
+          <View style={styles.typesWrap}>
+            {slide.items.map((t) => (
+              <View key={t} style={styles.typeChip}>
+                <Text style={styles.typeChipText}>{t}</Text>
+              </View>
+            ))}
+          </View>
+        </>
+      )}
     </View>
   );
 }
 
 const styles = StyleSheet.create({
   screen: { flex: 1, backgroundColor: colors.bg },
-  top: { alignItems: 'center', gap: space.xs, paddingTop: space.sm },
-  logo: { width: 96, height: 96, borderRadius: 24 },
-  wordmark: { color: colors.text, fontSize: 20, fontWeight: '800', letterSpacing: -0.4, marginTop: 2 },
+  top: { alignItems: 'center' },
+  logo: { width: 77, height: 77, borderRadius: 19 },
+  wordmark: { color: colors.text, fontSize: 25, fontWeight: '800', letterSpacing: -0.5, marginTop: 6 },
   tagline: {
-    color: colors.text,
-    fontSize: 34,
-    lineHeight: 40,
-    fontWeight: '800',
+    color: colors.textMuted,
+    fontSize: 17,
+    fontWeight: '600',
     textAlign: 'center',
-    letterSpacing: -1,
-    marginTop: space.md,
+    marginTop: space.xs,
   },
-  rail: { flexGrow: 0 },
   middle: { flex: 1, justifyContent: 'center' },
-  numCard: {
-    backgroundColor: colors.accent,
+  rail: { flexGrow: 0 },
+  card: {
+    height: CARD_H,
     borderRadius: radius.card,
     padding: space.lg,
-    gap: 4,
-    minHeight: CARD_H,
-    justifyContent: 'center',
-  },
-  statCard: {
-    backgroundColor: colors.surface,
-    borderRadius: radius.card,
-    padding: space.lg,
-    minHeight: CARD_H,
-    justifyContent: 'center',
-    gap: 2,
-  },
-  statValue: { color: colors.accent, fontSize: 46, fontWeight: '800', letterSpacing: -1.6 },
-  statLabel: { color: colors.text, fontSize: 15, lineHeight: 21, fontWeight: '700' },
-  typesCard: {
-    backgroundColor: colors.surface,
-    borderRadius: radius.card,
-    padding: space.lg,
-    minHeight: CARD_H,
+    alignItems: 'center',
     justifyContent: 'center',
     gap: space.sm,
   },
-  typesTitle: { color: colors.text, fontSize: 15, fontWeight: '800' },
-  typesWrap: { flexDirection: 'row', flexWrap: 'wrap', gap: 6 },
-  typeChip: { backgroundColor: colors.accentSoft, borderRadius: radius.pill, paddingHorizontal: 10, paddingVertical: 6 },
-  typeChipText: { color: colors.accent, fontSize: 12, fontWeight: '800' },
-  numEmoji: { fontSize: 20 },
-  numValue: { color: colors.onAccent, fontSize: 26, fontWeight: '800', letterSpacing: -0.6 },
-  numLabel: { color: colors.onAccent, fontSize: 14, lineHeight: 19, fontWeight: '700' },
-  numTag: {
-    color: colors.onAccentMuted,
-    fontSize: 11,
-    fontWeight: '800',
-    letterSpacing: 0.8,
-    textTransform: 'uppercase',
-    marginTop: 2,
+  cardPlain: { backgroundColor: colors.surface },
+  cardBlue: { backgroundColor: colors.accent },
+  chip: { borderRadius: radius.pill, paddingHorizontal: 12, paddingVertical: 6 },
+  chipText: { fontSize: 12, fontWeight: '800' },
+  qText: {
+    color: colors.text,
+    fontSize: 19,
+    lineHeight: 26,
+    fontWeight: '700',
+    textAlign: 'center',
+    letterSpacing: -0.3,
   },
+  emoji: { fontSize: 26 },
+  numValue: { color: colors.onAccent, fontSize: 48, fontWeight: '800', letterSpacing: -1.6, textAlign: 'center' },
+  numLabel: { color: colors.onAccent, fontSize: 15, lineHeight: 21, fontWeight: '700', textAlign: 'center' },
+  fwName: { color: colors.text, fontSize: 19, lineHeight: 25, fontWeight: '800', textAlign: 'center', letterSpacing: -0.3 },
+  fwLine: { color: colors.textMuted, fontSize: 14, lineHeight: 20, textAlign: 'center' },
+  statValue: { color: colors.accent, fontSize: 60, fontWeight: '800', letterSpacing: -2.2 },
+  statLabel: { color: colors.text, fontSize: 17, fontWeight: '700', textAlign: 'center' },
+  typesTitle: { color: colors.text, fontSize: 16, fontWeight: '800', textAlign: 'center' },
+  typesWrap: { flexDirection: 'row', flexWrap: 'wrap', gap: 6, justifyContent: 'center' },
+  typeChip: { backgroundColor: colors.accentSoft, borderRadius: radius.pill, paddingHorizontal: 11, paddingVertical: 7 },
+  typeChipText: { color: colors.accent, fontSize: 13, fontWeight: '800' },
   footer: { paddingHorizontal: space.lg, gap: space.xs },
   google: {
     flexDirection: 'row',
