@@ -57,6 +57,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [account, setAccount] = useState<Account | null>(null);
   const [ready, setReady] = useState(!isCloudConfigured);
   const promptRef = useRef<null | (() => Promise<AuthSessionResult | null>)>(null);
+  // Resolver for the in-flight signInWithGoogle() call.
+  const pending = useRef<null | ((message: string | null) => void)>(null);
   const [googleReady, setGoogleReady] = useState(false);
 
   useEffect(() => {
@@ -100,24 +102,23 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   );
 
   /**
-   * Google hands back an ID token, which Firebase swaps for a session. The
-   * account then behaves exactly like an email one — same document, same merge.
+   * Opens Google's sheet. On iOS Google returns an authorization CODE, which
+   * expo-auth-session then exchanges for the id_token asynchronously — well
+   * after promptAsync() has already resolved. So completion is reported by
+   * GoogleBridge once the exchange lands, and this promise waits for it.
    */
   const signInWithGoogle = useCallback(async () => {
-    const auth = getAuthOrNull();
     const prompt = promptRef.current;
-    if (!auth || !isGoogleConfigured || !prompt) return 'Google sign-in is not set up in this build.';
-    try {
-      const result = await prompt();
-      if (result?.type === 'dismiss' || result?.type === 'cancel') return null; // user backed out
-      const idToken =
-        result?.type === 'success' ? (result.params?.id_token ?? result.authentication?.idToken) : null;
-      if (!idToken) return 'Google did not return a sign-in token. Try again.';
-      await signInWithCredential(auth, GoogleAuthProvider.credential(idToken));
-      return null;
-    } catch (err) {
-      return authErrorMessage(err);
+    if (!getAuthOrNull() || !isGoogleConfigured || !prompt) {
+      return 'Google sign-in is not set up in this build.';
     }
+    return new Promise<string | null>((resolve) => {
+      pending.current = resolve;
+      prompt().catch(() => {
+        pending.current = null;
+        resolve('Could not open Google sign-in.');
+      });
+    });
   }, []);
 
   const signOut = useCallback(async () => {
@@ -147,6 +148,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             promptRef.current = prompt;
             setGoogleReady(!!prompt);
           }}
+          onSettled={(message) => {
+            pending.current?.(message);
+            pending.current = null;
+          }}
         />
       ) : null}
       {children}
@@ -162,13 +167,45 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
  */
 function GoogleBridge({
   onReady,
+  onSettled,
 }: {
   onReady: (prompt: null | (() => Promise<AuthSessionResult | null>)) => void;
+  onSettled: (message: string | null) => void;
 }) {
-  const [request, , promptAsync] = Google.useIdTokenAuthRequest(GOOGLE_IDS);
+  const [request, response, promptAsync] = Google.useIdTokenAuthRequest(GOOGLE_IDS);
+
   useEffect(() => {
     onReady(request ? () => promptAsync() : null);
   }, [request, promptAsync, onReady]);
+
+  useEffect(() => {
+    if (!response) return;
+
+    if (response.type === 'dismiss' || response.type === 'cancel') {
+      onSettled(null); // backed out; not an error
+      return;
+    }
+    if (response.type === 'error') {
+      onSettled(response.error?.message ?? 'Google sign-in failed.');
+      return;
+    }
+    if (response.type !== 'success') return;
+
+    // On iOS this only appears after the code has been exchanged, which is a
+    // later render — so this effect can run once with no token yet.
+    const idToken = response.params?.id_token ?? response.authentication?.idToken;
+    if (!idToken) return;
+
+    const auth = getAuthOrNull();
+    if (!auth) {
+      onSettled('Cloud sync is not configured in this build.');
+      return;
+    }
+    signInWithCredential(auth, GoogleAuthProvider.credential(idToken))
+      .then(() => onSettled(null))
+      .catch((err) => onSettled(authErrorMessage(err)));
+  }, [response, onSettled]);
+
   return null;
 }
 

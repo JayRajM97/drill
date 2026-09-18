@@ -85,7 +85,9 @@ const styles = StyleSheet.create({
   top: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', gap: space.sm },
   catChip: { flexDirection: 'row', alignItems: 'center', gap: 5, borderRadius: radius.pill, paddingHorizontal: 10, paddingVertical: 6, flexShrink: 1 },
   catText: { fontSize: 12, fontWeight: '800', flexShrink: 1 },
-  title: { flex: 1, color: colors.text, fontSize: 15, lineHeight: 21, fontWeight: '600', letterSpacing: -0.1 },
+  // No flex here: inside an auto-height card it resolves to zero and the
+  // question disappears, leaving a card with only a chip and a difficulty dot.
+  title: { color: colors.text, fontSize: 15, lineHeight: 21, fontWeight: '600', letterSpacing: -0.1 },
   row: { flexDirection: 'row', alignItems: 'center', gap: space.md, padding: space.lg },
   rowTitle: { color: colors.text, fontSize: 15, lineHeight: 21, fontWeight: '600' },
   meta: { flexDirection: 'row', alignItems: 'center', gap: 6 },

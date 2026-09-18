@@ -14,7 +14,8 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useAuth } from '@/auth/AuthProvider';
 import { curatedQuestions } from '@/data/curated';
-import { ALL_FACTS, emojiFor, type Fact } from '@/data/numbers';
+import { ALL_FACTS, SETS, emojiFor, type Fact } from '@/data/numbers';
+import { notionQuestions } from '@/data/notionQuestions';
 import { FRAMEWORKS } from '@/data/frameworks';
 import type { Question } from '@/types/question';
 import { QuestionCard } from '@/components/QuestionCard';
@@ -26,9 +27,17 @@ export const ONBOARDED_KEY = 'drill:onboarded:v1';
 type Slide =
   | { key: string; kind: 'question'; question: Question }
   | { key: string; kind: 'number'; fact: Fact }
-  | { key: string; kind: 'framework'; index: number };
+  | { key: string; kind: 'framework'; index: number }
+  | { key: string; kind: 'stat'; value: string; label: string }
+  | { key: string; kind: 'types'; items: string[] };
 
 const AUTO_MS = 3200;
+const CARD_H = 240;
+
+// Counted from the bundled data so the screen can never overstate what is in it.
+const QUESTION_COUNT = curatedQuestions.length + notionQuestions.length;
+const FRAMEWORK_COUNT = FRAMEWORKS.length;
+const NUMBER_COUNT = SETS.numbers.facts.length + SETS.metrics.facts.length;
 
 /** First run: what Drill is, a taste of the real cards, and a way in. */
 export default function Onboarding() {
@@ -40,7 +49,7 @@ export default function Onboarding() {
   const [error, setError] = useState<string | null>(null);
 
   const railW = Math.min(W, 520);
-  const cardW = Math.round(railW * 0.70);
+  const cardW = Math.round(railW * 0.74);
   const pitch = cardW + space.md;
   const sidePad = Math.round((railW - cardW) / 2);
   const railRef = useRef<ScrollView>(null);
@@ -48,13 +57,18 @@ export default function Onboarding() {
   const paused = useRef(false);
 
   const base = useMemo<Slide[]>(() => {
+    // Short titles only: the rail is a taste of the product, not a wall of text.
+    const shortest = [...curatedQuestions].sort((a, b) => a.title.length - b.title.length);
     const facts = ALL_FACTS.filter((f) => !f.parts && f.value.length <= 10);
     return [
-      { key: 'q0', kind: 'question', question: curatedQuestions[0] },
+      { key: 'q0', kind: 'question', question: shortest[0] },
+      { key: 's1', kind: 'stat', value: `${QUESTION_COUNT}`, label: 'case studies,\nbroken into cards' },
       { key: 'n0', kind: 'number', fact: facts[3] ?? ALL_FACTS[0] },
+      { key: 't0', kind: 'types', items: ['Product Strategy', 'Product Design', 'Guesstimate', 'Analytical', 'RCA', 'AI'] },
       { key: 'f0', kind: 'framework', index: 0 },
-      { key: 'q1', kind: 'question', question: curatedQuestions[1] },
+      { key: 's2', kind: 'stat', value: `${FRAMEWORK_COUNT}`, label: 'frameworks,\nstep by step' },
       { key: 'n1', kind: 'number', fact: facts[9] ?? ALL_FACTS[1] },
+      { key: 's3', kind: 'stat', value: `${NUMBER_COUNT}`, label: 'numbers worth\nknowing cold' },
     ];
   }, []);
 
@@ -119,11 +133,9 @@ export default function Onboarding() {
   return (
     <View style={[styles.screen, { paddingTop: insets.top + space.md, paddingBottom: insets.bottom + space.md }]}>
       <View style={styles.top}>
-        <View style={styles.head}>
-          <Image source={require('../assets/icon.png')} style={styles.logo} />
-          <Text style={styles.wordmark}>drill</Text>
-        </View>
-        <Text style={styles.tagline}>Practice PM interviews one card at a time.</Text>
+        <Image source={require('../assets/icon.png')} style={styles.logo} />
+        <Text style={styles.wordmark}>drill</Text>
+        <Text style={styles.tagline}>{'Crack the\nPM interview.'}</Text>
       </View>
 
       <View style={styles.middle}>
@@ -145,11 +157,15 @@ export default function Onboarding() {
         style={styles.rail}
       >
         {loop.map((s) => (
-          <View key={s.key} style={{ width: cardW }}>
+          <View key={s.key} style={{ width: cardW, height: CARD_H, justifyContent: 'center' }}>
             {s.kind === 'question' ? (
               <QuestionCard question={s.question} onPress={() => {}} />
             ) : s.kind === 'framework' ? (
               <FrameworkCard framework={FRAMEWORKS[s.index]} onPress={() => {}} />
+            ) : s.kind === 'stat' ? (
+              <StatCard value={s.value} label={s.label} />
+            ) : s.kind === 'types' ? (
+              <TypesCard items={s.items} />
             ) : (
               <NumberCard fact={s.fact} />
             )}
@@ -184,6 +200,32 @@ export default function Onboarding() {
   );
 }
 
+/** A single big number: how much is actually in the app. */
+function StatCard({ value, label }: { value: string; label: string }) {
+  return (
+    <View style={[styles.statCard, shadow.card]}>
+      <Text style={styles.statValue}>{value}</Text>
+      <Text style={styles.statLabel}>{label}</Text>
+    </View>
+  );
+}
+
+/** The kinds of question you get asked, as chips. */
+function TypesCard({ items }: { items: string[] }) {
+  return (
+    <View style={[styles.typesCard, shadow.card]}>
+      <Text style={styles.typesTitle}>Every question type</Text>
+      <View style={styles.typesWrap}>
+        {items.map((t) => (
+          <View key={t} style={styles.typeChip}>
+            <Text style={styles.typeChipText}>{t}</Text>
+          </View>
+        ))}
+      </View>
+    </View>
+  );
+}
+
 /** Same language as the numbers tiles on Home, sized for the rail. */
 function NumberCard({ fact }: { fact: Fact }) {
   return (
@@ -202,18 +244,17 @@ function NumberCard({ fact }: { fact: Fact }) {
 
 const styles = StyleSheet.create({
   screen: { flex: 1, backgroundColor: colors.bg },
-  top: { gap: space.lg, paddingTop: space.sm },
-  head: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8 },
-  logo: { width: 26, height: 26, borderRadius: 7 },
-  wordmark: { color: colors.text, fontSize: 19, fontWeight: '800', letterSpacing: -0.4 },
+  top: { alignItems: 'center', gap: space.xs, paddingTop: space.sm },
+  logo: { width: 96, height: 96, borderRadius: 24 },
+  wordmark: { color: colors.text, fontSize: 20, fontWeight: '800', letterSpacing: -0.4, marginTop: 2 },
   tagline: {
     color: colors.text,
-    fontSize: 22,
-    lineHeight: 30,
-    fontWeight: '700',
+    fontSize: 34,
+    lineHeight: 40,
+    fontWeight: '800',
     textAlign: 'center',
-    letterSpacing: -0.4,
-    paddingHorizontal: space.xl,
+    letterSpacing: -1,
+    marginTop: space.md,
   },
   rail: { flexGrow: 0 },
   middle: { flex: 1, justifyContent: 'center' },
@@ -222,9 +263,31 @@ const styles = StyleSheet.create({
     borderRadius: radius.card,
     padding: space.lg,
     gap: 4,
-    minHeight: 150,
+    minHeight: CARD_H,
     justifyContent: 'center',
   },
+  statCard: {
+    backgroundColor: colors.surface,
+    borderRadius: radius.card,
+    padding: space.lg,
+    minHeight: CARD_H,
+    justifyContent: 'center',
+    gap: 2,
+  },
+  statValue: { color: colors.accent, fontSize: 46, fontWeight: '800', letterSpacing: -1.6 },
+  statLabel: { color: colors.text, fontSize: 15, lineHeight: 21, fontWeight: '700' },
+  typesCard: {
+    backgroundColor: colors.surface,
+    borderRadius: radius.card,
+    padding: space.lg,
+    minHeight: CARD_H,
+    justifyContent: 'center',
+    gap: space.sm,
+  },
+  typesTitle: { color: colors.text, fontSize: 15, fontWeight: '800' },
+  typesWrap: { flexDirection: 'row', flexWrap: 'wrap', gap: 6 },
+  typeChip: { backgroundColor: colors.accentSoft, borderRadius: radius.pill, paddingHorizontal: 10, paddingVertical: 6 },
+  typeChipText: { color: colors.accent, fontSize: 12, fontWeight: '800' },
   numEmoji: { fontSize: 20 },
   numValue: { color: colors.onAccent, fontSize: 26, fontWeight: '800', letterSpacing: -0.6 },
   numLabel: { color: colors.onAccent, fontSize: 14, lineHeight: 19, fontWeight: '700' },
