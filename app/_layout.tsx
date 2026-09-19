@@ -1,5 +1,7 @@
 import 'react-native-gesture-handler';
+import React, { useEffect, useState } from 'react';
 import { Stack } from 'expo-router';
+import * as NativeSplash from 'expo-splash-screen';
 import { StatusBar } from 'expo-status-bar';
 import { Platform, StyleSheet, View } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
@@ -7,10 +9,20 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { AuthProvider } from '@/auth/AuthProvider';
 import { ProgressProvider } from '@/state/useProgress';
 import { useDailyNudges } from '@/notifications/useDailyNudges';
+import { SplashOverlay } from '@/components/SplashOverlay';
 import { colors } from '@/theme/tokens';
+
+// Hold the native splash until our own one is on screen, otherwise the app
+// flashes white between the two.
+NativeSplash.preventAutoHideAsync().catch(() => {});
 
 export default function RootLayout() {
   useDailyNudges();
+  const [opening, setOpening] = useState(true);
+
+  useEffect(() => {
+    NativeSplash.hideAsync().catch(() => {});
+  }, []);
 
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
@@ -30,6 +42,7 @@ export default function RootLayout() {
                 />
               </View>
             </View>
+            {opening ? <SplashOverlay onDone={() => setOpening(false)} /> : null}
           </ProgressProvider>
         </AuthProvider>
       </SafeAreaProvider>
