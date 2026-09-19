@@ -148,7 +148,12 @@ export default function Onboarding() {
       <View style={styles.top}>
         <Image source={require('../assets/icon.png')} style={styles.logo} />
         <Text style={styles.wordmark}>drill</Text>
-        <Text style={styles.tagline}>Walk in ready.</Text>
+        {/* Backups, if this one ever tires:
+            · Drill whenever you have a minute.
+            · Mental drills before the interview.
+            · 3 minutes. One case. Sharper.
+            · A drill a day keeps the rejection away. */}
+        <Text style={styles.tagline}>{'Never run out of\ncase drills again.'}</Text>
       </View>
 
       <View style={styles.middle}>
@@ -284,10 +289,11 @@ const styles = StyleSheet.create({
   wordmark: { color: colors.text, fontSize: 25, fontWeight: '800', letterSpacing: -0.5, marginTop: 6 },
   tagline: {
     color: colors.textMuted,
-    fontSize: 17,
+    fontSize: 18,
+    lineHeight: 25,
     fontWeight: '600',
     textAlign: 'center',
-    marginTop: space.xs,
+    marginTop: space.sm,
   },
   middle: { flex: 1, justifyContent: 'center' },
   rail: { flexGrow: 0 },
