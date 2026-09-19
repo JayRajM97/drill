@@ -71,7 +71,7 @@ export default function ProfileScreen() {
           </View>
         </View>
 
-        <AccountCard showSignedIn />
+        <AccountCard />
 
         <Card style={[styles.streak, shadow.accent]}>
           <Eyebrow style={{ color: colors.onAccentMuted }}>Day streak</Eyebrow>
@@ -104,13 +104,8 @@ export default function ProfileScreen() {
           <Text style={styles.sectionTitle}>My drills</Text>
           <Text style={styles.sectionMeta}>{mine.length}</Text>
         </View>
-        {mine.length === 0 ? (
-          <Card style={styles.empty}>
-            <MaterialIcons name="auto-awesome" size={32} color={colors.textFaint} />
-            <Text style={styles.emptyTitle}>None yet</Text>
-            <Text style={styles.emptyText}>Tap + on Home to write a drill from your own prompt.</Text>
-          </Card>
-        ) : (
+        <Text style={styles.sectionNote}>Drills written from your own prompt.</Text>
+        {mine.length === 0 ? null : (
           mine.map((q) => (
             <QuestionCard
               key={q.id}
@@ -122,6 +117,13 @@ export default function ProfileScreen() {
             />
           ))
         )}
+        <Pressable
+          onPress={() => router.push('/create')}
+          style={({ pressed }) => [styles.makeBtn, pressed && { opacity: 0.9 }]}
+        >
+          <MaterialIcons name="auto-awesome" size={18} color={colors.onAccent} />
+          <Text style={styles.makeBtnText}>Make a drill</Text>
+        </Pressable>
 
         <View style={styles.sectionHead}>
           <Text style={styles.sectionTitle}>Saved</Text>
@@ -251,6 +253,18 @@ const styles = StyleSheet.create({
   testText: { color: colors.accent, fontSize: 13, fontWeight: '700' },
   timePill: { backgroundColor: colors.accentSoft, borderRadius: radius.pill, paddingHorizontal: 10, paddingVertical: 5 },
   timeText: { color: colors.accent, fontSize: 12, fontWeight: '800' },
+  sectionNote: { color: colors.textMuted, fontSize: 13, lineHeight: 18, marginBottom: space.xs },
+  makeBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: space.sm,
+    backgroundColor: colors.accent,
+    borderRadius: radius.lg,
+    paddingVertical: 14,
+    ...shadow.accent,
+  },
+  makeBtnText: { color: colors.onAccent, fontSize: 15, fontWeight: '800' },
   signOut: { alignItems: 'center', paddingVertical: space.md, marginTop: space.lg },
   signOutText: { color: colors.accent, fontSize: 15, fontWeight: '700' },
   replay: { alignItems: 'center', paddingVertical: space.lg },
