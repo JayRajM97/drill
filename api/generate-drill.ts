@@ -1,4 +1,4 @@
-import { toAnswerSections } from '../functions/src/schema';
+import { cleanQuestion } from '../functions/src/validate';
 import { SYSTEM_PROMPT, buildTopicPrompt } from '../functions/src/prompt';
 import { activeModel, activeProvider, apiKeyFor, generate } from './_providers';
 
@@ -84,11 +84,18 @@ export default async function handler(req: any, res: any) {
   }
 
   try {
-    const parsed = await generate(provider, apiKey, {
-      system: SYSTEM_PROMPT,
-      user: buildTopicPrompt(topic, context),
-      model,
-    });
+    // One retry: a drill that fails validation is usually a one-off, and the
+    // UI is built on every part being present, so shipping a broken one is
+    // worse than waiting another pass.
+    let clean = cleanQuestion(
+      await generate(provider, apiKey, { system: SYSTEM_PROMPT, user: buildTopicPrompt(topic, context), model }),
+    );
+    if (!clean) {
+      clean = cleanQuestion(
+        await generate(provider, apiKey, { system: SYSTEM_PROMPT, user: buildTopicPrompt(topic, context), model }),
+      );
+    }
+    const parsed = clean;
     if (!parsed) {
       res.status(502).json({ error: 'The model did not return a usable drill. Try rephrasing.' });
       return;
@@ -106,8 +113,8 @@ export default async function handler(req: any, res: any) {
         user_segments: parsed.user_segments,
         framework: parsed.framework,
         key_pointers: parsed.key_pointers,
-        answer: toAnswerSections(parsed.answer),
-        strong_vs_generic: parsed.strong_vs_generic ?? undefined,
+        answer: parsed.answer,
+        strong_vs_generic: parsed.strong_vs_generic,
         is_published: true,
       },
       generatedBy: `${provider}:${model}`,

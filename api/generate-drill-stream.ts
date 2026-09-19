@@ -1,4 +1,5 @@
-import { GeneratedQuestion, toAnswerSections } from '../functions/src/schema';
+import { GeneratedQuestion } from '../functions/src/schema';
+import { cleanQuestion } from '../functions/src/validate';
 import { SYSTEM_PROMPT, buildTopicPrompt } from '../functions/src/prompt';
 import { activeModel, activeProvider, apiKeyFor } from './_providers';
 
@@ -114,9 +115,12 @@ export default async function handler(req: any, res: any) {
     }
 
     const final = await stream.finalResponse();
-    const parsed = final.output_parsed;
+    const parsed = cleanQuestion(final.output_parsed ?? null);
     if (!parsed) {
-      send({ type: 'error', error: 'The model did not return a usable drill. Try rephrasing.' });
+      send({
+        type: 'error',
+        error: 'That drill came back incomplete. Tap again and it will usually work.',
+      });
       res.end();
       return;
     }
@@ -134,8 +138,8 @@ export default async function handler(req: any, res: any) {
         user_segments: parsed.user_segments,
         framework: parsed.framework,
         key_pointers: parsed.key_pointers,
-        answer: toAnswerSections(parsed.answer),
-        strong_vs_generic: parsed.strong_vs_generic ?? undefined,
+        answer: parsed.answer,
+        strong_vs_generic: parsed.strong_vs_generic,
         is_published: true,
       },
     });

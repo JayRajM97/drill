@@ -22,6 +22,12 @@ ANSWER QUALITY:
 - Keep bullets and table cells crisp (1-2 lines). Tables 2-5 columns so they read on a phone.
 - Write the question title as an interviewer would ask it.
 
+LENGTH (match the existing drills — these are the p90 of the bundled set):
+- Question title: under 140 characters. Ask it the way an interviewer says it out loud.
+- Each clarifying question: a real sentence ending in "?", under 95 characters. Never a field name like "user_segments".
+- Section heading: under 40 characters.
+- Section text: under 500 characters. Bullets: under 150 each. Key pointers: under 110 each.
+
 ANSWER SECTION FIELDS (important):
 - Each answer section has a \`type\` plus three content fields: \`bullets\`, \`text\`, \`table\`.
 - Fill ONLY the field matching the type — type "bullets" → \`bullets\`; type "text" or "callout" → \`text\`; type "table" → \`table\` — and set the other two to null.

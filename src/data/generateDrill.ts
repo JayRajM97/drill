@@ -107,7 +107,11 @@ export function generateDrillStreaming(
           const ev = JSON.parse(line);
           if (ev.type === 'delta') onProgress({ title: ev.title ?? '', headings: ev.headings ?? [] });
           else if (ev.type === 'done' && ev.question) finish({ ok: true, question: ev.question });
-          else if (ev.type === 'error') finish({ ok: false, error: ev.error ?? 'Generation failed.' });
+          else if (ev.type === 'error') {
+            // The stream cannot retry mid-flight; the plain endpoint does,
+            // so hand off rather than returning nothing.
+            void fallback();
+          }
         } catch {
           // A partial or malformed line: skip it rather than fail the run.
         }
