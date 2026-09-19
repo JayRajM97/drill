@@ -118,7 +118,7 @@ struct DifficultyRow: View {
     var body: some View {
         HStack(spacing: 4) {
             Circle()
-                .fill(onAccent ? Color.white : difficultyColor(difficulty))
+                .fill(difficultyColor(difficulty))
                 .frame(width: 6, height: 6)
             Text(difficulty)
                 .font(.system(size: 11, weight: .semibold))
@@ -190,10 +190,6 @@ struct QuestionWidgetView: View {
                     HStack {
                         CategoryChip(category: q.category, onAccent: true)
                         Spacer()
-                        Text("DRILL")
-                            .font(.system(size: 11, weight: .heavy))
-                            .kerning(1.2)
-                            .foregroundStyle(Color.white.opacity(0.6))
                     }
                     Spacer(minLength: 4)
                     Text(q.title)

@@ -69,7 +69,7 @@ export function Tag({
   );
 }
 
-const DIFFICULTY_COLOR: Record<Difficulty, string> = {
+export const DIFFICULTY_COLOR: Record<Difficulty, string> = {
   Easy: colors.easy,
   Medium: colors.medium,
   Hard: colors.hard,

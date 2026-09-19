@@ -17,7 +17,8 @@ import { curatedQuestions } from '@/data/curated';
 import { notionQuestions } from '@/data/notionQuestions';
 import { ALL_FACTS, SETS, emojiFor, type Fact } from '@/data/numbers';
 import { FRAMEWORKS } from '@/data/frameworks';
-import type { Category } from '@/types/question';
+import type { Category, Difficulty } from '@/types/question';
+import { DIFFICULTY_COLOR } from '@/components/ui';
 import { categoryPastel, colors, radius, shadow, space } from '@/theme/tokens';
 
 export const ONBOARDED_KEY = 'drill:onboarded:v1';
@@ -41,7 +42,7 @@ const PURPLE = { bg: '#F1E8FF', fg: '#6B21A8', dim: '#7E22CE', chip: 'rgba(126,3
 type Theme = { bg: string; fg: string; dim: string; chip: string };
 
 type Slide = { key: string; theme: Theme } & (
-  | { kind: 'question'; title: string; category: Category; difficulty: string }
+  | { kind: 'question'; title: string; category: Category; difficulty: Difficulty }
   | { kind: 'framework'; name: string; line: string; steps: number }
   | { kind: 'numbers'; facts: Fact[] }
   | { kind: 'make' }
@@ -65,15 +66,22 @@ export default function Onboarding() {
 
   const base = useMemo<Slide[]>(() => {
     const byLen = [...curatedQuestions].sort((a, b) => a.title.length - b.title.length);
-    const facts = ALL_FACTS.filter((f) => !f.parts && f.value.length <= 9);
-    const q = (i: number, theme: Theme, key: string): Slide => ({
+    // Short values AND short labels: long labels wrapped and made the card
+    // feel cramped, which is the whole reason there are two per card now.
+    const facts = ALL_FACTS.filter((f) => !f.parts && f.value.length <= 9 && f.label.length <= 18);
+    const short2 = (n: number) => facts.slice(n, n + 2);
+    const q = (pick: (typeof curatedQuestions)[number], theme: Theme, key: string): Slide => ({
       key,
       theme,
       kind: 'question',
-      title: byLen[i].title,
-      category: byLen[i].categories[0],
-      difficulty: byLen[i].difficulty,
+      title: pick.title,
+      category: pick.categories[0],
+      difficulty: pick.difficulty,
     });
+    // Two different categories, so the rail does not look like one subject.
+    const first = byLen[0];
+    const second =
+      byLen.find((x) => x.categories[0] !== first.categories[0] && x.title.length < 70) ?? byLen[1];
     const fw = (i: number, theme: Theme, key: string): Slide => ({
       key,
       theme,
@@ -84,13 +92,13 @@ export default function Onboarding() {
     });
     // question → framework → numbers → make your own, twice.
     return [
-      q(0, BLUE, 'q1'),
+      q(first, BLUE, 'q1'),
       fw(0, WHITE, 'f1'),
-      { key: 'n1', theme: BLUE, kind: 'numbers', facts: facts.slice(0, 4) },
+      { key: 'n1', theme: BLUE, kind: 'numbers', facts: short2(0) },
       { key: 'm1', theme: PURPLE, kind: 'make' },
-      q(1, WHITE, 'q2'),
+      q(second, WHITE, 'q2'),
       fw(1, BLUE, 'f2'),
-      { key: 'n2', theme: WHITE, kind: 'numbers', facts: facts.slice(8, 12) },
+      { key: 'n2', theme: WHITE, kind: 'numbers', facts: short2(2) },
       { key: 'm2', theme: PURPLE, kind: 'make' },
     ];
   }, []);
@@ -225,14 +233,13 @@ function RailCard({ slide, width }: { slide: Slide; width: number }) {
             <View style={[styles.chip, { backgroundColor: t.chip }]}>
               <Text style={[styles.chipText, { color: t.fg }]}>{slide.category}</Text>
             </View>
-            <Text style={[styles.eyebrow, { color: t.dim }]}>DRILL</Text>
           </View>
           <Text style={[styles.qText, { color: t.fg }]} numberOfLines={5}>
             {slide.title}
           </Text>
           <View style={styles.cardFoot}>
             <View style={styles.dotRow}>
-              <View style={[styles.dot, { backgroundColor: t.fg }]} />
+              <View style={[styles.dot, { backgroundColor: DIFFICULTY_COLOR[slide.difficulty] }]} />
               <Text style={[styles.footText, { color: t.dim }]}>{slide.difficulty}</Text>
             </View>
             <Text style={[styles.footText, { color: t.dim }]}>Drill it →</Text>
@@ -245,12 +252,14 @@ function RailCard({ slide, width }: { slide: Slide; width: number }) {
               <Text style={[styles.chipText, { color: t.fg }]}>FRAMEWORK</Text>
             </View>
           </View>
-          <Text style={[styles.fwName, { color: t.fg }]} numberOfLines={3}>
-            {slide.name}
-          </Text>
-          <Text style={[styles.fwLine, { color: t.dim }]} numberOfLines={3}>
-            {slide.line}
-          </Text>
+          <View style={styles.cardBody}>
+            <Text style={[styles.fwName, { color: t.fg }]} numberOfLines={3}>
+              {slide.name}
+            </Text>
+            <Text style={[styles.fwLine, { color: t.dim }]} numberOfLines={3}>
+              {slide.line}
+            </Text>
+          </View>
           <View style={styles.cardFoot}>
             <Text style={[styles.footText, { color: t.dim }]}>{slide.steps} steps</Text>
           </View>
@@ -258,19 +267,19 @@ function RailCard({ slide, width }: { slide: Slide; width: number }) {
       ) : slide.kind === 'numbers' ? (
         <>
           <Text style={[styles.numHeading, { color: t.fg }]}>Numbers worth knowing</Text>
-          <View style={styles.quad}>
+          <View style={styles.numBody}>
             {slide.facts.map((f) => (
-              <View key={f.id} style={styles.quadCell}>
-                <Text style={[styles.quadValue, { color: t.fg }]} numberOfLines={1} adjustsFontSizeToFit>
+              <View key={f.id} style={styles.numRow}>
+                <Text style={[styles.numValue, { color: t.fg }]} numberOfLines={1} adjustsFontSizeToFit>
                   {f.value}
                 </Text>
-                <Text style={[styles.quadLabel, { color: t.dim }]} numberOfLines={2}>
+                <Text style={[styles.numLabel, { color: t.dim }]} numberOfLines={1}>
                   {f.label}
                 </Text>
               </View>
             ))}
           </View>
-          <Text style={[styles.numMore, { color: t.dim }]}>+{NUMBER_COUNT - 4} more worth knowing</Text>
+          <Text style={[styles.numMore, { color: t.dim }]}>+{NUMBER_COUNT - 2} more worth knowing</Text>
         </>
       ) : (
         <>
@@ -279,11 +288,13 @@ function RailCard({ slide, width }: { slide: Slide; width: number }) {
               <Text style={[styles.chipText, { color: t.fg }]}>AI DRILL</Text>
             </View>
           </View>
-          <Text style={[styles.fwName, { color: t.fg }]}>Make your own</Text>
-          <View style={[styles.ghostField, { borderColor: t.chip }]}>
-            <Text style={[styles.ghostText, { color: t.dim }]} numberOfLines={2}>
-              Revamp the home feed for an exam prep app…
-            </Text>
+          <View style={styles.cardBody}>
+            <Text style={[styles.fwName, { color: t.fg }]}>Make your own</Text>
+            <View style={[styles.ghostField, { borderColor: t.chip }]}>
+              <Text style={[styles.ghostText, { color: t.dim }]} numberOfLines={2}>
+                Revamp the home feed for an exam prep app…
+              </Text>
+            </View>
           </View>
           <View style={[styles.ghostButton, { backgroundColor: t.dim }]}>
             <Text style={styles.ghostButtonText}>Make the drill</Text>
@@ -314,8 +325,7 @@ const styles = StyleSheet.create({
     height: CARD_H,
     borderRadius: radius.card,
     padding: space.lg,
-    justifyContent: 'center',
-    gap: space.sm,
+    justifyContent: 'space-between',
   },
   cardTop: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
   cardFoot: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginTop: space.xs },
@@ -323,8 +333,13 @@ const styles = StyleSheet.create({
   dotRow: { flexDirection: 'row', alignItems: 'center', gap: 5 },
   dot: { width: 6, height: 6, borderRadius: 3 },
   footText: { fontSize: 13, fontWeight: '700' },
-  numHeading: { fontSize: 22, lineHeight: 28, fontWeight: '800', letterSpacing: -0.4 },
-  numMore: { fontSize: 13, fontWeight: '700', textAlign: 'center', marginTop: space.xs },
+  numHeading: { fontSize: 21, lineHeight: 27, fontWeight: '800', letterSpacing: -0.4, textAlign: 'center' },
+  numBody: { gap: space.lg, alignItems: 'center' },
+  numRow: { alignItems: 'center', gap: 2 },
+  numValue: { fontSize: 38, fontWeight: '800', letterSpacing: -1.2, textAlign: 'center' },
+  numLabel: { fontSize: 14, fontWeight: '600', textAlign: 'center' },
+  cardBody: { gap: space.sm },
+  numMore: { fontSize: 13, fontWeight: '700', textAlign: 'center' },
   ghostField: {
     borderWidth: 1.5,
     borderRadius: radius.lg,
@@ -350,15 +365,8 @@ const styles = StyleSheet.create({
   qMetaText: { fontSize: 13, fontWeight: '700' },
   quadTitle: { fontSize: 12, fontWeight: '800', letterSpacing: 0.8, textTransform: 'uppercase' },
   quad: { flexDirection: 'row', flexWrap: 'wrap', rowGap: space.md, columnGap: space.md, marginTop: space.xs },
-  quadCell: { width: '46%', gap: 1 },
-  quadValue: { fontSize: 30, fontWeight: '800', letterSpacing: -1 },
-  quadLabel: { fontSize: 12, lineHeight: 16, fontWeight: '600' },
-  numValue: { color: colors.onAccent, fontSize: 48, fontWeight: '800', letterSpacing: -1.6, textAlign: 'center' },
-  numLabel: { color: colors.onAccent, fontSize: 15, lineHeight: 21, fontWeight: '700', textAlign: 'center' },
   fwName: { fontSize: 26, lineHeight: 33, fontWeight: '800', letterSpacing: -0.6 },
   fwLine: { fontSize: 15, lineHeight: 21 },
-  statValue: { fontSize: 76, fontWeight: '800', letterSpacing: -3 },
-  statLabel: { fontSize: 19, fontWeight: '700', textAlign: 'center' },
   typesTitle: { color: colors.text, fontSize: 16, fontWeight: '800', textAlign: 'center' },
   typesWrap: { flexDirection: 'row', flexWrap: 'wrap', gap: 6, justifyContent: 'center' },
   typeChip: { backgroundColor: colors.accentSoft, borderRadius: radius.pill, paddingHorizontal: 11, paddingVertical: 7 },
