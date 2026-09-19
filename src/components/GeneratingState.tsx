@@ -24,12 +24,30 @@ import { colors, radius, shadow, space } from '@/theme/tokens';
  * drill lands, the same card fills in with the real thing.
  */
 
-const STEPS = [
-  { at: 0, label: 'Reading your topic' },
-  { at: 10, label: 'Choosing the framework' },
-  { at: 22, label: 'Writing the answer' },
-  { at: 36, label: 'Checking the metrics' },
+/**
+ * What it says it is doing while it writes. A fixed four-step checklist read
+ * as a progress bar that was lying — these are honest about being flavour,
+ * and they keep the wait alive.
+ */
+const DOING = [
+  'Sharpening the question',
+  'Picking the framework',
+  'Segmenting the users',
+  'Doing the RCA',
+  'Sizing the market',
+  'Drawing the funnel',
+  'Choosing the bet',
+  'Naming the North Star',
+  'Finding the counter-metric',
+  'Making charts',
+  'Cutting scope',
+  'Writing the one-pager',
+  'Arguing with stakeholders',
+  'Pushing it to next quarter',
+  'Modelling the revenue',
+  'Prioritising ruthlessly',
 ];
+const DOING_MS = 2100;
 
 const CARD_MS = 9000;
 const CAROUSEL = 5;
@@ -80,6 +98,24 @@ function NumberCard({ fact, width, active }: { fact: Fact; width: number; active
   );
 }
 
+/** One status phrase at a time, each sliding up as it arrives. */
+function DoingLine({ index }: { index: number }) {
+  const phrase = DOING[index % DOING.length];
+  return (
+    <View style={styles.doingRow}>
+      <Animated.Text
+        key={phrase}
+        entering={FadeIn.duration(280)}
+        style={styles.doingText}
+        numberOfLines={1}
+      >
+        {phrase}
+      </Animated.Text>
+      <Caret />
+    </View>
+  );
+}
+
 /** Skeleton line that pulses while it waits to be filled in. */
 function GhostLine({ width, delay }: { width: `${number}%`; delay: number }) {
   const pulse = useSharedValue(0.35);
@@ -116,10 +152,10 @@ function Caret() {
 
 /** The drill card mid-composition: a drafting title, then steps ticking off. */
 function WritingCard({
-  step,
+  doing,
   progress,
 }: {
-  step: number;
+  doing: number;
   progress?: { title: string; headings: string[] };
 }) {
   const title = progress?.title?.trim() ?? '';
@@ -128,7 +164,6 @@ function WritingCard({
   return (
     <View style={[styles.sheet, shadow.card]}>
       {title ? (
-        // The real title, arriving a few characters at a time.
         <Text style={styles.liveTitle}>
           {title}
           <Text style={styles.liveCaret}>|</Text>
@@ -136,14 +171,14 @@ function WritingCard({
       ) : (
         <>
           <GhostLine width="92%" delay={0} />
-          <GhostLine width="74%" delay={140} />
-          <GhostLine width="52%" delay={280} />
+          <GhostLine width="76%" delay={140} />
+          <GhostLine width="54%" delay={280} />
         </>
       )}
 
       {headings.length ? (
         <View style={styles.liveHeadings}>
-          {headings.slice(-4).map((h, i) => (
+          {headings.slice(-5).map((h, i) => (
             <Animated.View key={h + i} entering={FadeIn.duration(260)} style={styles.row}>
               <View style={styles.rowDot} />
               <Text style={styles.rowText} numberOfLines={1}>
@@ -152,33 +187,15 @@ function WritingCard({
             </Animated.View>
           ))}
         </View>
-      ) : null}
+      ) : (
+        <View style={styles.liveHeadings}>
+          <GhostLine width="64%" delay={420} />
+          <GhostLine width="48%" delay={560} />
+        </View>
+      )}
 
-      <View style={styles.stepList}>
-        {STEPS.map((s, i) => {
-          const doneStep = i < step;
-          const current = i === step;
-          return (
-            <View key={s.label} style={styles.stepRow}>
-              {doneStep ? (
-                <MaterialIcons name="check-circle" size={15} color={colors.accent} />
-              ) : (
-                <View style={[styles.stepDot, current && styles.stepDotNow]} />
-              )}
-              <Text
-                style={[
-                  styles.stepText,
-                  doneStep && styles.stepTextDone,
-                  current && styles.stepTextNow,
-                ]}
-                numberOfLines={1}
-              >
-                {s.label}
-              </Text>
-              {current ? <Caret /> : null}
-            </View>
-          );
-        })}
+      <View style={styles.sheetFoot}>
+        <DoingLine index={doing} />
       </View>
     </View>
   );
@@ -222,20 +239,17 @@ export function GeneratingState({
     railRef.current?.scrollTo({ x: (index % CAROUSEL) * (cardW + space.md), animated: true });
   }, [index, cardW]);
 
-  const step = STEPS.reduce((acc, s, i) => (elapsed >= s.at ? i : acc), 0);
+  const doing = Math.floor((elapsed * 1000) / DOING_MS);
 
   if (question) return <WriteOut question={question} onDone={onRevealed} />;
 
   return (
     <View style={styles.wrap}>
       <View style={styles.headRow}>
-        <Animated.View key={step} entering={FadeIn.duration(260)}>
-          <Text style={styles.step}>Writing your drill…</Text>
-        </Animated.View>
-        <Text style={styles.dots}>{STEPS.map((_, i) => (i <= step ? '•' : '·')).join(' ')}</Text>
+        <Text style={styles.step}>Writing your drill…</Text>
       </View>
 
-      <WritingCard step={step} progress={progress} />
+      <WritingCard doing={doing} progress={progress} />
 
       <Text style={styles.meanwhile}>While you wait · {index % CAROUSEL + 1} of {CAROUSEL}</Text>
 
@@ -384,7 +398,16 @@ const styles = StyleSheet.create({
   stepTextDone: { color: colors.textMuted },
   stepTextNow: { color: colors.text, fontWeight: '700' },
   caret: { width: 2, height: 15, backgroundColor: colors.accent, borderRadius: 1 },
-  sheet: { backgroundColor: colors.surface, borderRadius: radius.card, padding: space.xl, gap: space.sm },
+  sheet: {
+    backgroundColor: colors.surface,
+    borderRadius: radius.card,
+    padding: space.xl,
+    gap: space.sm,
+    minHeight: 280,
+  },
+  sheetFoot: { marginTop: 'auto', paddingTop: space.md },
+  doingRow: { flexDirection: 'row', alignItems: 'center', gap: 7 },
+  doingText: { color: colors.accent, fontSize: 14, fontWeight: '800', letterSpacing: -0.2 },
   sheetTitle: { color: colors.text, fontSize: 20, lineHeight: 27, fontWeight: '800', letterSpacing: -0.4 },
   sheetDone: { backgroundColor: colors.accent },
   sheetTitleDone: { color: colors.onAccent },
